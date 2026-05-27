@@ -1,0 +1,3 @@
+/api/*  /.netlify/functions/:splat  200
+/calendar/feed.ics  /.netlify/functions/calendar-feed  200
+/*  /index.html  200

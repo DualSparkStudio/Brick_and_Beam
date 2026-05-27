@@ -1,0 +1,990 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom animations for payment cancellation modal */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.animate-slideUp {
+  animation: slideUp 0.4s ease-out;
+}
+
+:root {
+  --ocean: #0d2d7a;           /* Primary dark blue */
+  --forest: #d4af37;          /* Primary golden */
+  --dark-blue: #040f32;       /* Deep dark blue (logo background) */
+  --golden: #d4af37;          /* Primary golden */
+  --golden-light: #ffea85;    /* Light golden */
+  --golden-dark: #b8941f;     /* Dark golden */
+  --cream-beige: #f5f5dc;     /* Background cream */
+  --sage: #9ca3af;            /* Secondary gray */
+  --terracotta: #d97706;      /* Accent orange */
+  --nature: #059669;          /* Secondary green */
+  --white: #ffffff;
+  --light-gray: #f8f9fa;
+  --dark-gray: #343a40;
+}
+
+@layer base {
+  /* ROOT FIX: Prevent flash of content during maintenance mode check */
+  html:not(.maintenance-loaded) body {
+    visibility: hidden !important;
+    opacity: 0 !important;
+  }
+  
+  html.maintenance-loaded body {
+    visibility: visible !important;
+    opacity: 1 !important;
+    transition: opacity 0.2s ease-in;
+  }
+  
+  html {
+    font-family: 'Poppins', system-ui, sans-serif;
+    /* scroll-behavior is handled by Lenis for smooth scrolling */
+  }
+
+  body {
+    @apply bg-dark-blue-800 text-white;
+    font-family: 'Poppins', system-ui, sans-serif;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+  }
+
+  /* Responsive typography */
+  .luxury-title {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    color: var(--golden);
+    @apply text-2xl sm:text-3xl lg:text-4xl xl:text-5xl;
+    letter-spacing: -0.02em;
+  }
+
+  /* Improve touch targets for mobile */
+  button, a, input, select, textarea {
+    @apply min-h-[44px] sm:min-h-[40px];
+  }
+}
+
+@layer components {
+  /* Luxury Theme Classes */
+  .luxury-title { 
+    font-family: 'Playfair Display', serif;
+    font-weight: 700; 
+    color: var(--golden);
+    letter-spacing: -0.02em;
+  }
+  
+  .btn-luxury { 
+    background: linear-gradient(45deg, var(--ocean), var(--golden));
+    @apply text-white font-medium py-3 px-6 rounded-lg transition-all duration-300 hover:shadow-lg transform hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-golden-500 focus:ring-offset-2 cursor-pointer;
+    display: block;
+    text-decoration: none;
+  }
+  
+  .bg-cream-beige { 
+    background-color: var(--cream-beige); 
+  }
+
+  .text-forest { 
+    color: var(--golden); 
+  }
+  
+  .text-golden {
+    color: var(--golden);
+  }
+  
+  .text-dark-blue {
+    color: var(--dark-blue);
+  }
+  
+  .text-sage { 
+    color: var(--sage); 
+  }
+  
+  .text-terracotta { 
+    color: var(--terracotta); 
+  }
+
+  /* Component Classes with Responsive Design */
+  .room-card { 
+    border-radius: 15px; 
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    @apply bg-white overflow-hidden transition-all duration-300 hover:shadow-xl;
+  }
+  
+  .booking-summary { 
+    @apply sticky top-4 sm:top-6 lg:top-8; 
+  }
+  
+  .hero-slide { 
+    @apply h-[70vh] sm:h-[80vh] lg:h-screen;
+    background-size: cover; 
+    background-position: center; 
+  }
+  
+  /* Ensure hero images are sharp and clear - no blur */
+  .hero-slide img {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+    image-rendering: high-quality;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    filter: none !important;
+    -webkit-filter: none !important;
+  }
+  
+  .luxury-badge { 
+    position: absolute; 
+    top: 15px; 
+    right: 15px; 
+    background: white; 
+    @apply p-3 sm:p-4 rounded-lg shadow-lg;
+  }
+
+  /* Button Styles with Responsive Padding */
+  .btn-primary {
+    @apply bg-gradient-to-r from-dark-blue-800 to-golden-500 text-white font-medium py-2.5 px-4 sm:py-3 sm:px-6 rounded-lg transition-all duration-300 hover:shadow-lg transform hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-golden-500 focus:ring-offset-2 cursor-pointer;
+    display: block;
+    text-decoration: none;
+  }
+  
+  .btn-secondary {
+    @apply bg-forest-800 hover:bg-forest-700 text-white font-medium py-2.5 px-4 sm:py-3 sm:px-6 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-forest-800 focus:ring-offset-2;
+  }
+  
+  .btn-success {
+    @apply bg-green-600 hover:bg-green-700 text-white font-medium py-2.5 px-4 sm:py-3 sm:px-6 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2;
+  }
+
+  .btn-terracotta {
+    @apply bg-orange-500 hover:bg-orange-600 text-white font-medium py-2.5 px-4 sm:py-3 sm:px-6 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2;
+  }
+  
+  /* Form Styles with Better Mobile Experience */
+  .input-field {
+    @apply w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-golden-500 focus:border-transparent transition-all duration-300 text-base text-gray-900;
+  }
+  
+  /* Card Styles with Responsive Padding */
+  .card {
+    @apply bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6;
+  }
+
+  .luxury-card {
+    @apply bg-white rounded-2xl shadow-lg border border-gray-100 p-4 sm:p-6 lg:p-8;
+  }
+  
+  /* Navigation Styles */
+  .sidebar-link {
+    @apply flex items-center px-3 sm:px-4 py-2.5 sm:py-3 text-gray-700 hover:bg-gray-100 hover:text-green-800 rounded-lg transition-all duration-300;
+  }
+  
+  .sidebar-link.active {
+    @apply bg-gradient-to-r from-dark-blue-800 to-golden-500 text-white shadow-md;
+  }
+
+  /* Hero Section */
+  .hero-overlay {
+    background: linear-gradient(135deg, rgba(4, 15, 50, 0.8), rgba(212, 175, 55, 0.3));
+  }
+
+  /* Room Cards with Responsive Images */
+  .room-image {
+    @apply w-full h-48 sm:h-56 lg:h-64 object-cover transition-transform duration-500 hover:scale-105;
+  }
+
+  .price-badge {
+    @apply absolute top-3 right-3 sm:top-4 sm:right-4 bg-golden-500 text-dark-blue-800 font-bold px-2 py-1 sm:px-4 sm:py-2 rounded-full shadow-lg text-sm sm:text-base;
+  }
+
+  .amenity-badge {
+    @apply inline-flex items-center px-2 py-1 sm:px-3 sm:py-1 rounded-full text-xs font-medium bg-golden-100 text-dark-blue-800 mr-1 mb-1 sm:mr-2 sm:mb-2;
+  }
+
+  /* Testimonial Cards */
+  .testimonial-card {
+    @apply bg-white p-4 sm:p-6 rounded-2xl shadow-lg border-l-4 border-golden-500;
+  }
+
+  /* Statistics with Responsive Design */
+  .stat-card {
+    @apply bg-gradient-to-br from-dark-blue-800 to-golden-500 text-white p-4 sm:p-6 rounded-2xl text-center;
+  }
+
+  .stat-number {
+    @apply text-2xl sm:text-3xl lg:text-4xl font-bold mb-2;
+  }
+
+  .stat-label {
+    @apply text-sm sm:text-base lg:text-lg opacity-90;
+  }
+
+  /* Responsive utilities */
+  .container-responsive {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  .section-padding {
+    @apply py-8 sm:py-12 lg:py-16 xl:py-20;
+  }
+
+  .text-responsive {
+    @apply text-sm sm:text-base lg:text-lg;
+  }
+
+  .heading-responsive {
+    font-family: 'Playfair Display', serif;
+    @apply text-xl sm:text-2xl lg:text-3xl xl:text-4xl;
+    letter-spacing: -0.02em;
+  }
+
+  /* Mobile-first improvements */
+  .mobile-padding {
+    @apply px-4 sm:px-6 lg:px-8;
+  }
+
+  .mobile-text {
+    @apply text-sm sm:text-base;
+  }
+
+  .mobile-heading {
+    font-family: 'Playfair Display', serif;
+    @apply text-lg sm:text-xl lg:text-2xl;
+    letter-spacing: -0.02em;
+  }
+
+  /* Touch-friendly spacing */
+  .touch-spacing {
+    @apply space-y-3 sm:space-y-4 lg:space-y-6;
+  }
+
+  .touch-gap {
+    @apply gap-3 sm:gap-4 lg:gap-6;
+  }
+
+  /* Premium Spacing */
+  .section-padding-premium {
+    @apply py-20 sm:py-24 lg:py-32 xl:py-40;
+  }
+
+  .container-premium {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  /* Glass Morphism */
+  .glass {
+    @apply backdrop-blur-md bg-white/10 border border-white/20;
+  }
+
+  .glass-dark {
+    @apply backdrop-blur-md bg-dark-blue-900/50 border border-golden-500/20;
+  }
+
+  /* Premium Cards */
+  .premium-card {
+    @apply bg-white/5 backdrop-blur-sm border border-golden-500/20 rounded-2xl p-6 sm:p-8 lg:p-10;
+    @apply transition-all duration-500 hover:bg-white/10 hover:border-golden-500/40;
+    @apply hover:shadow-2xl hover:shadow-golden-500/20;
+  }
+
+  /* Text Styles */
+  .text-soft-black {
+    color: #111;
+  }
+
+  .text-premium-heading {
+    @apply font-serif text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold;
+    letter-spacing: 0.5px;
+    color: #111;
+  }
+
+  .text-premium-subheading {
+    @apply font-serif text-2xl sm:text-3xl lg:text-4xl font-semibold;
+    letter-spacing: 1px;
+  }
+
+  /* Grain Texture */
+  .grain-overlay {
+    position: relative;
+  }
+
+  .grain-overlay::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+    pointer-events: none;
+    mix-blend-mode: overlay;
+    opacity: 0.3;
+  }
+}
+
+/* Remove the problematic typography overrides that cause circular dependency */
+
+/* Global font size adjustment for smaller, more normal text sizes */
+html {
+  font-size: 14px; /* Reduce base font size from default 16px */
+}
+
+/* Premium Animations */
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite;
+}
+
+/* Magnetic Button Effect */
+.magnetic-button {
+  transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+/* Card Hover Lift */
+.card-lift {
+  transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.4s;
+}
+
+.card-lift:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(212, 175, 55, 0.2);
+}
+
+/* Ripple Effect */
+.ripple {
+  position: relative;
+  overflow: hidden;
+}
+
+.ripple::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.ripple:active::after {
+  width: 300px;
+  height: 300px;
+}
+
+@media (min-width: 640px) {
+  html {
+    font-size: 15px;
+  }
+}
+
+@media (min-width: 1024px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--dark-blue);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--golden);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--golden-light);
+}
+
+/* Hide scrollbar for carousel */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Mobile optimizations */
+@media (max-width: 640px) {
+  /* Reduce motion for mobile users who prefer it */
+  @media (prefers-reduced-motion: reduce) {
+    .hover\:scale-105:hover {
+      transform: none;
+    }
+    
+    .hover\:-translate-y-1:hover {
+      transform: none;
+    }
+    
+    .transition-transform {
+      transition: none;
+    }
+  }
+  
+  /* Improve tap targets */
+  button, a[role="button"], input[type="button"], input[type="submit"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Better form spacing on mobile */
+  .input-field {
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+}
+
+/* High DPI displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .room-image, .hero-slide {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+  }
+}
+
+/* Focus management for accessibility */
+@media (prefers-reduced-motion: no-preference) {
+  .focus\:ring-2:focus {
+    transition: box-shadow 0.15s ease-in-out;
+  }
+}
+
+/* Smooth scroll behavior is handled by Lenis */
+/* Lenis provides better performance and control than CSS scroll-behavior */
+
+/* Add missing CSS classes for booking forms */
+.input-field {
+  @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-golden-500 focus:border-transparent text-gray-900;
+}
+
+.btn-primary {
+  @apply bg-gradient-to-r from-dark-blue-800 to-golden-500 text-white py-3 px-6 rounded-lg hover:shadow-lg transition-all font-medium;
+}
+
+.btn-secondary {
+  @apply bg-gray-600 text-white py-3 px-6 rounded-lg hover:bg-gray-700 transition-colors font-medium;
+}
+
+/* Calendar Styles */
+.fc {
+  @apply font-sans;
+}
+
+.fc .fc-button-primary {
+  @apply bg-blue-600 border-blue-600 hover:bg-blue-700 hover:border-blue-700 focus:bg-blue-700 focus:border-blue-700;
+}
+
+.fc .fc-button-primary:not(:disabled).fc-button-active,
+.fc .fc-button-primary:not(:disabled):active {
+  @apply bg-blue-800 border-blue-800;
+}
+
+.fc .fc-daygrid-day.fc-day-today {
+  @apply bg-blue-50;
+}
+
+.fc .fc-daygrid-day-number {
+  @apply text-gray-900 font-medium;
+}
+
+.fc .fc-daygrid-day.fc-day-past .fc-daygrid-day-number {
+  @apply text-gray-400;
+}
+
+.fc .fc-daygrid-day.fc-day-future .fc-daygrid-day-number {
+  @apply text-gray-900;
+}
+
+.fc .fc-daygrid-day.selected-start-date {
+  @apply bg-blue-100 border-2 border-blue-500;
+}
+
+.fc .fc-daygrid-day.selected-end-date {
+  @apply bg-blue-100 border-2 border-blue-500;
+}
+
+.fc .fc-daygrid-day.fc-day-disabled {
+  @apply bg-gray-100 cursor-not-allowed;
+}
+
+.fc .fc-daygrid-day.fc-day-disabled .fc-daygrid-day-number {
+  @apply text-gray-400;
+}
+
+.fc .fc-event {
+  @apply border-0 shadow-sm;
+}
+
+.fc .fc-event-main {
+  @apply font-medium;
+}
+
+.fc .fc-toolbar-title {
+  @apply text-lg font-semibold text-gray-900;
+}
+
+.fc .fc-col-header-cell {
+  @apply bg-gray-50 border-gray-200;
+}
+
+.fc .fc-col-header-cell-cushion {
+  @apply text-gray-700 font-medium text-sm;
+}
+
+/* Alternative Calendar Themes */
+.fc-theme-luxury .fc-button-primary {
+  @apply bg-amber-600 border-amber-600 hover:bg-amber-700 hover:border-amber-700;
+}
+
+.fc-theme-luxury .fc-daygrid-day.fc-day-today {
+  @apply bg-amber-50 border-amber-300;
+}
+
+.fc-theme-minimal .fc-button-primary {
+  @apply bg-gray-600 border-gray-600 hover:bg-gray-700 hover:border-gray-700;
+}
+
+.fc-theme-minimal .fc-daygrid-day.fc-day-today {
+  @apply bg-gray-50 border-gray-300;
+}
+
+.fc-theme-ocean .fc-button-primary {
+  @apply bg-cyan-600 border-cyan-600 hover:bg-cyan-700 hover:border-cyan-700;
+}
+
+.fc-theme-ocean .fc-daygrid-day.fc-day-today {
+  @apply bg-cyan-50 border-cyan-300;
+}
+
+/* Enhanced Calendar Styling */
+.fc .fc-daygrid-day.selected-start-date {
+  @apply bg-green-100 border-2 border-green-500 shadow-md;
+}
+
+.fc .fc-daygrid-day.selected-end-date {
+  @apply bg-green-100 border-2 border-green-500 shadow-md;
+}
+
+.fc .fc-daygrid-day.selectable-date {
+  @apply bg-green-50 border border-green-200 cursor-pointer;
+}
+
+.fc .fc-daygrid-day.selectable-date:hover {
+  @apply bg-green-100 border-green-300 shadow-sm;
+}
+
+.fc .fc-daygrid-day:hover {
+  @apply bg-gray-50 cursor-pointer transition-colors;
+}
+
+.fc .fc-daygrid-day.fc-day-disabled {
+  @apply bg-gray-100 cursor-not-allowed;
+}
+
+.fc .fc-daygrid-day.fc-day-disabled .fc-daygrid-day-number {
+  @apply text-gray-400;
+}
+
+/* Selection range styling */
+.fc .fc-highlight {
+  @apply bg-blue-200 opacity-60;
+}
+
+/* Compact Calendar Styling */
+.fc .fc-toolbar {
+  @apply p-0;
+}
+
+.fc .fc-toolbar-title {
+  @apply text-sm font-semibold;
+}
+
+.fc .fc-button {
+  @apply text-xs px-4 py-3 mx-3;
+}
+
+.fc .fc-button-primary {
+  @apply bg-blue-600 border-blue-600 hover:bg-blue-700;
+}
+
+.fc .fc-daygrid-day-number {
+  @apply text-sm font-medium;
+}
+
+.fc .fc-col-header-cell {
+  @apply p-0.5;
+}
+
+.fc .fc-col-header-cell-cushion {
+  @apply text-xs font-semibold text-gray-600;
+}
+
+.fc .fc-daygrid-day-frame {
+  @apply min-h-6;
+}
+
+.fc .fc-daygrid-day-events {
+  @apply min-h-0;
+}
+
+.fc .fc-daygrid-day {
+  @apply min-h-6;
+}
+
+.fc .fc-daygrid-day-frame {
+  @apply p-0.5;
+}
+
+.fc .fc-daygrid-day-number {
+  @apply p-0.5;
+}
+
+/* Enhanced selected date styling */
+.fc .fc-daygrid-day.selected-start-date .fc-daygrid-day-number,
+.fc .fc-daygrid-day.selected-end-date .fc-daygrid-day-number {
+  @apply font-bold text-blue-700;
+}
+
+.fc .fc-daygrid-day.selectable-date .fc-daygrid-day-number {
+  @apply text-gray-500;
+}
+
+/* Professional Calendar Container */
+.calendar-container {
+  @apply bg-white rounded-lg shadow-lg border border-gray-200;
+}
+
+.calendar-header {
+  @apply bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-200 p-0;
+}
+
+.calendar-footer {
+  @apply bg-gray-50 border-t border-gray-200 p-0;
+}
+
+/* Enhanced professional styling */
+.fc .fc-toolbar-chunk {
+  @apply flex items-center space-x-4;
+}
+
+.fc .fc-toolbar-chunk:first-child {
+  @apply justify-start;
+}
+
+.fc .fc-toolbar-chunk:nth-child(2) {
+  @apply justify-center;
+}
+
+.fc .fc-toolbar-chunk:last-child {
+  @apply justify-end;
+}
+
+.fc .fc-daygrid-day.fc-day-today {
+  @apply bg-blue-50 border-2 border-blue-300;
+}
+
+.fc .fc-daygrid-day.selected-start-date {
+  @apply bg-blue-100 border-2 border-blue-500 shadow-sm;
+}
+
+.fc .fc-daygrid-day.selected-end-date {
+  @apply bg-blue-100 border-2 border-blue-500 shadow-sm;
+}
+
+.fc .fc-daygrid-day.selectable-date:hover {
+  @apply bg-blue-50 border border-blue-300 cursor-pointer;
+}
+
+/* Selection feedback */
+.fc .fc-daygrid-day.fc-day-selected {
+  @apply bg-green-200 border-green-500;
+}
+
+/* Hover effects for better UX */
+.fc .fc-daygrid-day:not(.fc-day-disabled):hover {
+  @apply bg-gray-50 transition-colors duration-150;
+}
+
+.fc .fc-daygrid-day.selectable-date:hover {
+  @apply bg-green-100 border-green-300 transition-colors duration-150;
+}
+
+/* Loading state */
+.fc-loading {
+  @apply opacity-50 pointer-events-none;
+}
+
+/* Responsive improvements */
+@media (max-width: 640px) {
+  .fc .fc-toolbar {
+    @apply flex-col space-y-2;
+  }
+  
+  .fc .fc-toolbar-chunk {
+    @apply flex justify-center;
+  }
+  
+  .fc .fc-daygrid-day-number {
+    @apply text-xs;
+  }
+}
+
+/* Luxury Theme Enhancements */
+.fc-theme-luxury .fc-daygrid-day.selected-start-date,
+.fc-theme-luxury .fc-daygrid-day.selected-end-date {
+  @apply bg-amber-100 border-2 border-amber-500 shadow-md;
+}
+
+/* Ocean Theme Enhancements */
+.fc-theme-ocean .fc-daygrid-day.selected-start-date,
+.fc-theme-ocean .fc-daygrid-day.selected-end-date {
+  @apply bg-cyan-100 border-2 border-cyan-500 shadow-md;
+}
+
+/* Minimal Theme Enhancements */
+.fc-theme-minimal .fc-daygrid-day.selected-start-date,
+.fc-theme-minimal .fc-daygrid-day.selected-end-date {
+  @apply bg-gray-100 border-2 border-gray-500 shadow-md;
+}
+
+/* Minimal Hover Calendar Styles */
+.fc .fc-toolbar {
+  @apply p-0 m-0;
+}
+
+.fc .fc-toolbar-title {
+  @apply text-sm font-semibold text-gray-800;
+}
+
+.fc .fc-button {
+  @apply text-xs px-4 py-3 bg-blue-600 border-blue-600 hover:bg-blue-700 border-0 rounded mx-3;
+}
+
+.fc .fc-button-primary {
+  @apply bg-blue-600 border-blue-600 hover:bg-blue-700;
+}
+
+.fc .fc-daygrid-day-number {
+  @apply text-xs;
+}
+
+.fc .fc-daygrid-day.fc-day-today {
+  @apply bg-blue-50 border border-blue-200;
+}
+
+.fc .fc-daygrid-day.selected-start-date {
+  @apply bg-green-100 border-2 border-green-500;
+}
+
+.fc .fc-daygrid-day.selected-end-date {
+  @apply bg-green-100 border-2 border-green-500;
+}
+
+.fc .fc-daygrid-day.first-click-date {
+  @apply bg-green-100 border-2 border-green-500;
+}
+
+.fc .fc-daygrid-day:hover {
+  @apply bg-gray-50 cursor-pointer;
+}
+
+.fc .fc-daygrid-day.fc-day-disabled {
+  @apply bg-gray-100 cursor-not-allowed;
+}
+
+.fc .fc-daygrid-day.fc-day-disabled .fc-daygrid-day-number {
+  @apply text-gray-400;
+}
+
+.fc .fc-col-header-cell {
+  @apply bg-gray-50;
+}
+
+.fc .fc-col-header-cell-cushion {
+  @apply text-xs font-medium text-gray-600;
+}
+
+/* Hover overlay positioning */
+.group:hover .group-hover\:opacity-100 {
+  opacity: 1;
+}
+
+.group .group-hover\:opacity-0 {
+  opacity: 1;
+}
+
+.group:hover .group-hover\:opacity-0 {
+  opacity: 0;
+}
+
+/* Additional spacing for calendar navigation buttons */
+.fc .fc-prev-button,
+.fc .fc-next-button {
+  @apply px-4 py-3 mx-3;
+  margin-right: 12px !important;
+  margin-left: 12px !important;
+}
+
+/* Ensure proper spacing in toolbar */
+.fc .fc-toolbar-chunk:first-child {
+  gap: 16px !important;
+}
+
+.fc .fc-daygrid-day.selected-start-date {
+  @apply bg-green-100 border-2 border-green-500;
+}
+
+.fc .fc-daygrid-day.selected-end-date {
+  @apply bg-green-100 border-2 border-green-500;
+}
+
+/* Override FullCalendar default highlight styling */
+.fc .fc-highlight {
+  @apply bg-transparent !important;
+}
+
+.fc .fc-daygrid-day.fc-day-selected {
+  @apply bg-transparent !important;
+}
+
+/* Remove any blue highlights from FullCalendar */
+.fc .fc-daygrid-day.fc-day-selected .fc-daygrid-day-number {
+  @apply text-gray-900 !important;
+}
+
+/* Ensure our green styling takes precedence */
+.fc .fc-daygrid-day.selected-start-date {
+  @apply bg-green-100 border-2 border-green-500 !important;
+}
+
+.fc .fc-daygrid-day.selected-end-date {
+  @apply bg-green-100 border-2 border-green-500 !important;
+}
+
+/* Calendar Styling - Make selected dates MORE prominently darker */
+.fc .fc-daygrid-day.selected-start-date {
+  @apply bg-white border-2 border-blue-500;
+}
+
+.fc .fc-daygrid-day.selected-end-date {
+  @apply bg-white border-2 border-blue-500;
+}
+
+.fc .fc-daygrid-day.selected-date-range {
+  @apply bg-white border border-blue-300;
+}
+
+.fc .fc-daygrid-day.selectable-date {
+  @apply bg-white border border-gray-200 cursor-pointer;
+}
+
+.fc .fc-daygrid-day.selectable-date:hover {
+  @apply bg-gray-50 border-gray-300 shadow-sm;
+}
+
+/* Simple, clean calendar styling - no complex darker features */
+.fc .fc-daygrid-day.selected-start-date {
+  @apply bg-white border-2 border-blue-500;
+}
+
+.fc .fc-daygrid-day.selected-end-date {
+  @apply bg-white border-2 border-blue-500;
+}
+
+.fc .fc-daygrid-day.selected-date-range {
+  @apply bg-white border border-blue-300;
+}
+
+.fc .fc-daygrid-day.selectable-date {
+  @apply bg-white border border-gray-200 cursor-pointer;
+}
+
+.fc .fc-daygrid-day.selectable-date:hover {
+  @apply bg-gray-50 border-gray-300 shadow-sm;
+}
+
+/* Simple text styling - no complex darker features */
+.fc .fc-daygrid-day.selected-start-date .fc-daygrid-day-number,
+.fc .fc-daygrid-day.selected-end-date .fc-daygrid-day-number,
+.fc .fc-daygrid-day.selected-date-range .fc-daygrid-day-number {
+  @apply text-gray-900 font-medium;
+}
+
+.fc .fc-daygrid-day.selectable-date .fc-daygrid-day-number {
+  @apply text-gray-600;
+}
+
+.fc .fc-daygrid-day:not(.selected-start-date):not(.selected-end-date):not(.selected-date-range):not(.selectable-date) .fc-daygrid-day-number {
+  @apply text-gray-500;
+}
+
+/* Remove any background colors */
+.fc .fc-daygrid-day.selected-start-date,
+.fc .fc-daygrid-day.selected-end-date,
+.fc .fc-daygrid-day.selected-date-range {
+  @apply bg-white;
+}
+
+/* Remove FullCalendar highlights */
+.fc .fc-highlight {
+  @apply bg-transparent;
+}
+
+.fc .fc-daygrid-day.fc-day-selected {
+  @apply bg-white;
+}

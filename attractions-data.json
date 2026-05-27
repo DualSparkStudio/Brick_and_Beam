@@ -1,0 +1,57 @@
+[
+  {
+    "name": "Pratapgad Fort",
+    "description": "Historic fort built by Chhatrapati Shivaji Maharaj, offering panoramic views of the Sahyadri mountains. A significant historical landmark with stunning architecture and rich Maratha history.",
+    "images": ["https://tripxl.com/blog/wp-content/uploads/2024/10/Pratapgad-Fort-cp.jpg", "https://cdn1.tripoto.com/media/filter/tst/img/2366547/Image/1726472242_pratapgad_fort_ariel_view_copy.jpg.webp", "https://www.hoteldreamland.com/wp-content/uploads/2019/07/Pratapgad-Fort-2.jpg", "https://media.assettype.com/outlooktraveller/import/outlooktraveller/public/uploads/articles/travelnews/2017/03/Pratapgad-featured.jpg?w=1200&h=675&auto=format%2Ccompress&fit=max&enlarge=true"],
+    "distance": "24 km",
+    "travel_time": "45 minutes",
+    "category": "fort",
+    "highlights": ["Historic", "Panoramic Views", "Architecture", "Photography", "Cultural Heritage"],
+    "best_time": "October to March",
+    "is_active": true
+  },
+  {
+    "name": "Venna Lake",
+    "description": "Beautiful man-made lake perfect for boating and enjoying scenic views. Surrounded by lush greenery and offering various recreational activities including horse riding and toy train rides.",
+    "images": ["https://hblimg.mmtcdn.com/content/hubble/img/mahabaleshwar/mmt/activities/m_activities-mahabaleshwar-venna-lake_l_400_640.jpg", "https://mahabaleshwartourism.in/images/places-to-visit/headers/venna-lake-mahabaleshwar-tourism-entry-fee-timings-holidays-reviews-header.jpg", "https://static.wixstatic.com/media/ffb7e9_b262a318aa834fefa5a983167f8014be~mv2.png/v1/fill/w_840,h_480,al_c,lg_1,q_90/ffb7e9_b262a318aa834fefa5a983167f8014be~mv2.png", "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSH7zuf66Iqqj-7SKenu-zoPsekNuaPaWcwiQ&s"],
+    "distance": "12 km",
+    "travel_time": "25 minutes",
+    "category": "viewpoint",
+    "highlights": ["Boating", "Scenic Views", "Recreation", "Photography", "Family Fun"],
+    "best_time": "Year Round",
+    "is_active": true
+  },
+  {
+    "name": "Mapro Garden",
+    "description": "Famous strawberry garden and food park offering delicious local treats, fresh strawberries, and beautiful garden views. Perfect for families and food lovers with various food stalls and shopping options.",
+    "images": ["https://www.mapro.com/cdn/shop/files/Mapro-Food-Park-1.jpg?v=1666437420&width=1500", "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQcy4diSL0nGDLcZvHIJoZsJHqonArwW2wt_A&s", "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTNsdhL8366vuEnZEw5UdOqguDOTnSd6jXjsw&s", "https://www.mapro.com/cdn/shop/files/WhatsApp_Image_2023-03-05_at_9.53.11_AM.jpg?v=1677993015&width=1500"],
+    "distance": "8 km",
+    "travel_time": "15 minutes",
+    "category": "park",
+    "highlights": ["Strawberries", "Local Food", "Garden Views", "Family Fun", "Shopping"],
+    "best_time": "October to May",
+    "is_active": true
+  },
+  {
+    "name": "Lingmala Waterfall",
+    "description": "Stunning waterfall cascading down from a height of 600 feet, creating a mesmerizing natural spectacle. Surrounded by dense forests, it offers a perfect spot for nature photography and relaxation.",
+    "images": ["https://hblimg.mmtcdn.com/content/hubble/img/Mahabaleshwar/mmt/activities/m_activities_lingmala_waterfall_2_l_331_495.jpg", "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTovLgNhlpN9nFjPWiqh_8GAdt4vqFcLuq5oQ&s", "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSJMNuVNO6C5SNbapk39cKMQtXu-y-ypjtLsg&s", "https://mahabaleshwartourism.in/images/places-to-visit/headers/lingmala-waterfall-mahabaleshwar-tourism-entry-fee-timings-holidays-reviews-header.jpg"],
+    "distance": "18 km",
+    "travel_time": "35 minutes",
+    "category": "viewpoint",
+    "highlights": ["Natural Beauty", "Photography", "Trekking", "Scenic Views", "Nature Walk"],
+    "best_time": "July to September",
+    "is_active": true
+  },
+  {
+    "name": "Elephant's Head Point",
+    "description": "Famous viewpoint shaped like an elephant's head and trunk, offering breathtaking views of the Sahyadri ranges. One of the most popular sunrise and sunset viewing spots in Mahabaleshwar.",
+    "images": ["https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR61_-ft6FLPFedL7MXJZqIdMsR9ZgxkR3_Uw&s", "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSl597qbHYhMx3CcEfORLXtcvjQJ46QQti7Zw&s", "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSGu9ekoITdbxj0ARoZM-vbgWpjIh5fOKprnQ&s", "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSUxTefn9zHIScekm8l7vYNZ4ucyUokrFq8Og&s"],
+    "distance": "10 km",
+    "travel_time": "20 minutes",
+    "category": "viewpoint",
+    "highlights": ["Sunrise", "Sunset", "Panoramic Views", "Photography", "Nature"],
+    "best_time": "October to May",
+    "is_active": true
+  }
+]

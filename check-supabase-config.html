@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supabase Configuration Checker</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        h1 {
+            color: #333;
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .status-box {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-weight: 500;
+        }
+        .error {
+            background: #fee;
+            border: 2px solid #fcc;
+            color: #c33;
+        }
+        .success {
+            background: #efe;
+            border: 2px solid #cfc;
+            color: #3c3;
+        }
+        .warning {
+            background: #ffe;
+            border: 2px solid #ffc;
+            color: #cc6;
+        }
+        .info {
+            background: #eef;
+            border: 2px solid #ccf;
+            color: #66c;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            margin: 8px 0;
+            box-sizing: border-box;
+        }
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px 5px 10px 0;
+            font-weight: 600;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .test-result {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 10px 0;
+            border-left: 4px solid #667eea;
+        }
+        .step {
+            background: #f0f4ff;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 6px;
+            border-left: 4px solid #667eea;
+        }
+        .step h3 {
+            margin-top: 0;
+            color: #667eea;
+        }
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            color: #d63384;
+        }
+        pre {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+        }
+        .icon {
+            font-size: 24px;
+        }
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>
+            <span class="icon">🔍</span>
+            Supabase Configuration Checker
+        </h1>
+
+        <div class="info status-box">
+            <strong>📋 Purpose:</strong> This tool helps you verify and fix your Supabase connection issues.
+        </div>
+
+        <div class="step">
+            <h3>Step 1: Get Your Supabase Credentials</h3>
+            <ol>
+                <li>Go to <a href="https://supabase.com/dashboard" target="_blank">Supabase Dashboard</a></li>
+                <li>Select your project</li>
+                <li>Click <strong>Settings</strong> (gear icon) → <strong>API</strong></li>
+                <li>Copy the <strong>Project URL</strong> and <strong>anon public key</strong></li>
+            </ol>
+        </div>
+
+        <div class="step">
+            <h3>Step 2: Enter Your Credentials</h3>
+            <label><strong>Supabase URL:</strong></label>
+            <input type="text" id="supabase-url" placeholder="https://your-project-id.supabase.co">
+            <small style="color: #666;">Format: https://xxxxxxxxxxxxx.supabase.co</small>
+
+            <label style="margin-top: 15px; display: block;"><strong>Anon Key:</strong></label>
+            <input type="text" id="anon-key" placeholder="eyJhbGci...">
+            <small style="color: #666;">Starts with "eyJ" - it's very long</small>
+
+            <button onclick="testConnection()">🧪 Test Connection</button>
+            <button onclick="generateEnvFile()">📝 Generate .env File</button>
+        </div>
+
+        <div id="results"></div>
+
+        <div class="step">
+            <h3>Step 3: What to Do Next</h3>
+            <p>After testing successfully:</p>
+            <ol>
+                <li>Create/update your <code>.env</code> file in the project root</li>
+                <li>Add the values shown below</li>
+                <li>Restart your dev server: <code>npm run dev</code></li>
+                <li>Refresh your browser</li>
+            </ol>
+        </div>
+
+        <div id="env-content"></div>
+    </div>
+
+    <script>
+        async function testConnection() {
+            const resultsDiv = document.getElementById('results');
+            const url = document.getElementById('supabase-url').value.trim();
+            const key = document.getElementById('anon-key').value.trim();
+
+            resultsDiv.innerHTML = '<div class="info status-box"><span class="loading"></span> Testing connection...</div>';
+
+            // Validation
+            if (!url || !key) {
+                resultsDiv.innerHTML = '<div class="error status-box"><strong>❌ Error:</strong> Please enter both URL and Anon Key</div>';
+                return;
+            }
+
+            if (!url.startsWith('https://')) {
+                resultsDiv.innerHTML = '<div class="error status-box"><strong>❌ Error:</strong> URL must start with "https://"</div>';
+                return;
+            }
+
+            if (!url.includes('.supabase.co')) {
+                resultsDiv.innerHTML = '<div class="error status-box"><strong>❌ Error:</strong> URL must end with ".supabase.co"</div>';
+                return;
+            }
+
+            if (!key.startsWith('eyJ')) {
+                resultsDiv.innerHTML = '<div class="warning status-box"><strong>⚠️ Warning:</strong> Anon key usually starts with "eyJ"</div>';
+            }
+
+            let html = '<h3>Test Results:</h3>';
+
+            // Test 1: DNS Resolution
+            html += '<div class="test-result"><strong>Test 1: DNS Resolution</strong><br>';
+            try {
+                const dnsTest = await fetch(url + '/rest/v1/', {
+                    method: 'HEAD',
+                    signal: AbortSignal.timeout(5000)
+                });
+                html += '✅ URL is reachable<br>';
+            } catch (error) {
+                html += `❌ Cannot reach URL: ${error.message}<br>`;
+                html += '<em>This URL does not exist or is misspelled.</em><br>';
+                resultsDiv.innerHTML = '<div class="error status-box">' + html + '</div>';
+                return;
+            }
+            html += '</div>';
+
+            // Test 2: API Key Validation
+            html += '<div class="test-result"><strong>Test 2: API Key Validation</strong><br>';
+            try {
+                const apiTest = await fetch(url + '/rest/v1/', {
+                    headers: {
+                        'apikey': key,
+                        'Authorization': `Bearer ${key}`
+                    }
+                });
+                
+                if (apiTest.ok || apiTest.status === 200) {
+                    html += '✅ API key is valid<br>';
+                } else if (apiTest.status === 401) {
+                    html += '❌ API key is invalid<br>';
+                    resultsDiv.innerHTML = '<div class="error status-box">' + html + '</div>';
+                    return;
+                } else {
+                    html += `⚠️ Unexpected status: ${apiTest.status}<br>`;
+                }
+            } catch (error) {
+                html += `❌ API test failed: ${error.message}<br>`;
+            }
+            html += '</div>';
+
+            // Test 3: Database Access
+            html += '<div class="test-result"><strong>Test 3: Database Table Access</strong><br>';
+            try {
+                const dbTest = await fetch(url + '/rest/v1/rooms?select=count', {
+                    headers: {
+                        'apikey': key,
+                        'Authorization': `Bearer ${key}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (dbTest.ok) {
+                    const data = await dbTest.json();
+                    html += '✅ Can access "rooms" table<br>';
+                    html += `Found ${data?.length || 0} rooms in database<br>`;
+                } else if (dbTest.status === 404) {
+                    html += '⚠️ "rooms" table not found - you may need to create it<br>';
+                } else {
+                    html += `⚠️ Cannot access tables (Status: ${dbTest.status})<br>`;
+                    html += 'This might be due to Row Level Security policies.<br>';
+                }
+            } catch (error) {
+                html += `❌ Database test failed: ${error.message}<br>`;
+            }
+            html += '</div>';
+
+            html += '<div class="success status-box"><strong>✅ Configuration Looks Good!</strong><br>';
+            html += 'Your Supabase URL and API key are working correctly.</div>';
+
+            resultsDiv.innerHTML = html;
+
+            // Generate .env preview
+            generateEnvFile();
+        }
+
+        function generateEnvFile() {
+            const url = document.getElementById('supabase-url').value.trim();
+            const key = document.getElementById('anon-key').value.trim();
+            const envDiv = document.getElementById('env-content');
+
+            if (!url || !key) {
+                envDiv.innerHTML = '';
+                return;
+            }
+
+            const envContent = `# Supabase Configuration
+VITE_SUPABASE_URL=${url}
+VITE_SUPABASE_ANON_KEY=${key}`;
+
+            envDiv.innerHTML = `
+                <div class="step">
+                    <h3>Your .env File Content:</h3>
+                    <pre>${envContent}</pre>
+                    <button onclick="copyToClipboard()">📋 Copy to Clipboard</button>
+                    <p><strong>Instructions:</strong></p>
+                    <ol>
+                        <li>Copy the content above</li>
+                        <li>Create a file named <code>.env</code> in your project root</li>
+                        <li>Paste the content into the file</li>
+                        <li>Save the file</li>
+                        <li>Restart your dev server: <code>npm run dev</code></li>
+                    </ol>
+                </div>
+            `;
+        }
+
+        function copyToClipboard() {
+            const url = document.getElementById('supabase-url').value.trim();
+            const key = document.getElementById('anon-key').value.trim();
+            const envContent = `# Supabase Configuration\nVITE_SUPABASE_URL=${url}\nVITE_SUPABASE_ANON_KEY=${key}`;
+            
+            navigator.clipboard.writeText(envContent).then(() => {
+                alert('✅ Copied to clipboard! Now paste into your .env file');
+            });
+        }
+
+        // Check if running from localhost
+        if (window.location.protocol !== 'file:') {
+            console.log('Running from dev server - good!');
+        }
+    </script>
+</body>
+</html>

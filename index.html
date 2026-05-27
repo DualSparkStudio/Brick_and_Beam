@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/jpeg" href="/images/GRAND VALLEY LOGO.jpg.jpeg" />
+    <link rel="apple-touch-icon" href="/images/GRAND VALLEY LOGO.jpg.jpeg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- Primary Meta Tags -->
+    <title>Resort Booking System - Luxury Resort Booking Platform | Book Your Stay</title>
+    <meta name="title" content="Resort Booking System - Luxury Resort Booking Platform | Book Your Stay">
+    <meta name="description" content="Experience luxury and comfort with Resort Booking System. Book your perfect getaway with stunning views, premium amenities, and exceptional service. Best rates guaranteed.">
+    <meta name="keywords" content="Resort Booking System, resort booking, luxury accommodation, booking platform, luxury stay, accommodation booking, resort management system">
+    <meta name="author" content="Resort Booking System">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://riverbreezehomestay.com/">
+    <meta property="og:title" content="Resort Booking System - Luxury Resort Booking Platform">
+    <meta property="og:description" content="Experience luxury and comfort with Resort Booking System. Book your perfect getaway with stunning views, premium amenities, and exceptional service.">
+    <meta property="og:image" content="https://resortbookingsystem.com/og-image.jpg">
+    <meta property="og:site_name" content="Resort Booking System">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://riverbreezehomestay.com/">
+    <meta property="twitter:title" content="Resort Booking System - Luxury Resort Booking Platform">
+    <meta property="twitter:description" content="Experience luxury and comfort with Resort Booking System. Book your perfect getaway with stunning views, premium amenities, and exceptional service.">
+    <meta property="twitter:image" content="https://riverbreezehomestay.com/twitter-image.jpg">
+    
+    <!-- Additional SEO Meta Tags -->
+    <meta name="geo.region" content="IN">
+    <meta name="geo.placename" content="Mahabaleshwar, Maharashtra">
+    <meta name="geo.position" content="17.9083;73.7584">
+    <meta name="ICBM" content="17.9083, 73.7584">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://riverbreezehomestay.com/">
+    
+    <!-- Preconnect to external domains -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Structured Data (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Hotel",
+      "name": "Resort Booking System",
+      "description": "Luxury resort booking platform offering comfortable accommodation with stunning views",
+      "url": "https://riverbreezehomestay.com",
+      "telephone": "+91 98765 43210",
+      "email": "info@resortbooking.com",
+      "address": {
+        "@type": "PostalAddress",
+        "addressCountry": "IN",
+                  "addressLocality": "City",
+                  "addressRegion": "State",
+                  "postalCode": "000000",
+                  "streetAddress": "Sample Address"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": 17.9083,
+        "longitude": 73.7584
+      },
+      "amenityFeature": [
+        {
+          "@type": "LocationFeatureSpecification",
+          "name": "WiFi",
+          "value": true
+        },
+        {
+          "@type": "LocationFeatureSpecification", 
+          "name": "Air Conditioning",
+          "value": true
+        },
+        {
+          "@type": "LocationFeatureSpecification",
+          "name": "River View",
+          "value": true
+        },
+        {
+          "@type": "LocationFeatureSpecification",
+          "name": "Beach Access",
+          "value": true
+        }
+      ],
+      "image": "https://riverbreezehomestay.com/hotel-image.jpg",
+      "priceRange": "$$",
+      "starRating": {
+        "@type": "Rating",
+        "ratingValue": "4.5"
+      }
+    }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script>
+      // Suppress console messages before React loads
+      (function() {
+        const originalWarn = console.warn;
+        const originalError = console.error;
+        
+        console.warn = function(...args) {
+          if (typeof args[0] === 'string' && 
+              (args[0].includes('Download the React DevTools') ||
+               args[0].includes('React Router Future Flag'))) {
+            return;
+          }
+          originalWarn.apply(console, args);
+        };
+        
+        console.error = function(...args) {
+          if (typeof args[0] === 'string' && 
+              (args[0].includes('ERR_NAME_NOT_RESOLVED') ||
+               args[0].includes('Failed to fetch') ||
+               args[0].includes('net::ERR_NAME_NOT_RESOLVED') ||
+               args[0].includes('404 (Not Found)') ||
+               args[0].includes('GET http'))) {
+            return;
+          }
+          if (args.length > 0 && typeof args[0] === 'object' && args[0] !== null &&
+              ('message' in args[0] || 'code' in args[0]) &&
+              (args[0].message?.includes('Failed to fetch') ||
+               args[0].message?.includes('ERR_NAME_NOT_RESOLVED'))) {
+            return;
+          }
+          originalError.apply(console, args);
+        };
+      })();
+    </script>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
