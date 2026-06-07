@@ -13,6 +13,7 @@ import { Link } from 'react-router-dom'
 import AttractionCard from '../components/AttractionCard'
 import FAQ from '../components/FAQ'
 import GoogleReviews from '../components/GoogleReviews'
+import HeroSection from '../components/HeroSection'
 import PremiumImage from '../components/PremiumImage'
 import SEO from '../components/SEO'
 import TextReveal from '../components/TextReveal'
@@ -118,9 +119,6 @@ const Home: React.FC = () => {
     window.addEventListener('keydown', handleKeyPress)
     return () => window.removeEventListener('keydown', handleKeyPress)
   }, [galleryModal.isOpen])
-
-  // Hero image - single static image
-  const heroImage = '/images/Exterior (Front).PNG'
 
   // Load rooms from API
   useEffect(() => {
@@ -276,109 +274,7 @@ const Home: React.FC = () => {
         url="https://grandvalleyresort.com"
       />
       <div className="bg-cream-beige">
-        {/* Hero Section - Responsive Height, Same Design */}
-        <div className="relative h-[300px] sm:h-[600px] lg:h-screen max-h-[100vh] overflow-hidden flex flex-col">
-          <div className="relative flex-1 w-full">
-            {/* Background Image with Dark Overlay */}
-            <img
-              src={heroImage}
-              alt="Resort Booking System"
-              className="absolute inset-0 w-full h-full object-cover"
-              style={{
-                objectFit: 'cover',
-                objectPosition: 'center center',
-                filter: 'brightness(0.7) saturate(0.8)',
-                WebkitFilter: 'brightness(0.7) saturate(0.8)',
-              }}
-              loading="eager"
-              fetchpriority="high"
-              decoding="async"
-            />
-            
-            {/* Dark Overlay */}
-            <div className="absolute inset-0 bg-black/40"></div>
-            
-            {/* Content Container - Optimized for 300px Mobile Height */}
-            <div className="relative h-full flex flex-col px-2 sm:px-4 pt-16 sm:pt-24 pb-1 sm:pb-4">
-              <div className="w-full max-w-5xl mx-auto flex flex-col flex-1 justify-between">
-                {/* Top Section: Heading - Compact for Mobile */}
-                <div className="text-center mb-2 sm:mb-4 mt-8 sm:mt-12">
-                  <motion.h1
-                    className="text-3xl sm:text-5xl font-serif font-bold text-golden-400 leading-tight tracking-tight"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8, delay: 0.2 }}
-                  >
-                    <span className="inline-block mr-1 sm:mr-2">ENJOY A</span>
-                    <span className="inline-block mr-1 sm:mr-2">LUXURY</span>
-                    <span className="inline-block">EXPERIENCE</span>
-                  </motion.h1>
-                </div>
-                
-                {/* Bottom Section: Image Gallery - Compact for Mobile */}
-                <div className="mt-auto">
-                  <div className="flex items-end justify-center gap-1 sm:gap-2 max-w-5xl mx-auto flex-nowrap">
-                    {/* Gallery Image 1 - Smaller (Left) */}
-                    <motion.div
-                      className="relative overflow-hidden rounded-md sm:rounded-lg aspect-[4/3] sm:aspect-[3/4] shadow-md flex-shrink-0 w-[20%] h-[50px] sm:h-auto"
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.6, delay: 0.6 }}
-                    >
-                      <img
-                        src={heroImage}
-                        alt="Resort Interior"
-                        className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
-                      />
-                    </motion.div>
-                    
-                    {/* Gallery Image 2 - Larger (Middle Left) with White Border */}
-                    <motion.div
-                      className="relative overflow-hidden rounded-md sm:rounded-lg aspect-[4/3] sm:aspect-[3/4] shadow-md flex-shrink-0 w-[23%] h-[60px] sm:h-auto border-2 border-white"
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.6, delay: 0.7 }}
-                    >
-                      <img
-                        src="/images/Exterior (back).PNG"
-                        alt="Resort Living Room"
-                        className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
-                      />
-                    </motion.div>
-                    
-                    {/* Gallery Image 3 - Larger (Middle Right) with White Border */}
-                    <motion.div
-                      className="relative overflow-hidden rounded-md sm:rounded-lg aspect-[4/3] sm:aspect-[3/4] shadow-md flex-shrink-0 w-[23%] h-[60px] sm:h-auto border-2 border-white"
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.6, delay: 0.8 }}
-                    >
-                      <img
-                        src="/images/exteror (night).jpg"
-                        alt="Resort Outdoor"
-                        className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
-                      />
-                    </motion.div>
-                    
-                    {/* Gallery Image 4 - Smaller (Right) */}
-                    <motion.div
-                      className="relative overflow-hidden rounded-md sm:rounded-lg aspect-[4/3] sm:aspect-[3/4] shadow-md flex-shrink-0 w-[20%] h-[50px] sm:h-auto"
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.6, delay: 0.9 }}
-                    >
-                      <img
-                        src={heroImage}
-                        alt="Resort View"
-                        className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
-                      />
-                    </motion.div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <HeroSection />
 
         {/* About Us Section */}
         <div className="py-12 sm:py-16 lg:py-20 bg-white relative overflow-hidden">
