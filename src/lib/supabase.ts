@@ -1,4 +1,10 @@
 import { createClient } from '@supabase/supabase-js'
+import {
+  VILLA_SETTING_KEYS,
+  defaultVillaSettings,
+  mapVillaSettingsFromDb,
+  type VillaSettings,
+} from './villa-settings'
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
@@ -1297,6 +1303,44 @@ export const api = {
       .eq('setting_key', key)
 
     if (error) throw error
+  },
+
+  async getVillaSettings(): Promise<VillaSettings> {
+    try {
+      const { data, error } = await supabase
+        .from('calendar_settings')
+        .select('setting_key, setting_value')
+        .in('setting_key', Object.values(VILLA_SETTING_KEYS))
+
+      if (error) {
+        return defaultVillaSettings()
+      }
+
+      const map = new Map((data || []).map((row) => [row.setting_key, row.setting_value]))
+      return mapVillaSettingsFromDb(map)
+    } catch {
+      return defaultVillaSettings()
+    }
+  },
+
+  async updateVillaSettings(settings: Partial<VillaSettings>) {
+    const entries: [string, string | undefined][] = [
+      [VILLA_SETTING_KEYS.villa_name, settings.villa_name],
+      [VILLA_SETTING_KEYS.villa_price, settings.price],
+      [VILLA_SETTING_KEYS.villa_capacity, settings.capacity],
+      [VILLA_SETTING_KEYS.villa_max_capacity, settings.max_capacity],
+      [VILLA_SETTING_KEYS.villa_amenities, settings.amenities],
+      [VILLA_SETTING_KEYS.villa_games, settings.games],
+      [VILLA_SETTING_KEYS.villa_extra_adult_price, settings.extra_adult_price],
+      [VILLA_SETTING_KEYS.villa_child_price, settings.child_price],
+      [VILLA_SETTING_KEYS.villa_gst_percentage, settings.gst_percentage],
+    ]
+
+    for (const [key, value] of entries) {
+      if (value !== undefined) {
+        await this.updateCalendarSetting(key, value)
+      }
+    }
   },
 
   // Maintenance Mode Management

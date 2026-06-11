@@ -7,6 +7,7 @@ import {
 } from '@heroicons/react/24/outline'
 import React, { useEffect, useState } from 'react'
 import { toast } from 'react-hot-toast'
+import { getBookingAdultCount, getBookingTotalGuests } from '../lib/booking-guests'
 import type { Booking, Room } from '../lib/supabase'
 import { api } from '../lib/supabase'
 
@@ -695,15 +696,15 @@ const AdminBookings: React.FC = () => {
                         <p className="text-sm font-medium text-gray-900">{new Date(selectedBooking.checkOutDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
                       </div>
                       <div className="bg-white rounded-lg p-3">
-                        <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Base Adults</label>
-                        <p className="text-sm font-semibold text-gray-900">2</p>
+                        <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Adults</label>
+                        <p className="text-sm font-semibold text-gray-900">
+                          {getBookingAdultCount({
+                            num_guests: selectedBooking.numGuests,
+                            num_extra_adults: selectedBooking.numExtraAdults,
+                            num_children_above_5: selectedBooking.numChildrenAbove5,
+                          })}
+                        </p>
                       </div>
-                      {selectedBooking.numExtraAdults > 0 && (
-                        <div className="bg-white rounded-lg p-3">
-                          <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Extra Adults</label>
-                          <p className="text-sm font-semibold text-gray-900">{selectedBooking.numExtraAdults}</p>
-                        </div>
-                      )}
                       {selectedBooking.numChildrenAbove5 > 0 && (
                         <div className="bg-white rounded-lg p-3">
                           <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Children Above 5</label>
@@ -712,7 +713,13 @@ const AdminBookings: React.FC = () => {
                       )}
                       <div className="bg-white rounded-lg p-3">
                         <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Total Guests</label>
-                        <p className="text-sm font-semibold text-gray-900">{2 + (selectedBooking.numExtraAdults || 0) + (selectedBooking.numChildrenAbove5 || 0)}</p>
+                        <p className="text-sm font-semibold text-gray-900">
+                          {getBookingTotalGuests({
+                            num_guests: selectedBooking.numGuests,
+                            num_extra_adults: selectedBooking.numExtraAdults,
+                            num_children_above_5: selectedBooking.numChildrenAbove5,
+                          })}
+                        </p>
                       </div>
                     </div>
                   </div>

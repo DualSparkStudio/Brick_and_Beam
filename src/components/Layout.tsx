@@ -11,6 +11,7 @@ import {
 } from '@heroicons/react/24/outline'
 import React, { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
+import { useVilla } from '../contexts/VillaContext'
 import { api } from '../lib/supabase'
 import BackgroundEffects from './BackgroundEffects'
 import SocialMediaWidget from './SocialMediaWidget'
@@ -21,6 +22,7 @@ interface LayoutProps {
 }
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
+  const { displayName } = useVilla()
   const location = useLocation()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [adminInfo, setAdminInfo] = useState<{
@@ -91,7 +93,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   <span className="text-golden font-bold text-xl">GVR</span>
                 </div>
                 <div>
-                  <h1 className="text-lg font-bold text-gray-900">Resort Booking System</h1>
+                  <h1 className="text-lg font-bold text-gray-900">{displayName}</h1>
                   <p className="text-xs text-gray-600">Your Perfect Getaway</p>
                 </div>
               </Link>
@@ -202,7 +204,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   <span className="text-golden font-bold text-lg">GVR</span>
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-gray-900">Resort Booking System</h3>
+                  <h3 className="text-lg font-bold text-gray-900">{displayName}</h3>
                   <p className="text-sm text-gray-600">Your Perfect Getaway</p>
                 </div>
               </div>
@@ -306,7 +308,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           <div className="mt-8 pt-8 border-t border-gray-200">
             <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center text-xs sm:text-sm text-gray-600">
               <div className="flex flex-wrap justify-center sm:justify-start sm:items-center gap-x-4 gap-y-2">
-                <span>© 2025 Resort Booking System. All rights reserved.</span>
+                <span>© 2025 {displayName}. All rights reserved.</span>
                 <span className="text-gray-400">•</span>
                 <span className="text-golden-500 hover:text-golden-600 font-medium transition-colors duration-200">
                   <a href="/policy">Privacy Policy & Terms</a>

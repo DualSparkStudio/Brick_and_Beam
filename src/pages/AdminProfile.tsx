@@ -1,4 +1,5 @@
 import {
+    BuildingOffice2Icon,
     KeyIcon,
     ShieldCheckIcon,
     UserIcon
@@ -6,14 +7,18 @@ import {
 import React, { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useAuth } from '../contexts/AuthContext'
+import { useVilla } from '../contexts/VillaContext'
 import { api } from '../lib/supabase'
+import { defaultVillaSettings } from '../lib/villa-settings'
 
 const AdminProfile: React.FC = () => {
   const { user, updateProfile, changePassword, refreshUserData } = useAuth()
+  const { refreshVillaSettings } = useVilla()
   const [loading, setLoading] = useState(false)
   const [settingsLoading, setSettingsLoading] = useState(true)
+  const [villaLoading, setVillaLoading] = useState(true)
   const [testingSmtp, setTestingSmtp] = useState(false)
-  const [activeTab, setActiveTab] = useState<'profile' | 'password' | 'settings'>('profile')
+  const [activeTab, setActiveTab] = useState<'profile' | 'password' | 'villa' | 'settings'>('profile')
   
   // Profile form state
   const [profileForm, setProfileForm] = useState({
@@ -43,6 +48,8 @@ const AdminProfile: React.FC = () => {
   })
 
   const [testEmailRecipient, setTestEmailRecipient] = useState('')
+
+  const [villaForm, setVillaForm] = useState(defaultVillaSettings())
 
   // Update form when user changes
   useEffect(() => {
@@ -79,6 +86,21 @@ const AdminProfile: React.FC = () => {
     loadSettings()
   }, [])
 
+  useEffect(() => {
+    const loadVillaSettings = async () => {
+      try {
+        setVillaLoading(true)
+        const data = await api.getVillaSettings()
+        setVillaForm(data)
+      } catch {
+        setVillaForm(defaultVillaSettings())
+      } finally {
+        setVillaLoading(false)
+      }
+    }
+    loadVillaSettings()
+  }, [])
+
   const handleProfileUpdate = async (e: React.FormEvent) => {
     e.preventDefault()
     
@@ -97,8 +119,12 @@ const AdminProfile: React.FC = () => {
         phone: profileForm.phone,
         address: profileForm.address
       })
+
+      await api.updateVillaSettings({ villa_name: villaForm.villa_name.trim() })
+      await refreshVillaSettings()
       
       await refreshUserData()
+      toast.success('Profile updated successfully')
     } catch (error) {
     } finally {
       setLoading(false)
@@ -135,6 +161,37 @@ const AdminProfile: React.FC = () => {
     }
   }
 
+
+  const handleVillaSettingsUpdate = async (e: React.FormEvent) => {
+    e.preventDefault()
+    const capacityNum = parseInt(villaForm.capacity, 10)
+    const maxNum = parseInt(villaForm.max_capacity, 10)
+    if (capacityNum > 0 && maxNum > 0 && maxNum < capacityNum) {
+      toast.error('Max capacity must be greater than or equal to capacity')
+      return
+    }
+    try {
+      setLoading(true)
+      await api.updateVillaSettings({
+        villa_name: villaForm.villa_name.trim(),
+        price: villaForm.price.trim(),
+        capacity: villaForm.capacity.trim(),
+        max_capacity: villaForm.max_capacity.trim(),
+        amenities: villaForm.amenities.trim(),
+        games: villaForm.games.trim(),
+        extra_adult_price: villaForm.extra_adult_price.trim(),
+        child_price: villaForm.child_price.trim(),
+        gst_percentage: villaForm.gst_percentage.trim(),
+      })
+      await refreshVillaSettings()
+      toast.success('Villa details saved successfully')
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Failed to save villa details'
+      toast.error(message)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const handleSettingsUpdate = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -291,6 +348,17 @@ const AdminProfile: React.FC = () => {
                 Password
               </button>
               <button
+                onClick={() => setActiveTab('villa')}
+                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'villa'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                <BuildingOffice2Icon className="h-5 w-5 inline mr-2" />
+                Villa Details
+              </button>
+              <button
                 onClick={() => setActiveTab('settings')}
                 className={`py-4 px-1 border-b-2 font-medium text-sm ${
                   activeTab === 'settings'
@@ -379,6 +447,23 @@ const AdminProfile: React.FC = () => {
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
                     />
                   </div>
+
+                  <div>
+                    <label htmlFor="villa_name" className="block text-sm font-medium text-gray-700 mb-2">
+                      Villa Name
+                    </label>
+                    <input
+                      type="text"
+                      id="villa_name"
+                      value={villaForm.villa_name}
+                      onChange={(e) => setVillaForm((prev) => ({ ...prev, villa_name: e.target.value }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+                      placeholder="e.g., Brick & Beam Villa"
+                    />
+                    <p className="mt-1 text-sm text-gray-500">
+                      Shown across the website, booking page, and navigation.
+                    </p>
+                  </div>
                   
                   <div className="flex justify-end">
                     <button
@@ -405,6 +490,155 @@ const AdminProfile: React.FC = () => {
                     </div>
                   </div>
                 </div>
+              </div>
+            )}
+
+            {activeTab === 'villa' && (
+              <div className="bg-white rounded-xl shadow-sm p-6">
+                <h2 className="text-xl font-bold text-gray-900 mb-2">Villa Details (Rooms Page)</h2>
+                <p className="text-gray-600 text-sm mb-6">
+                  Base price covers guests up to capacity. Extra adult and child rates apply only for guests above
+                  capacity, up to max capacity.
+                </p>
+                {villaLoading ? (
+                  <p className="text-gray-500">Loading villa details...</p>
+                ) : (
+                  <form onSubmit={handleVillaSettingsUpdate} className="space-y-8">
+                    <div>
+                      <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide mb-4">
+                        Base price
+                      </h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Price (per night)
+                          </label>
+                          <input
+                            type="number"
+                            min="0"
+                            value={villaForm.price}
+                            onChange={(e) => setVillaForm((prev) => ({ ...prev, price: e.target.value }))}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900"
+                            placeholder="e.g., 25000"
+                          />
+                          <p className="text-xs text-gray-500 mt-1">Whole-villa nightly rate</p>
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Capacity (guests)</label>
+                          <input
+                            type="number"
+                            min="1"
+                            value={villaForm.capacity}
+                            onChange={(e) => setVillaForm((prev) => ({ ...prev, capacity: e.target.value }))}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900"
+                            placeholder="e.g., 10"
+                          />
+                          <p className="text-xs text-gray-500 mt-1">Guests included in the base price</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide mb-4">
+                        Guest limit
+                      </h3>
+                      <div className="max-w-md">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Max capacity (guests)</label>
+                        <input
+                          type="number"
+                          min="1"
+                          value={villaForm.max_capacity}
+                          onChange={(e) => setVillaForm((prev) => ({ ...prev, max_capacity: e.target.value }))}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900"
+                          placeholder="e.g., 16"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">
+                          Maximum guests allowed. Must be ≥ capacity. No bookings above this limit.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div>
+                      <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide mb-2">
+                        Extra guest rates
+                      </h3>
+                      <p className="text-xs text-gray-500 mb-4">
+                        Charged per night for each guest above capacity (between capacity and max capacity).
+                      </p>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Extra adult (per night)
+                          </label>
+                          <input
+                            type="number"
+                            min="0"
+                            value={villaForm.extra_adult_price}
+                            onChange={(e) =>
+                              setVillaForm((prev) => ({ ...prev, extra_adult_price: e.target.value }))
+                            }
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900"
+                            placeholder="e.g., 1200"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Extra child — 5+ years (per night)
+                          </label>
+                          <input
+                            type="number"
+                            min="0"
+                            value={villaForm.child_price}
+                            onChange={(e) => setVillaForm((prev) => ({ ...prev, child_price: e.target.value }))}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900"
+                            placeholder="e.g., 800"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">GST (%)</label>
+                          <input
+                            type="number"
+                            min="0"
+                            max="100"
+                            step="0.01"
+                            value={villaForm.gst_percentage}
+                            onChange={(e) =>
+                              setVillaForm((prev) => ({ ...prev, gst_percentage: e.target.value }))
+                            }
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900"
+                            placeholder="e.g., 18"
+                          />
+                          <p className="text-xs text-gray-500 mt-1">Applied to booking subtotal</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Amenities (one per line)</label>
+                      <textarea
+                        rows={6}
+                        value={villaForm.amenities}
+                        onChange={(e) => setVillaForm((prev) => ({ ...prev, amenities: e.target.value }))}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900"
+                        placeholder="Wi-Fi&#10;Air Conditioner&#10;Parking"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Games (one per line)</label>
+                      <textarea
+                        rows={4}
+                        value={villaForm.games}
+                        onChange={(e) => setVillaForm((prev) => ({ ...prev, games: e.target.value }))}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900"
+                        placeholder="Carrom&#10;Badminton&#10;Indoor Games"
+                      />
+                    </div>
+                    <div className="flex justify-end">
+                      <button type="submit" disabled={loading} className="btn-primary disabled:opacity-50">
+                        {loading ? 'Saving...' : 'Save Villa Details'}
+                      </button>
+                    </div>
+                  </form>
+                )}
               </div>
             )}
 

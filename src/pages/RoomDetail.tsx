@@ -440,13 +440,6 @@ const RoomDetail: React.FC = () => {
                 <p className="text-gray-600 text-lg">{room.description}</p>
               </div>
               
-              <div className="flex items-start justify-between mb-6">
-                <div className="text-right ml-auto">
-                  <div className="text-3xl font-bold text-blue-800">₹{room.price_per_night.toLocaleString()}</div>
-                  <div className="text-gray-500">per night</div>
-                </div>
-              </div>
-
               {/* Accommodation Details */}
               {room.accommodation_details && (
                 <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">

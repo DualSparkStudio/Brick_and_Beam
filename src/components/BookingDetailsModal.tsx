@@ -1,5 +1,6 @@
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import React from 'react';
+import { getBookingAdultCount } from '../lib/booking-guests';
 
 interface CalendarEvent {
   id: string;
@@ -184,15 +185,11 @@ const BookingDetailsModal: React.FC<BookingDetailsModalProps> = ({
                   <p className="text-sm font-medium text-gray-900">{new Date(event.end).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
                 </div>
                 <div className="bg-white rounded-lg p-3">
-                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Base Adults</label>
-                  <p className="text-sm font-semibold text-gray-900">2</p>
+                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Adults</label>
+                  <p className="text-sm font-semibold text-gray-900">
+                    {getBookingAdultCount(booking || {})}
+                  </p>
                 </div>
-                {booking?.num_extra_adults > 0 && (
-                  <div className="bg-white rounded-lg p-3">
-                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Extra Adults</label>
-                    <p className="text-sm font-semibold text-gray-900">{booking.num_extra_adults}</p>
-                  </div>
-                )}
                 {booking?.num_children_above_5 > 0 && (
                   <div className="bg-white rounded-lg p-3">
                     <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Children Above 5</label>

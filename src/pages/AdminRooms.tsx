@@ -8,22 +8,9 @@ const AdminRooms: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [roomTypeForm, setRoomTypeForm] = useState({
-    name: '',
     description: '',
-    price_per_night: '', // Couple charges
-    max_capacity: '4', // Maximum number of guests allowed
-    quantity: '1', // Number of rooms of this type
-    amenities: '',
-    image_url: '',
-    images: [''], // Add images array like attractions
-    video_url: '', // Add video URL field
-    is_active: true,
-    extra_guest_price: '',
-    child_above_5_price: '', // Child above 5 years price
-    gst_percentage: '12', // Default GST 12%
-    accommodation_details: '',
-    floor: '',
-    extra_mattress_price: '200' // Default ₹200
+    images: [''],
+    video_url: ''
   });
   const [selectedRoomType, setSelectedRoomType] = useState<Room | null>(null);
   const [roomTypeModalMode, setRoomTypeModalMode] = useState<'edit' | 'add' | 'view'>('add');
@@ -95,22 +82,9 @@ const AdminRooms: React.FC = () => {
     setSelectedRoomType(null);
     setFieldErrors({}); // Clear field errors
         setRoomTypeForm({ 
-          name: '', 
           description: '', 
-          price_per_night: '', 
-          max_capacity: '4',
-          quantity: '1',
-          amenities: '', 
-          image_url: '', 
-          images: [''], // Reset images array
-          video_url: '', // Reset video URL
-          is_active: true, 
-          extra_guest_price: '', 
-          child_above_5_price: '',
-          gst_percentage: '12',
-          accommodation_details: '',
-          floor: '',
-          extra_mattress_price: '200'
+          images: [''],
+          video_url: ''
         });
     setImagePreview('');
   };
@@ -188,27 +162,6 @@ const AdminRooms: React.FC = () => {
       const newFieldErrors: {[key: string]: boolean} = {};
       
       // Validate required fields
-      if (!roomTypeForm.name.trim()) {
-        errors.push('Room type name is required');
-        newFieldErrors.name = true;
-      }
-      
-      if (!roomTypeForm.price_per_night.trim()) {
-        errors.push('Price per night is required');
-        newFieldErrors.price_per_night = true;
-      } else if (parseFloat(roomTypeForm.price_per_night) <= 0) {
-        errors.push('Price per night must be greater than 0');
-        newFieldErrors.price_per_night = true;
-      }
-
-      if (!roomTypeForm.quantity.trim()) {
-        errors.push('Number of rooms is required');
-        newFieldErrors.quantity = true;
-      } else if (parseInt(roomTypeForm.quantity) < 1) {
-        errors.push('Number of rooms must be at least 1');
-        newFieldErrors.quantity = true;
-      }
-
       // Filter out empty image URLs and validate
       const validImages = roomTypeForm.images.filter(img => img.trim() && validateImageUrl(img));
       
@@ -230,27 +183,27 @@ const AdminRooms: React.FC = () => {
       // Clear field errors if validation passes
       setFieldErrors({});
 
+      const fallbackName = selectedRoomType?.name || `Room Type ${roomTypes.length + 1}`;
       const roomData = {
-        name: roomTypeForm.name.trim(),
+        name: fallbackName,
         description: roomTypeForm.description.trim(),
-        price_per_night: parseFloat(roomTypeForm.price_per_night),
-        max_capacity: parseInt(roomTypeForm.max_capacity) || 4,
-        quantity: parseInt(roomTypeForm.quantity) || 1,
-        amenities: roomTypeForm.amenities.split('\n').filter(item => item.trim()),
-        image_url: validImages[0], // Use first image as main image
-        images: validImages, // Store all images
-        video_url: roomTypeForm.video_url.trim() || undefined, // Add video URL
-        is_active: roomTypeForm.is_active,
-        is_available: true, // Set room as available when creating
-        extra_guest_price: roomTypeForm.extra_guest_price ? parseFloat(roomTypeForm.extra_guest_price) : 0,
-        child_above_5_price: roomTypeForm.child_above_5_price ? parseFloat(roomTypeForm.child_above_5_price) : 0,
-        gst_percentage: roomTypeForm.gst_percentage ? parseFloat(roomTypeForm.gst_percentage) : 12,
-        accommodation_details: roomTypeForm.accommodation_details.trim(),
-        floor: roomTypeForm.floor ? parseInt(roomTypeForm.floor) : undefined,
-        extra_mattress_price: roomTypeForm.extra_mattress_price ? parseFloat(roomTypeForm.extra_mattress_price) : 200,
+        price_per_night: selectedRoomType?.price_per_night ?? 0,
+        max_capacity: selectedRoomType?.max_capacity ?? 4,
+        quantity: selectedRoomType?.quantity ?? 1,
+        amenities: [],
+        image_url: validImages[0],
+        images: validImages,
+        video_url: roomTypeForm.video_url.trim() || undefined,
+        is_active: selectedRoomType?.is_active ?? true,
+        is_available: selectedRoomType?.is_available ?? true,
+        extra_guest_price: selectedRoomType?.extra_guest_price ?? 0,
+        child_above_5_price: selectedRoomType?.child_above_5_price ?? 0,
+        accommodation_details: selectedRoomType?.accommodation_details ?? '',
+        floor: selectedRoomType?.floor,
+        extra_mattress_price: selectedRoomType?.extra_mattress_price ?? 200,
         check_in_time: '12:00 PM',
         check_out_time: '10:00 AM',
-        room_number: roomTypeForm.name.replace(/\s+/g, '-').toUpperCase(), // Generate from name
+        room_number: (selectedRoomType?.room_number || fallbackName).replace(/\s+/g, '-').toUpperCase(),
       };
 
       if (roomTypeModalMode === 'edit' && selectedRoomType) {
@@ -376,22 +329,9 @@ const AdminRooms: React.FC = () => {
         };
         
         setRoomTypeForm({
-          name: roomType.name || '',
           description: roomType.description || '',
-          price_per_night: safeToString(roomType.price_per_night),
-          max_capacity: safeToString(roomType.max_capacity) || '4',
-          quantity: safeToString(roomType.quantity) || '1',
-          amenities: Array.isArray(roomType.amenities) ? roomType.amenities.join('\n') : '',
-          is_active: roomType.is_active ?? true,
-          extra_guest_price: safeToString(roomType.extra_guest_price),
-          child_above_5_price: safeToString(roomType.child_above_5_price),
-          gst_percentage: safeToString(roomType.gst_percentage) || '12',
-          accommodation_details: roomType.accommodation_details || '',
-          image_url: roomType.image_url || '',
           images: Array.isArray(roomType.images) && roomType.images.length > 0 ? roomType.images : [''],
-          video_url: roomType.video_url || '', // Add video URL
-          floor: safeToString(roomType.floor),
-          extra_mattress_price: safeToString(roomType.extra_mattress_price) || '200'
+          video_url: roomType.video_url || '',
         });
 
         // Load existing room images if editing
@@ -401,22 +341,9 @@ const AdminRooms: React.FC = () => {
       } else {
         setSelectedRoomType(null);
         setRoomTypeForm({ 
-          name: '', 
           description: '', 
-          price_per_night: '', 
-          max_capacity: '4',
-          quantity: '1',
-          amenities: '', 
-          is_active: true, 
-          extra_guest_price: '', 
-          child_above_5_price: '',
-          gst_percentage: '12',
-          accommodation_details: '',
-          image_url: '', 
           images: [''],
-          video_url: '', // Add video URL
-          floor: '',
-          extra_mattress_price: '200'
+          video_url: '',
         });
         setImagePreview('');
       }
@@ -463,12 +390,6 @@ const AdminRooms: React.FC = () => {
                       Room Type
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Price/Night (Couple)
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Number of Rooms
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Status
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -498,14 +419,6 @@ const AdminRooms: React.FC = () => {
                             <div className="text-sm font-medium text-gray-900">{room.name}</div>
                           </div>
                         </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        ₹{room.price_per_night?.toLocaleString()}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                          {room.quantity || 1} {(room.quantity || 1) === 1 ? 'room' : 'rooms'}
-                        </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
@@ -584,61 +497,40 @@ const AdminRooms: React.FC = () => {
                     </div>
                   </div>
                   
-                  <div className="grid grid-cols-2 gap-2 mb-3 text-sm">
-                    <div>
-                      <span className="text-gray-500">Price:</span>
-                      <span className="ml-1 font-semibold text-gray-900">₹{room.price_per_night.toLocaleString()}</span>
-                    </div>
-                    <div>
-                      <span className="text-gray-500">Max Guests:</span>
-                      <span className="ml-1 font-semibold text-gray-900">{room.max_occupancy}</span>
-                    </div>
-                    <div>
-                      <span className="text-gray-500">Rooms:</span>
-                      <span className="ml-1 font-semibold text-gray-900">{room.quantity}</span>
-                    </div>
-                    <div>
-                      <span className="text-gray-500">Images:</span>
-                      <span className="ml-1 text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded">
-                        {room.images?.length || 1}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between mb-3">
-                    <button
-                      onClick={() => handleToggleActive(room.id, room.is_active)}
+                  <div className="flex flex-wrap gap-3 mb-3 text-sm">
+                    <span
                       className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                        room.is_active
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-red-100 text-red-800'
+                        room.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                       }`}
                     >
                       {room.is_active ? 'Active' : 'Inactive'}
-                    </button>
+                    </span>
+                    <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                      {room.images?.length || 1} image{(room.images?.length || 1) !== 1 ? 's' : ''}
+                    </span>
                   </div>
 
                   <div className="flex flex-wrap gap-2">
                     <button
-                      onClick={() => openModal(room, 'view')}
+                      onClick={() => openRoomTypeModal('view', room)}
                       className="flex-1 min-w-[80px] px-3 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700"
                     >
                       View
                     </button>
                     <button
-                      onClick={() => openModal(room, 'edit')}
+                      onClick={() => openRoomTypeModal('edit', room)}
                       className="flex-1 min-w-[80px] px-3 py-2 bg-green-600 text-white text-sm rounded-md hover:bg-green-700"
                     >
                       Edit
                     </button>
                     <button
-                      onClick={() => handleToggleActive(room.id, room.is_active)}
+                      onClick={() => handleToggleRoomStatus(room.id, room.is_active)}
                       className="flex-1 min-w-[80px] px-3 py-2 bg-yellow-600 text-white text-sm rounded-md hover:bg-yellow-700"
                     >
                       {room.is_active ? 'Deactivate' : 'Activate'}
                     </button>
                     <button
-                      onClick={() => handleDeleteRoom(room.id, room.name)}
+                      onClick={() => handleDeleteRoom(room.id)}
                       className="flex-1 min-w-[80px] px-3 py-2 bg-red-600 text-white text-sm rounded-md hover:bg-red-700"
                     >
                       Delete
@@ -700,31 +592,7 @@ const AdminRooms: React.FC = () => {
             >
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Basic Information */}
                 <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Room Type Name *
-                    </label>
-                    <input
-                      type="text"
-                      name="name"
-                      value={roomTypeForm.name}
-                      onChange={handleRoomTypeFormChange}
-                      className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 text-gray-900 ${
-                        fieldErrors.name 
-                          ? 'border-red-300 focus:ring-red-500' 
-                          : 'border-gray-300 focus:ring-blue-500'
-                      }`}
-                      placeholder="e.g., Deluxe Suite, Premium Room"
-                      required
-                      disabled={roomTypeModalMode === 'view'}
-                    />
-                    {fieldErrors.name && (
-                      <p className="mt-1 text-xs text-red-600">This field is required</p>
-                    )}
-                  </div>
-
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Description
@@ -733,229 +601,15 @@ const AdminRooms: React.FC = () => {
                       name="description"
                       value={roomTypeForm.description}
                       onChange={handleRoomTypeFormChange}
-                      rows={3}
+                      rows={4}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
                       placeholder="Enter room description"
                       disabled={roomTypeModalMode === 'view'}
                     />
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Price per Night (Couple) *
-                      </label>
-                      <input
-                        type="number"
-                        name="price_per_night"
-                        value={roomTypeForm.price_per_night}
-                        onChange={handleRoomTypeFormChange}
-                        className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 text-gray-900 ${
-                          fieldErrors.price_per_night 
-                            ? 'border-red-300 focus:ring-red-500' 
-                            : 'border-gray-300 focus:ring-blue-500'
-                        }`}
-                        placeholder="0"
-                        disabled={roomTypeModalMode === 'view'}
-                        required
-                      />
-                      {fieldErrors.price_per_night && (
-                        <p className="mt-1 text-xs text-red-600">Valid price is required</p>
-                      )}
-                      <p className="mt-1 text-xs text-gray-500">Base price for couple (2 adults)</p>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Max Capacity *
-                      </label>
-                      <input
-                        type="number"
-                        name="max_capacity"
-                        value={roomTypeForm.max_capacity}
-                        onChange={handleRoomTypeFormChange}
-                        className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 text-gray-900 ${
-                          fieldErrors.max_capacity 
-                            ? 'border-red-300 focus:ring-red-500' 
-                            : 'border-gray-300 focus:ring-blue-500'
-                        }`}
-                        placeholder="4"
-                        disabled={roomTypeModalMode === 'view'}
-                        required
-                        min="1"
-                      />
-                      {fieldErrors.max_capacity && (
-                        <p className="mt-1 text-xs text-red-600">Max capacity is required</p>
-                      )}
-                      <p className="mt-1 text-xs text-gray-500">Maximum guests allowed</p>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Number of Rooms *
-                      </label>
-                      <input
-                        type="number"
-                        name="quantity"
-                        value={roomTypeForm.quantity}
-                        onChange={handleRoomTypeFormChange}
-                        className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 text-gray-900 ${
-                          fieldErrors.quantity 
-                            ? 'border-red-300 focus:ring-red-500' 
-                            : 'border-gray-300 focus:ring-blue-500'
-                        }`}
-                        placeholder="1"
-                        disabled={roomTypeModalMode === 'view'}
-                        required
-                        min="1"
-                      />
-                      {fieldErrors.quantity && (
-                        <p className="mt-1 text-xs text-red-600">At least 1 room is required</p>
-                      )}
-                      <p className="mt-1 text-xs text-gray-500">How many rooms of this type?</p>
-                    </div>
-                  </div>
-
-                  {/* Additional Charges */}
-                  <div className="border-t pt-4 mt-4">
-                    <h3 className="text-sm font-semibold text-gray-900 mb-3">Additional Charges</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Extra Guest Price
-                        </label>
-                        <input
-                          type="number"
-                          name="extra_guest_price"
-                          value={roomTypeForm.extra_guest_price}
-                          onChange={handleRoomTypeFormChange}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
-                          placeholder="0"
-                          disabled={roomTypeModalMode === 'view'}
-                          min="0"
-                        />
-                        <p className="mt-1 text-xs text-gray-500">Per extra adult per night</p>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Child Above 5 Years
-                        </label>
-                        <input
-                          type="number"
-                          name="child_above_5_price"
-                          value={roomTypeForm.child_above_5_price}
-                          onChange={handleRoomTypeFormChange}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
-                          placeholder="0"
-                          disabled={roomTypeModalMode === 'view'}
-                          min="0"
-                        />
-                        <p className="mt-1 text-xs text-gray-500">Per child per night</p>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          GST %
-                        </label>
-                        <input
-                          type="number"
-                          name="gst_percentage"
-                          value={roomTypeForm.gst_percentage}
-                          onChange={handleRoomTypeFormChange}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
-                          placeholder="12"
-                          disabled={roomTypeModalMode === 'view'}
-                          min="0"
-                          max="100"
-                          step="0.01"
-                        />
-                        <p className="mt-1 text-xs text-gray-500">GST percentage (default: 12%)</p>
-                      </div>
-                    </div>
-                    <div className="mt-4">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Extra Mattress Price
-                      </label>
-                      <input
-                        type="number"
-                        name="extra_mattress_price"
-                        value={roomTypeForm.extra_mattress_price}
-                        onChange={handleRoomTypeFormChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
-                        placeholder="200"
-                        disabled={roomTypeModalMode === 'view'}
-                        min="0"
-                      />
-                      <p className="mt-1 text-xs text-gray-500">Per mattress per night (default: ₹200)</p>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Accommodation Details
-                      </label>
-                      <textarea
-                        name="accommodation_details"
-                        value={roomTypeForm.accommodation_details || ''}
-                        onChange={handleRoomTypeFormChange}
-                        rows={3}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
-                        placeholder="e.g., Accommodation: Extra Mattress for ₹200"
-                        disabled={roomTypeModalMode === 'view'}
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Floor
-                      </label>
-                      <input
-                        type="number"
-                        name="floor"
-                        value={roomTypeForm.floor}
-                        onChange={handleRoomTypeFormChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
-                        placeholder="1"
-                        disabled={roomTypeModalMode === 'view'}
-                      />
-                    </div>
-                  </div>
-
-
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Amenities (one per line)
-                    </label>
-                    <textarea
-                      name="amenities"
-                      value={roomTypeForm.amenities}
-                      onChange={handleRoomTypeFormChange}
-                      rows={4}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
-                      placeholder="Wi-Fi&#10;AC&#10;TV&#10;River View"
-                      disabled={roomTypeModalMode === 'view'}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="flex items-center">
-                      <input
-                        type="checkbox"
-                        name="is_active"
-                        checked={roomTypeForm.is_active}
-                        onChange={(e) => setRoomTypeForm({ ...roomTypeForm, is_active: e.target.checked })}
-                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                        disabled={roomTypeModalMode === 'view'}
-                      />
-                      <span className="ml-2 text-sm text-gray-700">Active</span>
-                    </label>
-                  </div>
                 </div>
 
-                {/* Image Management */}
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <label className="block text-sm font-medium text-gray-700">
@@ -1085,10 +739,7 @@ const AdminRooms: React.FC = () => {
                       </div>
                     </div>
                   )}
-                </div>
-
-                {/* Video URL Field */}
-                <div className="space-y-2">
+                  <div className="space-y-2">
                   <label className="block text-sm font-medium text-gray-700">
                     Room Video URL (Optional)
                   </label>
@@ -1103,7 +754,7 @@ const AdminRooms: React.FC = () => {
                   <p className="text-xs text-gray-500">
                     Upload your video to Cloudinary and paste the URL here. Supports MP4, WebM formats.
                   </p>
-                  {roomTypeForm.video_url && (
+                    {roomTypeForm.video_url && (
                     <div className="mt-3">
                       <label className="block text-sm font-medium text-gray-700 mb-2">Video Preview:</label>
                       <video
@@ -1118,6 +769,7 @@ const AdminRooms: React.FC = () => {
                       </video>
                     </div>
                   )}
+                  </div>
                 </div>
               </div>
 

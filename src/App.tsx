@@ -9,6 +9,7 @@ import MaintenancePage from './components/MaintenancePage';
 import ScrollToTop from './components/ScrollToTop';
 import SmoothScroll from './components/SmoothScroll';
 import { AuthProvider } from './contexts/AuthContext';
+import { VillaProvider } from './contexts/VillaContext';
 import { MaintenanceProvider, useMaintenance } from './contexts/MaintenanceContext';
 import About from './pages/About';
 import AdminBookings from './pages/AdminBookings';
@@ -18,7 +19,6 @@ import AdminFAQ from './pages/AdminFAQ';
 import AdminHouseRules from './pages/AdminHouseRules';
 import AdminMaintenance from './pages/AdminMaintenance';
 import AdminProfile from './pages/AdminProfile';
-import AdminReviews from './pages/AdminReviews';
 import AdminRooms from './pages/AdminRooms';
 import BookingCancel from './pages/BookingCancel';
 import BookingConfirmation from './pages/BookingConfirmation';
@@ -102,7 +102,6 @@ const AppContent: React.FC = () => {
         <Route path="rooms" element={<AdminRooms />} />
         <Route path="bookings" element={<AdminBookings />} />
         <Route path="calendar" element={<AdminCalendar />} />
-        <Route path="reviews" element={<AdminReviews />} />
         <Route path="profile" element={<AdminProfile />} />
         <Route path="faq" element={<AdminFAQ />} />
         <Route path="house-rules" element={<AdminHouseRules />} />
@@ -209,9 +208,11 @@ function App() {
             <ScrollToTop />
             <SmoothScroll>
               <MaintenanceProvider>
-                <AuthProvider>
-                  <AppContent />
-                </AuthProvider>
+                <VillaProvider>
+                  <AuthProvider>
+                    <AppContent />
+                  </AuthProvider>
+                </VillaProvider>
               </MaintenanceProvider>
             </SmoothScroll>
           </Router>

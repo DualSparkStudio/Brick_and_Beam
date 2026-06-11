@@ -643,12 +643,6 @@ const Home: React.FC = () => {
                                 target.src = 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';
                               }}
                             />
-                            {/* Price Badge */}
-                            <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-lg shadow-md">
-                              <span className="text-gray-900 font-semibold text-sm sm:text-base">
-                                Per Night ₹{room.price_per_night.toLocaleString()}
-                              </span>
-                            </div>
                             {!room.is_active && (
                               <div className="absolute top-4 right-4 bg-red-600 text-white px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold">
                                 Unavailable

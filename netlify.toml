@@ -1,3 +1,9 @@
+[dev]
+  command = "npm run dev:vite"
+  port = 8765
+  targetPort = 8766
+  autoLaunch = false
+
 [build]
   publish = "dist"
   functions = "netlify/functions"
