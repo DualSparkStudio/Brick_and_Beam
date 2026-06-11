@@ -613,7 +613,7 @@ const Home: React.FC = () => {
                                   className="pt-2"
                                 >
                                   <Link
-                                    to={room.slug ? `/room/${room.slug}` : '#'}
+                                    to="/rooms"
                                     className="inline-flex items-center gap-2 text-golden-500 hover:text-golden-600 font-medium text-sm transition-colors duration-200"
                                   >
                                     <span>View Details</span>

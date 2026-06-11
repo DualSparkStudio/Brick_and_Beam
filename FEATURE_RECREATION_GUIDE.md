@@ -331,8 +331,6 @@ await api.createBooking({
   special_requests,
   total_amount,
   subtotal_amount,
-  gst_amount,
-  gst_percentage,
   booking_status: 'confirmed',
   payment_status: 'paid',
   payment_gateway: 'razorpay',
@@ -413,7 +411,7 @@ Important columns: `id`, `name`, `slug`, `max_capacity`, `quantity`, `is_active`
 | `check_in_date`, `check_out_date` | date | |
 | `num_guests` | int | adults + children |
 | `num_extra_adults`, `num_children_above_5` | int | Guest breakdown |
-| `total_amount`, `subtotal_amount`, `gst_amount`, `gst_percentage` | numeric | |
+| `total_amount`, `subtotal_amount` | numeric | |
 | `booking_status` | text | pending, confirmed, cancelled |
 | `payment_status` | text | pending, paid, failed |
 | `payment_gateway` | text | razorpay |
@@ -438,9 +436,7 @@ Villa-wide config (not per room):
 | `villa_price` | Base nightly rate |
 | `villa_capacity` | Guests included in base price |
 | `villa_max_capacity` | Hard guest limit |
-| `villa_extra_adult_price` | Extra adult / night above capacity |
-| `villa_child_price` | Extra child / night above capacity |
-| `villa_gst_percentage` | GST % |
+| `villa_extra_guest_price` | Extra guest / night above capacity (adults & children) |
 | `villa_amenities`, `villa_games` | Text lists |
 
 API: `api.getVillaSettings()`, `api.updateVillaSettings()`.
@@ -479,7 +475,7 @@ Logic in `src/lib/villa-pricing.ts`:
 
 - Base = `villa_price × nights` (covers up to `villa_capacity` guests)
 - Extra guests above capacity (up to `villa_max_capacity`) → adult/child per-night rates
-- GST from `villa_gst_percentage`
+- Total = subtotal (no tax line items)
 
 ## Minimal recreation steps
 
@@ -556,7 +552,6 @@ netlify.toml
 | Calendar shows no blocks | Check `blocked_dates.source = 'manual'` filter |
 | All dates look booked | Verify `booking_status` filter; cancelled should not block |
 | Payment works but no booking | Check Supabase RLS on `bookings` INSERT |
-| GST wrong | Set `villa_gst_percentage` in Admin → Profile → Villa Details |
 | Amount mismatch at Razorpay | Server expects rupees; order uses `amount * 100` paise |
 
 ---

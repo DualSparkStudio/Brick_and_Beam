@@ -1,6 +1,6 @@
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react'
 import { api } from '../lib/supabase'
-import { defaultVillaSettings, type VillaSettings } from '../lib/villa-settings'
+import { defaultVillaSettings, normalizeVillaSettings, type VillaSettings } from '../lib/villa-settings'
 
 interface VillaContextValue {
   settings: VillaSettings
@@ -18,7 +18,7 @@ export const VillaProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const refreshVillaSettings = useCallback(async () => {
     try {
       const data = await api.getVillaSettings()
-      setSettings(data)
+      setSettings(normalizeVillaSettings(data))
     } catch {
       setSettings(defaultVillaSettings())
     } finally {

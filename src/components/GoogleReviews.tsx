@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { netlifyFunctionUrl } from '../lib/netlify-functions'
 import { StarIcon } from '@heroicons/react/24/outline'
 import { StarIcon as StarIconSolid } from '@heroicons/react/24/solid'
 
@@ -44,7 +45,7 @@ const GoogleReviews: React.FC = () => {
       setLoading(true)
       setError(null)
       
-      const response = await fetch('/.netlify/functions/get-google-reviews')
+      const response = await fetch(netlifyFunctionUrl('get-google-reviews'))
       
       // Check if response is JSON before parsing
       const contentType = response.headers.get('content-type')

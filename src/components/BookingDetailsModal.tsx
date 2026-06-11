@@ -1,6 +1,9 @@
 import { XMarkIcon } from '@heroicons/react/24/outline';
-import React from 'react';
+import React, { useMemo } from 'react';
+import BookingPriceBreakdown from './BookingPriceBreakdown';
+import { useVilla } from '../contexts/VillaContext';
 import { getBookingAdultCount } from '../lib/booking-guests';
+import { resolveBookingPriceBreakdown } from '../lib/booking-pricing';
 
 interface CalendarEvent {
   id: string;
@@ -33,11 +36,18 @@ const BookingDetailsModal: React.FC<BookingDetailsModalProps> = ({
   isOpen,
   onClose
 }) => {
+  const { settings: villaSettings } = useVilla()
+  const booking = event?.extendedProps.booking
+  const room = event?.extendedProps.room
+
+  const priceBreakdown = useMemo(() => {
+    if (!booking) return null
+    return resolveBookingPriceBreakdown(booking, { villaSettings, room })
+  }, [booking, room, villaSettings])
+
   if (!isOpen || !event) return null;
 
   const isWebsiteBooking = true; // All bookings are from website now
-  const booking = event.extendedProps.booking;
-  const room = event.extendedProps.room;
   
   const formatDate = (dateStr: string) => {
     return new Date(dateStr).toLocaleDateString('en-US', {
@@ -226,28 +236,21 @@ const BookingDetailsModal: React.FC<BookingDetailsModalProps> = ({
                 </div>
                 {(event.extendedProps.totalAmount || booking?.total_amount) && (
                   <>
-                    {booking?.subtotal_amount && (
-                      <div className="bg-white rounded-lg p-3">
-                        <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Subtotal</label>
-                        <p className="text-lg font-bold text-gray-900">
-                          ₹{booking.subtotal_amount.toLocaleString()}
+                    {priceBreakdown ? (
+                      <div className="bg-white rounded-lg p-4 md:col-span-2 border border-green-200">
+                        <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
+                          Price Breakdown
+                        </label>
+                        <BookingPriceBreakdown breakdown={priceBreakdown} variant="compact" />
+                      </div>
+                    ) : (
+                      <div className="bg-gradient-to-r from-green-500 to-emerald-600 rounded-lg p-3 md:col-span-2">
+                        <label className="block text-xs font-semibold text-white/80 uppercase tracking-wide mb-1">Total Amount</label>
+                        <p className="text-2xl font-bold text-white">
+                          ₹{(event.extendedProps.totalAmount || booking?.total_amount || 0).toLocaleString()}
                         </p>
                       </div>
                     )}
-                    {booking?.gst_amount && (
-                      <div className="bg-white rounded-lg p-3">
-                        <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">GST ({booking.gst_percentage || 12}%)</label>
-                        <p className="text-lg font-bold text-gray-900">
-                          ₹{booking.gst_amount.toLocaleString()}
-                        </p>
-                      </div>
-                    )}
-                    <div className="bg-gradient-to-r from-green-500 to-emerald-600 rounded-lg p-3 md:col-span-2">
-                      <label className="block text-xs font-semibold text-white/80 uppercase tracking-wide mb-1">Total Amount</label>
-                      <p className="text-2xl font-bold text-white">
-                        ₹{(event.extendedProps.totalAmount || booking?.total_amount || 0).toLocaleString()}
-                      </p>
-                    </div>
                   </>
                 )}
                 {booking?.payment_gateway && (

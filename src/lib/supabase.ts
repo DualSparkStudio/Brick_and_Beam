@@ -63,7 +63,6 @@ export interface Room {
   deleted_at?: string // Soft delete timestamp
   extra_guest_price?: number // Price per extra adult per night
   child_above_5_price?: number // Price per child above 5 years per night
-  gst_percentage?: number // GST percentage (default: 12%)
   accommodation_details?: string
   floor?: number
   check_in_time?: string // Hardcoded to 12:00 PM
@@ -90,8 +89,12 @@ export interface Booking {
   special_requests?: string
   total_amount: number
   subtotal_amount?: number
-  gst_amount?: number
-  gst_percentage?: number
+  /** Snapshot of villa base amount at booking time */
+  base_amount?: number
+  extra_guests?: number
+  extra_guests_amount?: number
+  extra_guest_price_per_night?: number
+  included_capacity?: number
   booking_status: 'pending' | 'confirmed' | 'cancelled'
   payment_status: 'pending' | 'paid' | 'failed'
   payment_gateway: 'direct' | 'razorpay'
@@ -1265,15 +1268,15 @@ export const api = {
   },
 
   async updateCalendarSetting(key: string, value: string) {
-    // First check if the setting exists
-    const { data: existingSetting } = await supabase
+    const { data: existingSetting, error: lookupError } = await supabase
       .from('calendar_settings')
       .select('id')
       .eq('setting_key', key)
-      .single()
+      .maybeSingle()
+
+    if (lookupError) throw lookupError
 
     if (existingSetting) {
-      // Update existing setting
       const { data, error } = await supabase
         .from('calendar_settings')
         .update({ setting_value: value })
@@ -1283,17 +1286,16 @@ export const api = {
 
       if (error) throw error
       return data
-    } else {
-      // Insert new setting
-      const { data, error } = await supabase
-        .from('calendar_settings')
-        .insert([{ setting_key: key, setting_value: value }])
-        .select()
-        .single()
-
-      if (error) throw error
-      return data
     }
+
+    const { data, error } = await supabase
+      .from('calendar_settings')
+      .insert([{ setting_key: key, setting_value: value }])
+      .select()
+      .single()
+
+    if (error) throw error
+    return data
   },
 
   async deleteCalendarSetting(key: string) {
@@ -1331,9 +1333,7 @@ export const api = {
       [VILLA_SETTING_KEYS.villa_max_capacity, settings.max_capacity],
       [VILLA_SETTING_KEYS.villa_amenities, settings.amenities],
       [VILLA_SETTING_KEYS.villa_games, settings.games],
-      [VILLA_SETTING_KEYS.villa_extra_adult_price, settings.extra_adult_price],
-      [VILLA_SETTING_KEYS.villa_child_price, settings.child_price],
-      [VILLA_SETTING_KEYS.villa_gst_percentage, settings.gst_percentage],
+      [VILLA_SETTING_KEYS.villa_extra_guest_price, settings.extra_guest_price],
     ]
 
     for (const [key, value] of entries) {

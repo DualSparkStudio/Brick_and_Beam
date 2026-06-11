@@ -2,13 +2,15 @@ import { CheckCircleIcon } from '@heroicons/react/24/outline'
 import React, { useEffect, useState } from 'react'
 import { toast } from 'react-hot-toast'
 import { useNavigate, useParams } from 'react-router-dom'
+import BookingPriceBreakdown from '../components/BookingPriceBreakdown'
 import { useVilla } from '../contexts/VillaContext'
 import { getBookingTotalGuests } from '../lib/booking-guests'
+import { resolveBookingPriceBreakdown } from '../lib/booking-pricing'
 import type { Booking, Room } from '../lib/supabase'
 import { api } from '../lib/supabase'
 
 const BookingConfirmation: React.FC = () => {
-  const { displayName } = useVilla()
+  const { displayName, settings: villaSettings } = useVilla()
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const [booking, setBooking] = useState<Booking | null>(null)
@@ -82,6 +84,7 @@ const BookingConfirmation: React.FC = () => {
   const nights = calculateNights(booking.check_in_date, booking.check_out_date)
   const villaName = displayName || booking.room_name || room?.name || 'Villa'
   const villaImage = room?.image_url
+  const priceBreakdown = resolveBookingPriceBreakdown(booking, { villaSettings, room })
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 py-8 sm:py-12">
@@ -210,29 +213,24 @@ const BookingConfirmation: React.FC = () => {
                 Payment Summary
               </h2>
               <div className="space-y-3">
-                {booking.subtotal_amount && booking.gst_amount ? (
-                  <>
-                    <div className="flex justify-between text-gray-700">
-                      <span>Subtotal:</span>
-                      <span className="font-semibold">₹{booking.subtotal_amount.toLocaleString()}</span>
-                    </div>
-                    <div className="flex justify-between text-gray-700">
-                      <span>GST ({booking.gst_percentage || 12}%):</span>
-                      <span className="font-semibold">₹{booking.gst_amount.toLocaleString()}</span>
-                    </div>
-                  </>
+                <div className="flex justify-between text-gray-700">
+                  <span>Number of Nights:</span>
+                  <span className="font-semibold">{nights}</span>
+                </div>
+                {priceBreakdown ? (
+                  <div className="bg-white/70 rounded-lg p-4 border border-green-200">
+                    <BookingPriceBreakdown breakdown={priceBreakdown} />
+                  </div>
                 ) : (
-                  <div className="flex justify-between text-gray-700">
-                    <span>Number of Nights:</span>
-                    <span className="font-semibold">{nights}</span>
+                  <div className="border-t-2 border-green-300 pt-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-xl font-bold text-gray-900">Total Amount:</span>
+                      <span className="text-2xl font-bold text-green-600">
+                        ₹{booking.total_amount.toLocaleString()}
+                      </span>
+                    </div>
                   </div>
                 )}
-                <div className="border-t-2 border-green-300 pt-3 mt-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-xl font-bold text-gray-900">Total Amount:</span>
-                    <span className="text-2xl font-bold text-green-600">₹{booking.total_amount.toLocaleString()}</span>
-                  </div>
-                </div>
                 <div className={`mt-4 inline-flex items-center px-4 py-2 rounded-lg font-semibold ${
                   booking.payment_status === 'paid' ? 'bg-green-500 text-white' :
                   booking.payment_status === 'pending' ? 'bg-yellow-500 text-white' :

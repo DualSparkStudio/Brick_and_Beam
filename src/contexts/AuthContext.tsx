@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { toast } from 'react-hot-toast'
 import { useNavigate } from 'react-router-dom'
+import { netlifyFunctionUrl } from '../lib/netlify-functions'
 import type { User } from '../lib/supabase'
 
 interface AuthContextType {
@@ -59,7 +60,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const functionName = 'simple-login'
       
       
-      const response = await fetch(`/.netlify/functions/${functionName}`, {
+      const response = await fetch(netlifyFunctionUrl(functionName), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

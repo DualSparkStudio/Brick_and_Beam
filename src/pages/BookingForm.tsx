@@ -1,5 +1,5 @@
 import { CalendarIcon, EnvelopeIcon, PhoneIcon, UserIcon } from '@heroicons/react/24/outline'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { toast } from 'react-hot-toast'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import AvailabilityCalendar from '../components/AvailabilityCalendar'
@@ -7,9 +7,11 @@ import PaymentCancellationModal from '../components/PaymentCancellationModal'
 import PaymentConfirmationModal from '../components/PaymentConfirmationModal'
 import RoomUnavailableModal from '../components/RoomUnavailableModal'
 import { useVilla } from '../contexts/VillaContext'
+import { snapshotFromPriceBreakdown } from '../lib/booking-pricing'
 import { calculateVillaBookingPrice, formatRupee } from '../lib/villa-pricing'
-import { formatPriceDisplay, parseGstPercentage, parseVillaGuestLimits } from '../lib/villa-settings'
+import { formatPriceDisplay, normalizeVillaSettings, resolveVillaGuestLimits } from '../lib/villa-settings'
 import { loadRazorpayScript } from '../lib/razorpay'
+import { netlifyFunctionUrl } from '../lib/netlify-functions'
 import { api } from '../lib/supabase'
 
 interface BookingFormData {
@@ -21,12 +23,30 @@ interface BookingFormData {
 }
 
 const BookingForm: React.FC = () => {
-  const { settings: villaSettings, displayName } = useVilla()
-  const villaGuestLimits = parseVillaGuestLimits(villaSettings)
+  const {
+    settings: villaSettings,
+    displayName,
+    loading: villaLoading,
+    refreshVillaSettings,
+  } = useVilla()
   const { slug } = useParams<{ slug: string }>()
   const navigate = useNavigate()
   const location = useLocation()
   const [room, setRoom] = useState<any>(null)
+
+  const effectiveVillaSettings = useMemo(() => {
+    const normalized = normalizeVillaSettings(villaSettings)
+    return normalizeVillaSettings({
+      ...normalized,
+      price:
+        normalized.price ||
+        (room?.price_per_night != null ? String(room.price_per_night) : ''),
+      extra_guest_price:
+        normalized.extra_guest_price ||
+        (room?.extra_guest_price != null ? String(room.extra_guest_price) : ''),
+    })
+  }, [villaSettings, room])
+
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const [showCalendar, setShowCalendar] = useState(true)
@@ -50,23 +70,39 @@ const BookingForm: React.FC = () => {
     special_requests: ''
   })
 
-  const priceBreakdown =
-    selectedDates.checkIn && selectedDates.checkOut
-      ? calculateVillaBookingPrice({
-          checkIn: selectedDates.checkIn,
-          checkOut: selectedDates.checkOut,
-          numAdults,
-          numChildren,
-          villaSettings,
-          roomFallback: room
-            ? {
-                price_per_night: room.price_per_night,
-                extra_guest_price: room.extra_guest_price,
-                child_above_5_price: room.child_above_5_price,
-              }
-            : undefined,
-        })
-      : null
+  const priceBreakdown = useMemo(() => {
+    if (!selectedDates.checkIn || !selectedDates.checkOut) return null
+    if (selectedDates.checkIn === selectedDates.checkOut) return null
+    return calculateVillaBookingPrice({
+      checkIn: selectedDates.checkIn,
+      checkOut: selectedDates.checkOut,
+      numAdults,
+      numChildren,
+      villaSettings: effectiveVillaSettings,
+      roomFallback: room
+        ? {
+            price_per_night: room.price_per_night,
+            extra_guest_price: room.extra_guest_price,
+          }
+        : undefined,
+    })
+  }, [
+    selectedDates.checkIn,
+    selectedDates.checkOut,
+    numAdults,
+    numChildren,
+    effectiveVillaSettings,
+    room,
+  ])
+
+  const hasConfiguredRates = Boolean(
+    (effectiveVillaSettings.price ?? '').trim() ||
+      (room?.price_per_night != null && Number(room.price_per_night) > 0)
+  )
+
+  useEffect(() => {
+    void refreshVillaSettings()
+  }, [refreshVillaSettings])
 
   useEffect(() => {
     loadRazorpayScript().catch(() => {})
@@ -96,15 +132,58 @@ const BookingForm: React.FC = () => {
   }, [slug, location.state])
 
   const subtotal = priceBreakdown?.subtotal ?? 0
-  const gstAmount = priceBreakdown?.gst ?? 0
   const totalAmount = priceBreakdown?.total ?? 0
 
-  const includedCapacity =
-    villaGuestLimits.capacity || villaGuestLimits.maxCapacity || room?.max_capacity || 10
-  const maxCapacity =
-    villaGuestLimits.maxCapacity || villaGuestLimits.capacity || room?.max_capacity || 10
+  const { includedCapacity, maxCapacity } = resolveVillaGuestLimits(effectiveVillaSettings, {
+    roomMaxCapacity: room?.max_capacity,
+  })
   const totalGuests = numAdults + numChildren
   const extraGuests = Math.max(0, totalGuests - includedCapacity)
+
+  const paymentBlockReason = useMemo(() => {
+    if (submitting) return null
+    if (!room?.is_active) return 'This villa is not available for booking right now.'
+    if (!selectedDates.checkIn || !selectedDates.checkOut) {
+      return 'Select check-in and check-out dates to continue.'
+    }
+    if (selectedDates.checkIn === selectedDates.checkOut) {
+      return 'Check-out must be at least one day after check-in.'
+    }
+    if (totalGuests > maxCapacity) {
+      return `Your party exceeds the maximum of ${maxCapacity} guests.`
+    }
+    if (villaLoading && !hasConfiguredRates) return 'Loading villa rates…'
+    if (!hasConfiguredRates) {
+      return 'Villa nightly rate is not set up yet. Contact us to book.'
+    }
+    if (!priceBreakdown || totalAmount <= 0) {
+      return 'Price could not be calculated for these dates. Try re-selecting dates or contact us.'
+    }
+    if (
+      !formData.first_name.trim() ||
+      !formData.last_name.trim() ||
+      !formData.email.trim() ||
+      !formData.phone.trim()
+    ) {
+      return 'Enter your name, email, and phone number to proceed.'
+    }
+    return null
+  }, [
+    submitting,
+    room?.is_active,
+    selectedDates.checkIn,
+    selectedDates.checkOut,
+    totalGuests,
+    maxCapacity,
+    villaLoading,
+    hasConfiguredRates,
+    priceBreakdown,
+    totalAmount,
+    formData.first_name,
+    formData.last_name,
+    formData.email,
+    formData.phone,
+  ])
 
   const loadRoomData = async () => {
     try {
@@ -241,7 +320,7 @@ const BookingForm: React.FC = () => {
             toast.loading(`Retrying payment setup... (${retryCount}/${maxRetries})`, { id: 'payment-prep' })
           }
           
-          const orderResponse = await fetch('/.netlify/functions/create-razorpay-order', {
+          const orderResponse = await fetch(netlifyFunctionUrl('create-razorpay-order'), {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -499,7 +578,7 @@ const BookingForm: React.FC = () => {
             toast.loading(`Retrying payment setup... (${retryCount}/${maxRetries})`, { id: 'payment-prep' })
           }
           
-          const orderResponse = await fetch('/.netlify/functions/create-razorpay-order', {
+          const orderResponse = await fetch(netlifyFunctionUrl('create-razorpay-order'), {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -689,10 +768,7 @@ const BookingForm: React.FC = () => {
         email: formData.email,
         phone: formData.phone,
         special_requests: formData.special_requests,
-        total_amount: totalAmount,
-        subtotal_amount: subtotal,
-        gst_amount: gstAmount,
-        gst_percentage: parseGstPercentage(villaSettings),
+        ...snapshotFromPriceBreakdown(priceBreakdown!, totalAmount, subtotal),
         booking_status: 'confirmed',
         payment_status: 'paid',
         payment_gateway: 'razorpay',
@@ -953,6 +1029,7 @@ const BookingForm: React.FC = () => {
                         type="number"
                         value={numAdults}
                         min={1}
+                        max={maxCapacity}
                         disabled={!room?.is_active}
                         onChange={(e) => {
                           const value = Math.max(1, parseInt(e.target.value, 10) || 1)
@@ -971,6 +1048,7 @@ const BookingForm: React.FC = () => {
                         type="number"
                         value={numChildren}
                         min={0}
+                        max={Math.max(0, maxCapacity - 1)}
                         disabled={!room?.is_active}
                         onChange={(e) => {
                           const value = Math.max(0, parseInt(e.target.value, 10) || 0)
@@ -999,42 +1077,18 @@ const BookingForm: React.FC = () => {
                               {formatRupee(priceBreakdown.baseAmount)}
                             </dd>
                           </div>
-                          {priceBreakdown.adultsAmount > 0 && (
+                          {priceBreakdown.extraGuestsAmount > 0 && (
                             <div className="flex justify-between gap-3">
                               <dt className="text-gray-600">
-                                Extra adults ({priceBreakdown.extraAdults} ×{' '}
-                                {formatRupee(priceBreakdown.adultPricePerNight)} × {priceBreakdown.nights}{' '}
+                                Extra guests ({priceBreakdown.extraGuests} ×{' '}
+                                {formatRupee(priceBreakdown.extraGuestPricePerNight)} × {priceBreakdown.nights}{' '}
                                 night{priceBreakdown.nights !== 1 ? 's' : ''})
                               </dt>
                               <dd className="font-medium text-gray-900 tabular-nums">
-                                {formatRupee(priceBreakdown.adultsAmount)}
+                                {formatRupee(priceBreakdown.extraGuestsAmount)}
                               </dd>
                             </div>
                           )}
-                          {priceBreakdown.childrenAmount > 0 && (
-                            <div className="flex justify-between gap-3">
-                              <dt className="text-gray-600">
-                                Extra children ({priceBreakdown.extraChildren} ×{' '}
-                                {formatRupee(priceBreakdown.childPricePerNight)} × {priceBreakdown.nights}{' '}
-                                night{priceBreakdown.nights !== 1 ? 's' : ''})
-                              </dt>
-                              <dd className="font-medium text-gray-900 tabular-nums">
-                                {formatRupee(priceBreakdown.childrenAmount)}
-                              </dd>
-                            </div>
-                          )}
-                          <div className="border-t border-blue-200 pt-2 flex justify-between gap-3">
-                            <dt className="text-gray-700 font-medium">Subtotal</dt>
-                            <dd className="font-semibold text-gray-900 tabular-nums">
-                              {formatRupee(priceBreakdown.subtotal)}
-                            </dd>
-                          </div>
-                          <div className="flex justify-between gap-3">
-                            <dt className="text-gray-600">GST ({priceBreakdown.gstPercentage}%)</dt>
-                            <dd className="font-medium text-gray-900 tabular-nums">
-                              {formatRupee(priceBreakdown.gst)}
-                            </dd>
-                          </div>
                           <div className="border-t-2 border-blue-300 pt-2 flex justify-between items-center gap-3">
                             <dt className="text-base font-semibold text-gray-900">Total</dt>
                             <dd className="text-xl font-bold text-blue-600 tabular-nums">
@@ -1046,10 +1100,15 @@ const BookingForm: React.FC = () => {
                           Estimate for selected dates and guests. Contact us to confirm.
                         </p>
                       </div>
+                    ) : villaLoading ? (
+                      <p className="text-sm text-gray-600 bg-gray-50 border border-gray-200 rounded-lg p-3">
+                        Loading villa rates…
+                      </p>
                     ) : (
                       selectedDates.checkIn &&
                       selectedDates.checkOut &&
-                      room?.is_active && (
+                      room?.is_active &&
+                      !hasConfiguredRates && (
                         <p className="text-sm text-gray-600 bg-gray-50 border border-gray-200 rounded-lg p-3">
                           Villa nightly rate is not configured yet. Contact us for a quote.
                         </p>
@@ -1058,33 +1117,25 @@ const BookingForm: React.FC = () => {
 
                     {(!selectedDates.checkIn || !selectedDates.checkOut) &&
                       !priceBreakdown &&
-                      villaSettings.price.trim() && (
+                      (effectiveVillaSettings.price ?? '').trim() && (
                       <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
                         <h3 className="text-sm font-semibold text-gray-900 mb-2">Villa rates</h3>
                         <ul className="text-sm text-gray-600 space-y-1.5">
                           <li className="flex justify-between gap-2">
                             <span>Per night (up to {includedCapacity} guests)</span>
                             <span className="font-medium text-gray-900">
-                              {formatPriceDisplay(villaSettings.price)}
+                              {formatPriceDisplay(effectiveVillaSettings.price)}
                             </span>
                           </li>
                           <li className="flex justify-between gap-2">
                             <span>Max guests</span>
                             <span className="font-medium text-gray-900">{maxCapacity}</span>
                           </li>
-                          {villaSettings.extra_adult_price.trim() && (
+                          {(effectiveVillaSettings.extra_guest_price ?? '').trim() && (
                             <li className="flex justify-between gap-2">
-                              <span>Extra adult / night</span>
+                              <span>Extra guest / night</span>
                               <span className="font-medium text-gray-900">
-                                {formatPriceDisplay(villaSettings.extra_adult_price)}
-                              </span>
-                            </li>
-                          )}
-                          {villaSettings.child_price.trim() && (
-                            <li className="flex justify-between gap-2">
-                              <span>Extra child (5+) / night</span>
-                              <span className="font-medium text-gray-900">
-                                {formatPriceDisplay(villaSettings.child_price)}
+                                {formatPriceDisplay(effectiveVillaSettings.extra_guest_price)}
                               </span>
                             </li>
                           )}
@@ -1221,15 +1272,7 @@ const BookingForm: React.FC = () => {
 
                 <button
                   type="submit"
-                  disabled={
-                    submitting ||
-                    !room?.is_active ||
-                    !selectedDates.checkIn ||
-                    !selectedDates.checkOut ||
-                    !priceBreakdown ||
-                    totalAmount <= 0 ||
-                    totalGuests > maxCapacity
-                  }
+                  disabled={submitting || paymentBlockReason !== null}
                   className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {submitting
@@ -1239,24 +1282,8 @@ const BookingForm: React.FC = () => {
                       : 'Proceed to Payment'}
                 </button>
 
-                {(!selectedDates.checkIn || !selectedDates.checkOut) && room?.is_active && (
-                  <p className="text-sm text-gray-600 text-center">
-                    Select your preferred dates above to see your total and pay online.
-                  </p>
-                )}
-
-                {selectedDates.checkIn && selectedDates.checkOut && !priceBreakdown && room?.is_active && (
-                  <p className="text-sm text-gray-600 text-center">
-                    Villa rates are not configured.{' '}
-                    <button
-                      type="button"
-                      onClick={() => navigate('/contact')}
-                      className="text-blue-600 hover:underline font-medium"
-                    >
-                      Contact us
-                    </button>{' '}
-                    to book.
-                  </p>
+                {paymentBlockReason && (
+                  <p className="text-sm text-gray-600 text-center">{paymentBlockReason}</p>
                 )}
 
                 <p className="text-xs text-gray-500 text-center">

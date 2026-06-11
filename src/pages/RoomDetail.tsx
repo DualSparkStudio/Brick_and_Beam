@@ -14,11 +14,15 @@ import { useNavigate, useParams } from 'react-router-dom'
 import AvailabilityCalendar from '../components/AvailabilityCalendar'
 import HouseRules from '../components/HouseRules'
 import RoomUnavailableModal from '../components/RoomUnavailableModal'
+import { useVilla } from '../contexts/VillaContext'
+import { resolveVillaGuestLimits } from '../lib/villa-settings'
 import type { Room } from '../lib/supabase'
 import { api } from '../lib/supabase'
 
 const RoomDetail: React.FC = () => {
-  
+  const { settings: villaSettings } = useVilla()
+  const { includedCapacity, maxCapacity: villaMaxCapacity } = resolveVillaGuestLimits(villaSettings)
+
   const { slug } = useParams<{ slug: string }>()
   const navigate = useNavigate()
   const [room, setRoom] = useState<Room | null>(null)
@@ -459,10 +463,13 @@ const RoomDetail: React.FC = () => {
                 </div>
                 <div className="text-center">
                   <UsersIcon className="h-8 w-8 text-blue-600 mx-auto mb-2" />
-                  <div className="text-sm text-gray-500">Max Capacity</div>
+                  <div className="text-sm text-gray-500">Guests</div>
                   <div className="font-semibold text-gray-900">
-                    {room.max_capacity ? `${room.max_capacity} Guests` : '4 Guests'}
+                    {includedCapacity > 0 ? `${includedCapacity} included` : '—'}
                   </div>
+                  {villaMaxCapacity > 0 && (
+                    <div className="text-xs text-gray-500 mt-0.5">max {villaMaxCapacity}</div>
+                  )}
                 </div>
                 <div className="text-center">
                   <MapPinIcon className="h-8 w-8 text-green-600 mx-auto mb-2" />

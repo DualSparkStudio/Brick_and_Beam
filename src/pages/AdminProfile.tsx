@@ -8,8 +8,9 @@ import React, { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useAuth } from '../contexts/AuthContext'
 import { useVilla } from '../contexts/VillaContext'
+import { netlifyFunctionUrl } from '../lib/netlify-functions'
 import { api } from '../lib/supabase'
-import { defaultVillaSettings } from '../lib/villa-settings'
+import { defaultVillaSettings, normalizeVillaSettings } from '../lib/villa-settings'
 
 const AdminProfile: React.FC = () => {
   const { user, updateProfile, changePassword, refreshUserData } = useAuth()
@@ -91,7 +92,7 @@ const AdminProfile: React.FC = () => {
       try {
         setVillaLoading(true)
         const data = await api.getVillaSettings()
-        setVillaForm(data)
+        setVillaForm(normalizeVillaSettings(data))
       } catch {
         setVillaForm(defaultVillaSettings())
       } finally {
@@ -179,9 +180,7 @@ const AdminProfile: React.FC = () => {
         max_capacity: villaForm.max_capacity.trim(),
         amenities: villaForm.amenities.trim(),
         games: villaForm.games.trim(),
-        extra_adult_price: villaForm.extra_adult_price.trim(),
-        child_price: villaForm.child_price.trim(),
-        gst_percentage: villaForm.gst_percentage.trim(),
+        extra_guest_price: (villaForm.extra_guest_price ?? '').trim(),
       })
       await refreshVillaSettings()
       toast.success('Villa details saved successfully')
@@ -266,7 +265,7 @@ const AdminProfile: React.FC = () => {
       toast.loading('Sending test email...', { id: 'test-smtp' })
       
       // Send test email using the email service
-      const response = await fetch('/.netlify/functions/send-booking-confirmation', {
+      const response = await fetch(netlifyFunctionUrl('send-booking-confirmation'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -568,47 +567,19 @@ const AdminProfile: React.FC = () => {
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Extra adult (per night)
+                            Extra guest (per night)
                           </label>
                           <input
                             type="number"
                             min="0"
-                            value={villaForm.extra_adult_price}
+                            value={villaForm.extra_guest_price}
                             onChange={(e) =>
-                              setVillaForm((prev) => ({ ...prev, extra_adult_price: e.target.value }))
+                              setVillaForm((prev) => ({ ...prev, extra_guest_price: e.target.value }))
                             }
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900"
                             placeholder="e.g., 1200"
                           />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Extra child — 5+ years (per night)
-                          </label>
-                          <input
-                            type="number"
-                            min="0"
-                            value={villaForm.child_price}
-                            onChange={(e) => setVillaForm((prev) => ({ ...prev, child_price: e.target.value }))}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900"
-                            placeholder="e.g., 800"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">GST (%)</label>
-                          <input
-                            type="number"
-                            min="0"
-                            max="100"
-                            step="0.01"
-                            value={villaForm.gst_percentage}
-                            onChange={(e) =>
-                              setVillaForm((prev) => ({ ...prev, gst_percentage: e.target.value }))
-                            }
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900"
-                            placeholder="e.g., 18"
-                          />
-                          <p className="text-xs text-gray-500 mt-1">Applied to booking subtotal</p>
+                          <p className="text-xs text-gray-500 mt-1">Same rate for adults and children above capacity</p>
                         </div>
                       </div>
                     </div>

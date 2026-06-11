@@ -7,12 +7,8 @@ export interface VillaSettings {
   max_capacity: string
   amenities: string
   games: string
-  /** Per-night rate for extra adults above capacity (up to max_capacity) */
-  extra_adult_price: string
-  /** Per-night rate for extra children above capacity (up to max_capacity) */
-  child_price: string
-  /** GST percentage applied to booking subtotals */
-  gst_percentage: string
+  /** Per-night rate for each guest above capacity (adults and children) */
+  extra_guest_price: string
 }
 
 export const VILLA_SETTING_KEYS = {
@@ -22,9 +18,10 @@ export const VILLA_SETTING_KEYS = {
   villa_max_capacity: 'villa_max_capacity',
   villa_amenities: 'villa_amenities',
   villa_games: 'villa_games',
+  villa_extra_guest_price: 'villa_extra_guest_price',
+  /** @deprecated Legacy keys — read-only fallback */
   villa_extra_adult_price: 'villa_extra_adult_price',
   villa_child_price: 'villa_child_price',
-  villa_gst_percentage: 'villa_gst_percentage',
 } as const
 
 export const defaultVillaSettings = (): VillaSettings => ({
@@ -34,10 +31,42 @@ export const defaultVillaSettings = (): VillaSettings => ({
   max_capacity: '',
   amenities: '',
   games: '',
-  extra_adult_price: '',
-  child_price: '',
-  gst_percentage: '12',
+  extra_guest_price: '',
 })
+
+/** Ensures all fields exist; maps legacy extra adult/child keys to extra_guest_price. */
+export function normalizeVillaSettings(
+  settings: Partial<VillaSettings> & {
+    extra_adult_price?: string
+    child_price?: string
+  }
+): VillaSettings {
+  const defaults = defaultVillaSettings()
+  const extra_guest_price =
+    settings.extra_guest_price ??
+    settings.extra_adult_price ??
+    settings.child_price ??
+    defaults.extra_guest_price
+
+  return {
+    villa_name: settings.villa_name ?? defaults.villa_name,
+    price: settings.price ?? defaults.price,
+    capacity: settings.capacity ?? defaults.capacity,
+    max_capacity: settings.max_capacity ?? defaults.max_capacity,
+    amenities: settings.amenities ?? defaults.amenities,
+    games: settings.games ?? defaults.games,
+    extra_guest_price,
+  }
+}
+
+function readExtraGuestPrice(map: Map<string, string | null | undefined>): string {
+  return (
+    map.get(VILLA_SETTING_KEYS.villa_extra_guest_price) ||
+    map.get(VILLA_SETTING_KEYS.villa_extra_adult_price) ||
+    map.get(VILLA_SETTING_KEYS.villa_child_price) ||
+    ''
+  )
+}
 
 /** Read settings from DB map (migrates legacy single max_capacity value to capacity). */
 export function mapVillaSettingsFromDb(
@@ -52,23 +81,15 @@ export function mapVillaSettingsFromDb(
     ? map.get(VILLA_SETTING_KEYS.villa_max_capacity) || capacity
     : legacyMax
 
-  return {
+  return normalizeVillaSettings({
     villa_name: map.get(VILLA_SETTING_KEYS.villa_name) || '',
     price: map.get(VILLA_SETTING_KEYS.villa_price) || '',
     capacity,
     max_capacity: maxCapacity,
     amenities: map.get(VILLA_SETTING_KEYS.villa_amenities) || '',
     games: map.get(VILLA_SETTING_KEYS.villa_games) || '',
-    extra_adult_price: map.get(VILLA_SETTING_KEYS.villa_extra_adult_price) || '',
-    child_price: map.get(VILLA_SETTING_KEYS.villa_child_price) || '',
-    gst_percentage: map.get(VILLA_SETTING_KEYS.villa_gst_percentage) || '12',
-  }
-}
-
-export function parseGstPercentage(settings: VillaSettings): number {
-  const parsed = parseFloat(settings.gst_percentage)
-  if (!settings.gst_percentage.trim() || Number.isNaN(parsed)) return 12
-  return Math.min(100, Math.max(0, parsed))
+    extra_guest_price: readExtraGuestPrice(map),
+  })
 }
 
 export function parseVillaGuestLimits(settings: VillaSettings): {
@@ -81,6 +102,35 @@ export function parseVillaGuestLimits(settings: VillaSettings): {
   return {
     capacity,
     maxCapacity: Math.max(maxCapacity, capacity),
+  }
+}
+
+const DEFAULT_GUEST_LIMIT = 10
+
+export interface ResolvedVillaGuestLimits {
+  /** Guests included in the base nightly price */
+  includedCapacity: number
+  /** Absolute maximum guests allowed for a booking */
+  maxCapacity: number
+}
+
+/** Single source of truth for included vs max guest limits (whole-villa booking). */
+export function resolveVillaGuestLimits(
+  settings: VillaSettings,
+  options?: { roomMaxCapacity?: number }
+): ResolvedVillaGuestLimits {
+  const { capacity, maxCapacity } = parseVillaGuestLimits(settings)
+  const roomMax = options?.roomMaxCapacity ?? 0
+
+  const includedCapacity =
+    capacity > 0 ? capacity : maxCapacity > 0 ? maxCapacity : roomMax > 0 ? roomMax : DEFAULT_GUEST_LIMIT
+
+  const resolvedMax =
+    maxCapacity > 0 ? maxCapacity : capacity > 0 ? capacity : roomMax > 0 ? roomMax : DEFAULT_GUEST_LIMIT
+
+  return {
+    includedCapacity,
+    maxCapacity: Math.max(resolvedMax, includedCapacity),
   }
 }
 

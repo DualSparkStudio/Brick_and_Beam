@@ -1,10 +1,12 @@
+import { netlifyFunctionUrl } from './netlify-functions'
+
 // API functions using Netlify functions
 export const api = {
   // Room Management
   async getAllRooms() {
     try {
       
-      const response = await fetch('/.netlify/functions/simple-login', {
+      const response = await fetch(netlifyFunctionUrl('simple-login'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -34,7 +36,7 @@ export const api = {
 
   async createRoom(roomData: any) {
     try {
-      const response = await fetch('/.netlify/functions/simple-login', {
+      const response = await fetch(netlifyFunctionUrl('simple-login'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -60,7 +62,7 @@ export const api = {
   async updateRoom(id: number, updates: any) {
     try {
       
-      const response = await fetch('/.netlify/functions/simple-login', {
+      const response = await fetch(netlifyFunctionUrl('simple-login'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -87,7 +89,7 @@ export const api = {
 
   async deleteRoom(id: number) {
     try {
-      const response = await fetch('/.netlify/functions/simple-login', {
+      const response = await fetch(netlifyFunctionUrl('simple-login'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -132,7 +134,7 @@ export const api = {
   // Contact Form
   async submitContactForm(contactData: any) {
     try {
-      const response = await fetch('/.netlify/functions/simple-login', {
+      const response = await fetch(netlifyFunctionUrl('simple-login'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -158,7 +160,7 @@ export const api = {
   // Admin Email Management
   async getAdminEmail() {
     try {
-      const response = await fetch('/.netlify/functions/simple-login', {
+      const response = await fetch(netlifyFunctionUrl('simple-login'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -182,7 +184,7 @@ export const api = {
 
   async updateAdminEmail(email: string) {
     try {
-      const response = await fetch('/.netlify/functions/simple-login', {
+      const response = await fetch(netlifyFunctionUrl('simple-login'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -208,7 +210,7 @@ export const api = {
   // Get admin contact info for website display
   async getAdminContactInfo() {
     try {
-      const response = await fetch('/.netlify/functions/simple-login', {
+      const response = await fetch(netlifyFunctionUrl('simple-login'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -233,7 +235,7 @@ export const api = {
   // Test contact form configuration
   async testContactForm() {
     try {
-      const response = await fetch('/.netlify/functions/test-contact', {
+      const response = await fetch(netlifyFunctionUrl('test-contact'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -255,7 +257,7 @@ export const api = {
   // Test environment variables
   async testEnvironment() {
     try {
-      const response = await fetch('/.netlify/functions/test-env', {
+      const response = await fetch(netlifyFunctionUrl('test-env'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -98,7 +98,6 @@ CREATE TABLE IF NOT EXISTS rooms (
   deleted_at TIMESTAMPTZ,
   extra_guest_price NUMERIC(10, 2),
   child_above_5_price NUMERIC(10, 2) DEFAULT 0,
-  gst_percentage NUMERIC(5, 2) DEFAULT 12,
   accommodation_details TEXT,
   floor INTEGER,
   check_in_time TEXT DEFAULT '12:00 PM',
@@ -150,8 +149,11 @@ CREATE TABLE IF NOT EXISTS bookings (
   special_requests TEXT,
   total_amount NUMERIC(10, 2) NOT NULL,
   subtotal_amount NUMERIC(10, 2) DEFAULT 0,
-  gst_amount NUMERIC(10, 2) DEFAULT 0,
-  gst_percentage NUMERIC(5, 2) DEFAULT 12,
+  base_amount NUMERIC(10, 2) DEFAULT 0,
+  extra_guests INTEGER DEFAULT 0,
+  extra_guests_amount NUMERIC(10, 2) DEFAULT 0,
+  extra_guest_price_per_night NUMERIC(10, 2) DEFAULT 0,
+  included_capacity INTEGER DEFAULT 0,
   booking_status VARCHAR(20) DEFAULT 'pending'
     CHECK (booking_status IN ('pending', 'confirmed', 'cancelled')),
   payment_status VARCHAR(20) DEFAULT 'pending'
@@ -535,9 +537,7 @@ INSERT INTO calendar_settings (setting_key, setting_value, description) VALUES
   ('villa_max_capacity', '12', 'Maximum guests allowed'),
   ('villa_amenities', E'Private villa with valley views\nWi-Fi and air conditioning\nBonfire and outdoor seating\nIndoor games and recreation area', 'Amenities (one per line)'),
   ('villa_games', E'Carrom\nChess\nBadminton\nBoard games', 'Games (one per line)'),
-  ('villa_extra_adult_price', '2000', 'Per-night rate for extra adults above capacity'),
-  ('villa_child_price', '1500', 'Per-night rate for extra children above capacity'),
-  ('villa_gst_percentage', '12', 'GST percentage on booking subtotal'),
+  ('villa_extra_guest_price', '2000', 'Per-night rate for extra guests above capacity (adults and children)'),
   ('admin_email', 'admin@brickandbeam.com', 'Admin notification email'),
   ('maintenance_mode', 'false', 'When true, homepage shows maintenance page')
 ON CONFLICT (setting_key) DO UPDATE SET

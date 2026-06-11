@@ -6,7 +6,7 @@ import LogoLoader from '../components/LogoLoader'
 import SEO from '../components/SEO'
 import VillaDetailsSection from '../components/VillaDetailsSection'
 import { useVilla } from '../contexts/VillaContext'
-import { parseVillaGuestLimits } from '../lib/villa-settings'
+import { resolveVillaGuestLimits } from '../lib/villa-settings'
 import type { Room } from '../lib/supabase'
 import { api } from '../lib/supabase'
 
@@ -38,11 +38,11 @@ const Rooms: React.FC = () => {
   const checkInDate = searchParams.get('checkIn')
   const checkOutDate = searchParams.get('checkOut')
   const primaryBookRoom = filteredRooms.find((room) => room.is_active && roomSlugs[room.id])
-  const { maxCapacity: villaMaxGuests } = parseVillaGuestLimits(villaSettings)
-  const totalCapacity =
-    villaMaxGuests > 0
-      ? villaMaxGuests
-      : filteredRooms.reduce((sum, room) => sum + (room.max_capacity || 0), 0)
+  const { includedCapacity: displayedCapacity, maxCapacity: villaMaxCapacity } =
+    resolveVillaGuestLimits(villaSettings)
+  const guestFilterCount = numGuests ? parseInt(numGuests, 10) : 0
+  const guestsExceedVillaMax =
+    guestFilterCount > 0 && villaMaxCapacity > 0 && guestFilterCount > villaMaxCapacity
 
   useEffect(() => {
     loadRoomTypes()
@@ -50,14 +50,16 @@ const Rooms: React.FC = () => {
 
   useEffect(() => {
     filterRooms()
-  }, [roomTypes, numGuests, checkInDate, checkOutDate])
+  }, [roomTypes, numGuests, checkInDate, checkOutDate, villaMaxCapacity])
 
   const filterRooms = async () => {
     let filtered = [...roomTypes]
 
     if (numGuests) {
-      const guestCount = parseInt(numGuests)
-      filtered = filtered.filter((room) => room.max_capacity >= guestCount)
+      const guestCount = parseInt(numGuests, 10)
+      if (!Number.isNaN(guestCount) && guestCount > 0 && villaMaxCapacity > 0 && guestCount > villaMaxCapacity) {
+        filtered = []
+      }
     }
 
     if (checkInDate && checkOutDate) {
@@ -140,9 +142,12 @@ const Rooms: React.FC = () => {
                   <p className="text-gray-600 mt-1 text-sm sm:text-base">
                     All rooms are included when you book the villa.
                   </p>
-                  {totalCapacity > 0 && (
+                  {displayedCapacity > 0 && (
                     <p className="text-sm text-blue-700 mt-2 font-medium">
-                      Total capacity: ~{totalCapacity} guests
+                      Capacity: ~{displayedCapacity} guests
+                      {villaMaxCapacity > displayedCapacity && (
+                        <span className="text-blue-600 font-normal"> · max {villaMaxCapacity}</span>
+                      )}
                     </p>
                   )}
                 </div>
@@ -182,7 +187,11 @@ const Rooms: React.FC = () => {
               <div className="text-center py-16">
                 <UsersIcon className="w-12 h-12 text-gray-300 mx-auto mb-4" />
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">No rooms to show</h3>
-                <p className="text-gray-600">Try clearing filters or check back later.</p>
+                <p className="text-gray-600">
+                  {guestsExceedVillaMax
+                    ? `The villa accommodates up to ${villaMaxCapacity} guests. Try fewer guests or contact us.`
+                    : 'Try clearing filters or check back later.'}
+                </p>
               </div>
             ) : (
               <div className="space-y-14 sm:space-y-20">

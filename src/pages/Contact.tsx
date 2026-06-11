@@ -10,6 +10,7 @@ import React, { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import FAQ from '../components/FAQ'
 import SEO from '../components/SEO'
+import { netlifyFunctionUrl } from '../lib/netlify-functions'
 import { api } from '../lib/supabase'
 
 const Contact: React.FC = () => {
@@ -74,7 +75,7 @@ const Contact: React.FC = () => {
       }
       
       // Send contact form email to admin
-      const response = await fetch('/.netlify/functions/send-contact-email', {
+      const response = await fetch(netlifyFunctionUrl('send-contact-email'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

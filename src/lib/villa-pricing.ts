@@ -1,5 +1,5 @@
 import type { VillaSettings } from './villa-settings'
-import { parseGstPercentage, parseVillaGuestLimits } from './villa-settings'
+import { parseVillaGuestLimits } from './villa-settings'
 
 export interface VillaPriceBreakdown {
   nights: number
@@ -9,26 +9,43 @@ export interface VillaPriceBreakdown {
   baseAmount: number
   extraAdults: number
   extraChildren: number
-  adultPricePerNight: number
-  adultsAmount: number
-  childPricePerNight: number
-  childrenAmount: number
+  extraGuests: number
+  extraGuestPricePerNight: number
+  extraGuestsAmount: number
   numChildren: number
   subtotal: number
-  gstPercentage: number
-  gst: number
   total: number
 }
 
 function parseAmount(value: string | number | undefined | null): number {
   if (value == null || value === '') return 0
-  const num = typeof value === 'string' ? parseFloat(value) : value
+  if (typeof value === 'number') return Number.isFinite(value) ? value : 0
+  const cleaned = value.replace(/[₹,\s]/g, '')
+  const num = parseFloat(cleaned)
   return Number.isFinite(num) ? num : 0
 }
 
+function parseLocalDate(dateStr: string): Date | null {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dateStr.trim())
+  if (!match) return null
+  const year = Number(match[1])
+  const month = Number(match[2]) - 1
+  const day = Number(match[3])
+  const date = new Date(year, month, day)
+  if (
+    date.getFullYear() !== year ||
+    date.getMonth() !== month ||
+    date.getDate() !== day
+  ) {
+    return null
+  }
+  return date
+}
+
 function nightsBetween(checkIn: string, checkOut: string): number {
-  const checkInDate = new Date(checkIn)
-  const checkOutDate = new Date(checkOut)
+  const checkInDate = parseLocalDate(checkIn) ?? new Date(checkIn)
+  const checkOutDate = parseLocalDate(checkOut) ?? new Date(checkOut)
+  if (Number.isNaN(checkInDate.getTime()) || Number.isNaN(checkOutDate.getTime())) return 0
   return Math.ceil(
     Math.abs(checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24)
   )
@@ -53,7 +70,7 @@ export function allocateExtraGuests(
 
 /**
  * Base nightly rate covers up to `capacity` guests.
- * Extra adult/child rates apply only to guests above capacity (up to max_capacity).
+ * Same extra guest rate applies to adults and children above capacity (up to max_capacity).
  */
 export function calculateVillaBookingPrice(params: {
   checkIn: string
@@ -64,7 +81,6 @@ export function calculateVillaBookingPrice(params: {
   roomFallback?: {
     price_per_night?: number | string
     extra_guest_price?: number | string
-    child_above_5_price?: number | string
   }
 }): VillaPriceBreakdown | null {
   const { checkIn, checkOut, numAdults, numChildren, villaSettings, roomFallback } = params
@@ -79,18 +95,18 @@ export function calculateVillaBookingPrice(params: {
   if (maxCapacity > 0 && totalGuests > maxCapacity) return null
 
   let basePricePerNight = parseAmount(villaSettings.price)
-  let adultPricePerNight = parseAmount(villaSettings.extra_adult_price)
-  let childPricePerNight = parseAmount(villaSettings.child_price)
+  let extraGuestPricePerNight = parseAmount(villaSettings.extra_guest_price)
 
-  if (!basePricePerNight && roomFallback) {
-    basePricePerNight = parseAmount(roomFallback.price_per_night)
-    adultPricePerNight = adultPricePerNight || parseAmount(roomFallback.extra_guest_price)
-    childPricePerNight = childPricePerNight || parseAmount(roomFallback.child_above_5_price)
+  if (roomFallback) {
+    if (!basePricePerNight) {
+      basePricePerNight = parseAmount(roomFallback.price_per_night)
+    }
+    if (!extraGuestPricePerNight) {
+      extraGuestPricePerNight = parseAmount(roomFallback.extra_guest_price)
+    }
   }
 
   if (!basePricePerNight) return null
-
-  const gstPercentage = parseGstPercentage(villaSettings)
 
   const effectiveCapacity = capacity > 0 ? capacity : maxCapacity
   const { extraAdults, extraChildren } = allocateExtraGuests(
@@ -98,13 +114,12 @@ export function calculateVillaBookingPrice(params: {
     numChildren,
     effectiveCapacity
   )
+  const extraGuests = extraAdults + extraChildren
 
   const baseAmount = basePricePerNight * nights
-  const adultsAmount = adultPricePerNight * extraAdults * nights
-  const childrenAmount = childPricePerNight * extraChildren * nights
-  const subtotal = baseAmount + adultsAmount + childrenAmount
-  const gst = (subtotal * gstPercentage) / 100
-  const total = subtotal + gst
+  const extraGuestsAmount = extraGuestPricePerNight * extraGuests * nights
+  const subtotal = baseAmount + extraGuestsAmount
+  const total = subtotal
 
   return {
     nights,
@@ -114,14 +129,11 @@ export function calculateVillaBookingPrice(params: {
     baseAmount,
     extraAdults,
     extraChildren,
-    adultPricePerNight,
-    adultsAmount,
-    childPricePerNight,
-    childrenAmount,
+    extraGuests,
+    extraGuestPricePerNight,
+    extraGuestsAmount,
     numChildren,
     subtotal,
-    gstPercentage,
-    gst,
     total,
   }
 }

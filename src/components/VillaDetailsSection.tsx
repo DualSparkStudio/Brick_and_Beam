@@ -17,8 +17,7 @@ const VillaDetailsSection: React.FC<VillaDetailsSectionProps> = ({ settings }) =
     maxCapacity > 0 ||
     amenities.length > 0 ||
     games.length > 0 ||
-    settings.extra_adult_price.trim() ||
-    settings.child_price.trim()
+    (settings.extra_guest_price ?? '').trim()
 
   if (!hasContent) return null
 
@@ -47,18 +46,11 @@ const VillaDetailsSection: React.FC<VillaDetailsSectionProps> = ({ settings }) =
             <p className="text-xs text-gray-500 mt-1">guests maximum</p>
           </div>
         )}
-        {settings.extra_adult_price.trim() && (
+        {(settings.extra_guest_price ?? '').trim() && (
           <div className="rounded-lg bg-gray-50 border border-gray-200 p-4">
-            <p className="text-xs font-medium text-gray-600 uppercase tracking-wide mb-1">Extra adult</p>
-            <p className="text-xl font-bold text-gray-900">{formatPriceDisplay(settings.extra_adult_price)}</p>
-            <p className="text-xs text-gray-500 mt-1">per night above capacity</p>
-          </div>
-        )}
-        {settings.child_price.trim() && (
-          <div className="rounded-lg bg-gray-50 border border-gray-200 p-4">
-            <p className="text-xs font-medium text-gray-600 uppercase tracking-wide mb-1">Extra child (5+)</p>
-            <p className="text-xl font-bold text-gray-900">{formatPriceDisplay(settings.child_price)}</p>
-            <p className="text-xs text-gray-500 mt-1">per night above capacity</p>
+            <p className="text-xs font-medium text-gray-600 uppercase tracking-wide mb-1">Extra guest</p>
+            <p className="text-xl font-bold text-gray-900">{formatPriceDisplay(settings.extra_guest_price)}</p>
+            <p className="text-xs text-gray-500 mt-1">per night above capacity (adults & children)</p>
           </div>
         )}
       </div>
