@@ -122,17 +122,12 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   </div>
                 </div>
                 <div>
-<<<<<<< HEAD
-                  <h1 className="text-lg font-bold text-gray-900">{displayName}</h1>
-                  <p className="text-xs text-gray-600">Your Perfect Getaway</p>
-=======
                   <h1 className={`text-lg font-bold transition-colors duration-300 ${titleColor}`}>
-                    Resort Booking System
+                    {displayName}
                   </h1>
                   <p className={`text-xs transition-colors duration-300 ${subtitleColor}`}>
                     Your Perfect Getaway
                   </p>
->>>>>>> be30e869652e26da9f0aad72c1d4282195d17ebc
                 </div>
               </Link>
             </div>
