@@ -39,6 +39,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     address: ''
   })
 
+  const [scrolled, setScrolled] = useState(false)
+
   // Fetch admin info for footer
   useEffect(() => {
     const fetchAdminInfo = async () => {
@@ -51,6 +53,18 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
     fetchAdminInfo()
   }, [])
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 24)
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [location.pathname])
+
+  useEffect(() => {
+    setIsMobileMenuOpen(false)
+    setScrolled(false)
+  }, [location.pathname])
 
 
 
@@ -67,51 +81,78 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     { name: 'Contact', href: '/contact', icon: EnvelopeIcon },
   ]
 
+  const isHomeHero = location.pathname === '/' && !scrolled
+  const navSurface = isHomeHero
+    ? 'border-white/10 bg-dark-blue-900/30 shadow-[0_8px_32px_rgba(0,0,0,0.25)]'
+    : 'border-white/40 bg-white/65 shadow-[0_8px_32px_rgba(0,0,0,0.08)]'
+  const titleColor = isHomeHero ? 'text-white' : 'text-gray-900'
+  const subtitleColor = isHomeHero ? 'text-white/70' : 'text-gray-600'
+  const linkIdle = isHomeHero ? 'text-white/85 hover:text-golden-300' : 'text-gray-700 hover:text-golden-500'
+  const linkActive = isHomeHero ? 'text-golden-300' : 'text-golden-500'
+  const menuBtn = isHomeHero
+    ? 'text-white/90 hover:text-golden-300 hover:bg-white/10'
+    : 'text-gray-700 hover:text-golden-500 hover:bg-white/50'
+
   return (
     <div className="min-h-screen bg-white relative">
       <BackgroundEffects />
-      {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 bg-white/95 backdrop-blur-sm shadow-md border-b border-gray-200 z-50">
+      {/* Navigation — glassmorphism */}
+      <nav
+        className={`fixed top-0 left-0 right-0 z-50 border-b backdrop-blur-xl backdrop-saturate-150 transition-all duration-500 ${navSurface}`}
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-20">
             {/* Logo */}
             <div className="flex items-center">
-              <Link to="/" className="flex items-center">
-                <img 
-                  src="/images/GRAND VALLEY LOGO.jpg.jpeg" 
-                  alt="Resort Booking System Logo" 
-                  className="h-16 w-auto mr-3 object-contain"
-                  onError={(e) => {
-                    // Fallback if logo image doesn't load
-                    const target = e.target as HTMLImageElement;
-                    target.style.display = 'none';
-                    const fallback = target.nextElementSibling as HTMLElement;
-                    if (fallback) fallback.style.display = 'flex';
-                  }}
-                />
-                <div className="h-16 w-16 bg-gradient-luxury rounded-lg flex items-center justify-center mr-3 hidden">
-                  <span className="text-golden font-bold text-xl">GVR</span>
+              <Link to="/" className="flex items-center group">
+                <div className="mr-3 rounded-xl border border-white/20 bg-white/10 p-1 backdrop-blur-sm transition-colors group-hover:border-golden-500/40">
+                  <img 
+                    src="/images/GRAND VALLEY LOGO.jpg.jpeg" 
+                    alt="Resort Booking System Logo" 
+                    className="h-14 w-auto object-contain"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                      const fallback = target.nextElementSibling as HTMLElement;
+                      if (fallback) fallback.style.display = 'flex';
+                    }}
+                  />
+                  <div className="h-14 w-14 bg-gradient-luxury rounded-lg flex items-center justify-center hidden">
+                    <span className="text-golden font-bold text-xl">GVR</span>
+                  </div>
                 </div>
                 <div>
+<<<<<<< HEAD
                   <h1 className="text-lg font-bold text-gray-900">{displayName}</h1>
                   <p className="text-xs text-gray-600">Your Perfect Getaway</p>
+=======
+                  <h1 className={`text-lg font-bold transition-colors duration-300 ${titleColor}`}>
+                    Resort Booking System
+                  </h1>
+                  <p className={`text-xs transition-colors duration-300 ${subtitleColor}`}>
+                    Your Perfect Getaway
+                  </p>
+>>>>>>> be30e869652e26da9f0aad72c1d4282195d17ebc
                 </div>
               </Link>
             </div>
 
             {/* Desktop Navigation */}
-            <div className="hidden lg:flex items-center space-x-8">
+            <div className="hidden lg:flex items-center space-x-1">
               {navigation.map((item) => (
                 <Link
                   key={item.name}
                   to={item.href}
-                  className={`text-sm font-medium transition-colors duration-200 ${
+                  className={`relative rounded-full px-4 py-2 text-sm font-medium transition-all duration-300 ${
                     isActive(item.href)
-                      ? 'text-golden-500 border-b-2 border-golden-500'
-                      : 'text-gray-700 hover:text-golden-500'
+                      ? `${linkActive} ${isHomeHero ? 'bg-white/10' : 'bg-golden-50/80'}`
+                      : `${linkIdle} hover:bg-white/10`
                   }`}
                 >
                   {item.name}
+                  {isActive(item.href) && (
+                    <span className="absolute bottom-1 left-1/2 h-0.5 w-4 -translate-x-1/2 rounded-full bg-golden-400" />
+                  )}
                 </Link>
               ))}
             </div>
@@ -119,19 +160,23 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             {/* User Menu */}
             <div className="flex items-center space-x-3">
               <div className="hidden sm:flex items-center space-x-3">
-                {/* Guest user options - always show for all users */}
                 <Link
                   to="/rooms"
-                  className="btn-primary text-sm px-5 py-2.5 rounded-lg block"
+                  className={`inline-flex items-center rounded-full px-5 py-2.5 text-sm font-semibold transition-all duration-300 ${
+                    isHomeHero
+                      ? 'border border-golden-400/50 bg-golden-500/90 text-dark-blue-900 shadow-lg shadow-golden-500/20 hover:bg-golden-400'
+                      : 'btn-primary rounded-lg'
+                  }`}
                 >
-                  <span className="inline-block">Book Now</span>
+                  Book Now
                 </Link>
               </div>
 
               {/* Mobile menu button */}
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="lg:hidden p-2 rounded-md text-gray-700 hover:text-golden-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-golden-500"
+                className={`lg:hidden rounded-xl p-2.5 backdrop-blur-sm transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-golden-500/50 ${menuBtn}`}
+                aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
               >
                 {isMobileMenuOpen ? (
                   <XMarkIcon className="h-6 w-6" />
@@ -145,16 +190,24 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
         {/* Mobile Navigation */}
         {isMobileMenuOpen && (
-          <div className="lg:hidden">
-            <div className="px-2 pt-2 pb-3 space-y-1 bg-white border-t border-gray-200">
+          <div className="lg:hidden border-t border-white/10">
+            <div
+              className={`space-y-1 px-3 py-3 backdrop-blur-xl ${
+                isHomeHero ? 'bg-dark-blue-900/50' : 'bg-white/75'
+              }`}
+            >
               {navigation.map((item) => (
                 <Link
                   key={item.name}
                   to={item.href}
-                  className={`flex items-center px-3 py-3 rounded-md text-base font-medium transition-colors duration-200 ${
+                  className={`flex items-center rounded-xl px-3 py-3 text-base font-medium transition-all duration-200 ${
                     isActive(item.href)
-                      ? 'text-golden-500 bg-golden-50'
-                      : 'text-gray-700 hover:text-golden-500 hover:bg-gray-50'
+                      ? isHomeHero
+                        ? 'bg-white/10 text-golden-300'
+                        : 'bg-golden-50/90 text-golden-600'
+                      : isHomeHero
+                        ? 'text-white/90 hover:bg-white/10 hover:text-golden-300'
+                        : 'text-gray-700 hover:bg-white/60 hover:text-golden-500'
                   }`}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
@@ -163,14 +216,17 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 </Link>
               ))}
               
-              <div className="pt-4 pb-3 border-t border-gray-200 space-y-3">
-                {/* Guest mobile options - always show for all users */}
+              <div className={`space-y-3 border-t pt-4 pb-2 ${isHomeHero ? 'border-white/10' : 'border-gray-200/60'}`}>
                 <Link
                   to="/rooms"
-                  className="btn-primary w-full text-center block"
+                  className={`block w-full rounded-xl py-3 text-center text-sm font-semibold transition-all duration-300 ${
+                    isHomeHero
+                      ? 'bg-golden-500/90 text-dark-blue-900 hover:bg-golden-400'
+                      : 'btn-primary'
+                  }`}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
-                  <span className="inline-block">Book Now</span>
+                  Book Now
                 </Link>
               </div>
             </div>
