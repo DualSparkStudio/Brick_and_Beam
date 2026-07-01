@@ -211,7 +211,51 @@ export const handler = async (event, context) => {
     // Calculate nights
     const checkIn = new Date(booking.check_in_date)
     const checkOut = new Date(booking.check_out_date)
-    const nights = Math.ceil((checkOut - checkIn) / (1000 * 60 * 60 * 24))
+    const nights = Math.ceil(Math.abs(checkOut - checkIn) / (1000 * 60 * 60 * 24))
+
+    const formatRupee = (amount) => `₹${Math.round(Number(amount) || 0).toLocaleString('en-IN')}`
+
+    const buildPriceBreakdownHtml = () => {
+      const hasBreakdown = booking.base_amount != null && Number(booking.base_amount) > 0
+      if (!hasBreakdown) {
+        return `
+              <div class="detail-row">
+                <span class="detail-label">Total Amount:</span>
+                <span class="detail-value">${formatRupee(booking.total_amount)}</span>
+              </div>`
+      }
+
+      const capacity = booking.included_capacity ?? '—'
+      const baseAmount = Number(booking.base_amount) || 0
+      const extraGuests = Number(booking.extra_guests) || 0
+      const extraRate = Number(booking.extra_guest_price_per_night) || 0
+      const extraAmount = Number(booking.extra_guests_amount) || 0
+      const total = Number(booking.total_amount) || baseAmount + extraAmount
+
+      let rows = `
+              <div class="detail-row">
+                <span class="detail-label">Villa (${nights} night${nights !== 1 ? 's' : ''}, up to ${capacity} guests):</span>
+                <span class="detail-value">${formatRupee(baseAmount)}</span>
+              </div>`
+
+      if (extraAmount > 0) {
+        rows += `
+              <div class="detail-row">
+                <span class="detail-label">Extra guests (${extraGuests} × ${formatRupee(extraRate)} × ${nights} night${nights !== 1 ? 's' : ''}):</span>
+                <span class="detail-value">${formatRupee(extraAmount)}</span>
+              </div>`
+      }
+
+      rows += `
+              <div class="detail-row">
+                <span class="detail-label"><strong>Total Amount:</strong></span>
+                <span class="detail-value"><strong>${formatRupee(total)}</strong></span>
+              </div>`
+
+      return rows
+    }
+
+    const priceBreakdownHtml = buildPriceBreakdownHtml()
 
     // Format dates
     const formatDate = (dateString) => {
@@ -344,10 +388,8 @@ export const handler = async (event, context) => {
                 <span class="detail-label">Number of Guests:</span>
                 <span class="detail-value">${booking.num_guests} guest${booking.num_guests > 1 ? 's' : ''}</span>
               </div>
-              <div class="detail-row">
-                <span class="detail-label">Total Amount:</span>
-                <span class="detail-value">₹${booking.total_amount?.toLocaleString() || 'N/A'}</span>
-              </div>
+              <h4 style="margin: 20px 0 8px; color: #111827;">💰 Price Breakdown</h4>
+              ${priceBreakdownHtml}
               <div class="detail-row">
                 <span class="detail-label">Payment Status:</span>
                 <span class="status-paid">${booking.payment_status?.charAt(0).toUpperCase() + booking.payment_status?.slice(1) || 'Pending'}</span>
@@ -460,10 +502,8 @@ export const handler = async (event, context) => {
                 <span class="detail-label">Number of Guests:</span>
                 <span class="detail-value">${booking.num_guests} guest${booking.num_guests > 1 ? 's' : ''}</span>
               </div>
-              <div class="detail-row">
-                <span class="detail-label">Total Amount:</span>
-                <span class="detail-value">₹${booking.total_amount?.toLocaleString() || 'N/A'}</span>
-              </div>
+              <h4 style="margin: 20px 0 8px; color: #111827;">💰 Price Breakdown</h4>
+              ${priceBreakdownHtml}
               <div class="detail-row">
                 <span class="detail-label">Booking Status:</span>
                 <span class="${notificationContent.statusClass}">${notificationContent.statusText}</span>

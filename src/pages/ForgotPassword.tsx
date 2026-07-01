@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { toast } from 'react-hot-toast'
 import { EnvelopeIcon, KeyIcon } from '@heroicons/react/24/outline'
+import { netlifyFunctionUrl } from '../lib/netlify-functions'
 
 const ForgotPassword: React.FC = () => {
   const [step, setStep] = useState<'email' | 'reset'>('email')
@@ -24,7 +25,7 @@ const ForgotPassword: React.FC = () => {
     setLoading(true)
 
     try {
-      const response = await fetch('/.netlify/functions/simple-login', {
+      const response = await fetch(netlifyFunctionUrl('simple-login'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -92,7 +93,7 @@ const ForgotPassword: React.FC = () => {
     setLoading(true)
 
     try {
-      const response = await fetch('/.netlify/functions/simple-login', {
+      const response = await fetch(netlifyFunctionUrl('simple-login'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

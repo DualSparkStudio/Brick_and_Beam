@@ -1,3 +1,4 @@
+import { netlifyFunctionUrl } from './netlify-functions'
 import type { Booking, Room } from './supabase'
 import { api } from './supabase'
 
@@ -44,7 +45,7 @@ export class EmailService {
       const smtpConfig = await api.getSmtpConfig()
       const senderEmail = smtpConfig.mail_username || 'yashkaranjule15@gmail.com'
       
-      const response = await fetch('/.netlify/functions/send-booking-confirmation', {
+      const response = await fetch(netlifyFunctionUrl('send-booking-confirmation'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

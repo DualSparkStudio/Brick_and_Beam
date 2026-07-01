@@ -47,12 +47,13 @@ exports.handler = async (event, context) => {
 
     if (searchData.status !== 'OK' || !searchData.results || searchData.results.length === 0) {
       return {
-        statusCode: 404,
+        statusCode: 200,
         headers,
-        body: JSON.stringify({ 
-          error: 'Place not found',
-          success: false
-        })
+        body: JSON.stringify({
+          success: true,
+          place: null,
+          reviews: [],
+        }),
       }
     }
 

@@ -5,8 +5,12 @@ import {
     UserIcon,
     XMarkIcon
 } from '@heroicons/react/24/outline'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { toast } from 'react-hot-toast'
+import BookingPriceBreakdown from '../components/BookingPriceBreakdown'
+import { useVilla } from '../contexts/VillaContext'
+import { getBookingAdultCount, getBookingTotalGuests } from '../lib/booking-guests'
+import { resolveBookingPriceBreakdown } from '../lib/booking-pricing'
 import type { Booking, Room } from '../lib/supabase'
 import { api } from '../lib/supabase'
 
@@ -24,8 +28,6 @@ interface CombinedBooking {
   paymentStatus: string;
   totalAmount?: number;
   subtotalAmount?: number;
-  gstAmount?: number;
-  gstPercentage?: number;
   roomName: string;
   source: 'Website';
   special_requests?: string;
@@ -37,6 +39,7 @@ interface CombinedBooking {
 }
 
 const AdminBookings: React.FC = () => {
+  const { settings: villaSettings } = useVilla()
   const [bookings, setBookings] = useState<Booking[]>([])
   const [rooms, setRooms] = useState<Room[]>([])
   const [combinedBookings, setCombinedBookings] = useState<CombinedBooking[]>([])
@@ -50,6 +53,12 @@ const AdminBookings: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedBooking, setSelectedBooking] = useState<CombinedBooking | null>(null)
   const [loading, setLoading] = useState(true)
+
+  const selectedPriceBreakdown = useMemo(() => {
+    if (!selectedBooking?.originalBooking) return null
+    const room = rooms.find((r) => r.id === selectedBooking.originalBooking?.room_id)
+    return resolveBookingPriceBreakdown(selectedBooking.originalBooking, { villaSettings, room })
+  }, [selectedBooking, rooms, villaSettings])
 
   useEffect(() => {
     loadData()
@@ -136,8 +145,6 @@ const AdminBookings: React.FC = () => {
         paymentStatus: booking.payment_status,
         totalAmount: booking.total_amount,
         subtotalAmount: booking.subtotal_amount,
-        gstAmount: booking.gst_amount,
-        gstPercentage: booking.gst_percentage,
         roomName: room 
           ? (room.is_deleted ? `${room.name} (Deleted)` : room.name) 
           : (booking.room_name ? `${booking.room_name} (Deleted)` : 'Unknown Room'),
@@ -695,15 +702,15 @@ const AdminBookings: React.FC = () => {
                         <p className="text-sm font-medium text-gray-900">{new Date(selectedBooking.checkOutDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
                       </div>
                       <div className="bg-white rounded-lg p-3">
-                        <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Base Adults</label>
-                        <p className="text-sm font-semibold text-gray-900">2</p>
+                        <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Adults</label>
+                        <p className="text-sm font-semibold text-gray-900">
+                          {getBookingAdultCount({
+                            num_guests: selectedBooking.numGuests,
+                            num_extra_adults: selectedBooking.numExtraAdults,
+                            num_children_above_5: selectedBooking.numChildrenAbove5,
+                          })}
+                        </p>
                       </div>
-                      {selectedBooking.numExtraAdults > 0 && (
-                        <div className="bg-white rounded-lg p-3">
-                          <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Extra Adults</label>
-                          <p className="text-sm font-semibold text-gray-900">{selectedBooking.numExtraAdults}</p>
-                        </div>
-                      )}
                       {selectedBooking.numChildrenAbove5 > 0 && (
                         <div className="bg-white rounded-lg p-3">
                           <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Children Above 5</label>
@@ -712,7 +719,13 @@ const AdminBookings: React.FC = () => {
                       )}
                       <div className="bg-white rounded-lg p-3">
                         <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Total Guests</label>
-                        <p className="text-sm font-semibold text-gray-900">{2 + (selectedBooking.numExtraAdults || 0) + (selectedBooking.numChildrenAbove5 || 0)}</p>
+                        <p className="text-sm font-semibold text-gray-900">
+                          {getBookingTotalGuests({
+                            num_guests: selectedBooking.numGuests,
+                            num_extra_adults: selectedBooking.numExtraAdults,
+                            num_children_above_5: selectedBooking.numChildrenAbove5,
+                          })}
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -738,22 +751,19 @@ const AdminBookings: React.FC = () => {
                           {selectedBooking.paymentStatus}
                         </span>
                       </div>
-                      {selectedBooking.subtotalAmount && selectedBooking.gstAmount && (
-                        <>
-                          <div className="bg-white rounded-lg p-3">
-                            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Subtotal</label>
-                            <p className="text-lg font-bold text-gray-900">₹{selectedBooking.subtotalAmount?.toLocaleString()}</p>
-                          </div>
-                          <div className="bg-white rounded-lg p-3">
-                            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">GST ({selectedBooking.gstPercentage || 12}%)</label>
-                            <p className="text-lg font-bold text-gray-900">₹{selectedBooking.gstAmount?.toLocaleString()}</p>
-                          </div>
-                        </>
+                      {selectedPriceBreakdown ? (
+                        <div className="bg-white rounded-lg p-4 md:col-span-2 border border-green-200">
+                          <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
+                            Price Breakdown
+                          </label>
+                          <BookingPriceBreakdown breakdown={selectedPriceBreakdown} variant="compact" />
+                        </div>
+                      ) : (
+                        <div className="bg-gradient-to-r from-green-500 to-emerald-600 rounded-lg p-3 md:col-span-2">
+                          <label className="block text-xs font-semibold text-white/80 uppercase tracking-wide mb-1">Total Amount</label>
+                          <p className="text-2xl font-bold text-white">₹{selectedBooking.totalAmount?.toLocaleString() || '0'}</p>
+                        </div>
                       )}
-                      <div className="bg-gradient-to-r from-green-500 to-emerald-600 rounded-lg p-3 md:col-span-2">
-                        <label className="block text-xs font-semibold text-white/80 uppercase tracking-wide mb-1">Total Amount</label>
-                        <p className="text-2xl font-bold text-white">₹{selectedBooking.totalAmount?.toLocaleString() || '0'}</p>
-                      </div>
                       {selectedBooking.payment_gateway && (
                         <div className="bg-white rounded-lg p-3">
                           <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Payment Gateway</label>

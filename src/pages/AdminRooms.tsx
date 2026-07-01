@@ -11,22 +11,9 @@ const AdminRooms: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [roomTypeForm, setRoomTypeForm] = useState({
-    name: '',
     description: '',
-    price_per_night: '', // Couple charges
-    max_capacity: '4', // Maximum number of guests allowed
-    quantity: '1', // Number of rooms of this type
-    amenities: '',
-    image_url: '',
-    images: [''], // Add images array like attractions
-    video_url: '', // Add video URL field
-    is_active: true,
-    extra_guest_price: '',
-    child_above_5_price: '', // Child above 5 years price
-    gst_percentage: '12', // Default GST 12%
-    accommodation_details: '',
-    floor: '',
-    extra_mattress_price: '200' // Default ₹200
+    images: [''],
+    video_url: ''
   });
   const [selectedRoomType, setSelectedRoomType] = useState<Room | null>(null);
   const [roomTypeModalMode, setRoomTypeModalMode] = useState<'edit' | 'add' | 'view'>('add');
@@ -98,22 +85,9 @@ const AdminRooms: React.FC = () => {
     setSelectedRoomType(null);
     setFieldErrors({}); // Clear field errors
         setRoomTypeForm({ 
-          name: '', 
           description: '', 
-          price_per_night: '', 
-          max_capacity: '4',
-          quantity: '1',
-          amenities: '', 
-          image_url: '', 
-          images: [''], // Reset images array
-          video_url: '', // Reset video URL
-          is_active: true, 
-          extra_guest_price: '', 
-          child_above_5_price: '',
-          gst_percentage: '12',
-          accommodation_details: '',
-          floor: '',
-          extra_mattress_price: '200'
+          images: [''],
+          video_url: ''
         });
     setImagePreview('');
   };
@@ -186,6 +160,7 @@ const AdminRooms: React.FC = () => {
       const newFieldErrors: {[key: string]: boolean} = {};
       
       // Validate required fields
+<<<<<<< HEAD
       if (!roomTypeForm.name.trim()) {
         errors.push('Villa name is required');
         newFieldErrors.name = true;
@@ -201,6 +176,8 @@ const AdminRooms: React.FC = () => {
 
       // Quantity is always 1 for this single-villa website
 
+=======
+>>>>>>> 9f9f3922271f7bb3a97135500fa67d5e3b1f6a45
       // Filter out empty image URLs and validate
       const validImages = roomTypeForm.images
         .filter(img => img.trim() && validateImageUrl(img))
@@ -224,9 +201,11 @@ const AdminRooms: React.FC = () => {
       // Clear field errors if validation passes
       setFieldErrors({});
 
+      const fallbackName = selectedRoomType?.name || `Room Type ${roomTypes.length + 1}`;
       const roomData = {
-        name: roomTypeForm.name.trim(),
+        name: fallbackName,
         description: roomTypeForm.description.trim(),
+<<<<<<< HEAD
         price_per_night: parseFloat(roomTypeForm.price_per_night),
         max_capacity: parseInt(roomTypeForm.max_capacity) || 4,
         quantity: 1,
@@ -242,9 +221,25 @@ const AdminRooms: React.FC = () => {
         accommodation_details: roomTypeForm.accommodation_details.trim(),
         floor: roomTypeForm.floor ? parseInt(roomTypeForm.floor) : undefined,
         extra_mattress_price: roomTypeForm.extra_mattress_price ? parseFloat(roomTypeForm.extra_mattress_price) : 200,
+=======
+        price_per_night: selectedRoomType?.price_per_night ?? 0,
+        max_capacity: selectedRoomType?.max_capacity ?? 4,
+        quantity: selectedRoomType?.quantity ?? 1,
+        amenities: [],
+        image_url: validImages[0],
+        images: validImages,
+        video_url: roomTypeForm.video_url.trim() || undefined,
+        is_active: selectedRoomType?.is_active ?? true,
+        is_available: selectedRoomType?.is_available ?? true,
+        extra_guest_price: selectedRoomType?.extra_guest_price ?? 0,
+        child_above_5_price: selectedRoomType?.child_above_5_price ?? 0,
+        accommodation_details: selectedRoomType?.accommodation_details ?? '',
+        floor: selectedRoomType?.floor,
+        extra_mattress_price: selectedRoomType?.extra_mattress_price ?? 200,
+>>>>>>> 9f9f3922271f7bb3a97135500fa67d5e3b1f6a45
         check_in_time: '12:00 PM',
         check_out_time: '10:00 AM',
-        room_number: roomTypeForm.name.replace(/\s+/g, '-').toUpperCase(), // Generate from name
+        room_number: (selectedRoomType?.room_number || fallbackName).replace(/\s+/g, '-').toUpperCase(),
       };
 
       if (roomTypeModalMode === 'edit' && selectedRoomType) {
@@ -375,22 +370,9 @@ const AdminRooms: React.FC = () => {
         };
         
         setRoomTypeForm({
-          name: roomType.name || '',
           description: roomType.description || '',
-          price_per_night: safeToString(roomType.price_per_night),
-          max_capacity: safeToString(roomType.max_capacity) || '4',
-          quantity: safeToString(roomType.quantity) || '1',
-          amenities: Array.isArray(roomType.amenities) ? roomType.amenities.join('\n') : '',
-          is_active: roomType.is_active ?? true,
-          extra_guest_price: safeToString(roomType.extra_guest_price),
-          child_above_5_price: safeToString(roomType.child_above_5_price),
-          gst_percentage: safeToString(roomType.gst_percentage) || '12',
-          accommodation_details: roomType.accommodation_details || '',
-          image_url: roomType.image_url || '',
           images: Array.isArray(roomType.images) && roomType.images.length > 0 ? roomType.images : [''],
-          video_url: roomType.video_url || '', // Add video URL
-          floor: safeToString(roomType.floor),
-          extra_mattress_price: safeToString(roomType.extra_mattress_price) || '200'
+          video_url: roomType.video_url || '',
         });
 
         // Load existing room images if editing
@@ -400,22 +382,9 @@ const AdminRooms: React.FC = () => {
       } else {
         setSelectedRoomType(null);
         setRoomTypeForm({ 
-          name: '', 
           description: '', 
-          price_per_night: '', 
-          max_capacity: '4',
-          quantity: '1',
-          amenities: '', 
-          is_active: true, 
-          extra_guest_price: '', 
-          child_above_5_price: '',
-          gst_percentage: '12',
-          accommodation_details: '',
-          image_url: '', 
           images: [''],
-          video_url: '', // Add video URL
-          floor: '',
-          extra_mattress_price: '200'
+          video_url: '',
         });
         setImagePreview('');
       }
@@ -475,12 +444,15 @@ const AdminRooms: React.FC = () => {
                       Villa
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+<<<<<<< HEAD
                       Price/Night (Couple)
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Max Guests
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+=======
+>>>>>>> 9f9f3922271f7bb3a97135500fa67d5e3b1f6a45
                       Status
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -511,6 +483,7 @@ const AdminRooms: React.FC = () => {
                           </div>
                         </div>
                       </td>
+<<<<<<< HEAD
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         ₹{room.price_per_night?.toLocaleString()}
                       </td>
@@ -519,6 +492,8 @@ const AdminRooms: React.FC = () => {
                           {room.max_capacity || room.max_occupancy || 4} guests
                         </span>
                       </td>
+=======
+>>>>>>> 9f9f3922271f7bb3a97135500fa67d5e3b1f6a45
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                           room.is_active 
@@ -596,6 +571,7 @@ const AdminRooms: React.FC = () => {
                     </div>
                   </div>
                   
+<<<<<<< HEAD
                   <div className="grid grid-cols-2 gap-2 mb-3 text-sm">
                     <div>
                       <span className="text-gray-500">Price:</span>
@@ -622,14 +598,19 @@ const AdminRooms: React.FC = () => {
                   <div className="flex items-center justify-between mb-3">
                     <button
                       onClick={() => handleToggleRoomStatus(room.id, room.is_active)}
+=======
+                  <div className="flex flex-wrap gap-3 mb-3 text-sm">
+                    <span
+>>>>>>> 9f9f3922271f7bb3a97135500fa67d5e3b1f6a45
                       className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                        room.is_active
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-red-100 text-red-800'
+                        room.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                       }`}
                     >
                       {room.is_active ? 'Active' : 'Inactive'}
-                    </button>
+                    </span>
+                    <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                      {room.images?.length || 1} image{(room.images?.length || 1) !== 1 ? 's' : ''}
+                    </span>
                   </div>
 
                   <div className="flex flex-wrap gap-2">
@@ -714,10 +695,10 @@ const AdminRooms: React.FC = () => {
             >
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Basic Information */}
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
+<<<<<<< HEAD
                       Villa Name *
                     </label>
                     <input
@@ -741,19 +722,22 @@ const AdminRooms: React.FC = () => {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
+=======
+>>>>>>> 9f9f3922271f7bb3a97135500fa67d5e3b1f6a45
                       Description
                     </label>
                     <textarea
                       name="description"
                       value={roomTypeForm.description}
                       onChange={handleRoomTypeFormChange}
-                      rows={3}
+                      rows={4}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
                       placeholder="Enter villa description"
                       disabled={roomTypeModalMode === 'view'}
                     />
                   </div>
 
+<<<<<<< HEAD
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -942,9 +926,10 @@ const AdminRooms: React.FC = () => {
                       <span className="ml-2 text-sm text-gray-700">Active</span>
                     </label>
                   </div>
+=======
+>>>>>>> 9f9f3922271f7bb3a97135500fa67d5e3b1f6a45
                 </div>
 
-                {/* Image Management */}
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <label className="block text-sm font-medium text-gray-700">
@@ -1077,10 +1062,7 @@ const AdminRooms: React.FC = () => {
                       </div>
                     </div>
                   )}
-                </div>
-
-                {/* Video URL Field */}
-                <div className="space-y-2">
+                  <div className="space-y-2">
                   <label className="block text-sm font-medium text-gray-700">
                     Villa Video URL (Optional)
                   </label>
@@ -1095,7 +1077,7 @@ const AdminRooms: React.FC = () => {
                   <p className="text-xs text-gray-500">
                     Upload your video to Cloudinary and paste the URL here. Supports MP4, WebM formats.
                   </p>
-                  {roomTypeForm.video_url && (
+                    {roomTypeForm.video_url && (
                     <div className="mt-3">
                       <label className="block text-sm font-medium text-gray-700 mb-2">Video Preview:</label>
                       <video
@@ -1110,6 +1092,7 @@ const AdminRooms: React.FC = () => {
                       </video>
                     </div>
                   )}
+                  </div>
                 </div>
               </div>
 

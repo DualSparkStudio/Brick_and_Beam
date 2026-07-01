@@ -7,8 +7,6 @@ import {
     HomeIcon,
     MapPinIcon,
     QuestionMarkCircleIcon,
-    SparklesIcon,
-    StarIcon,
     UserIcon,
     WrenchScrewdriverIcon,
     XMarkIcon
@@ -31,7 +29,6 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ onClose }) => {
     { name: 'Villas', href: '/admin/rooms', icon: BuildingOfficeIcon },
     { name: 'Bookings', href: '/admin/bookings', icon: CalendarIcon },
     { name: 'Calendar', href: '/admin/calendar', icon: CalendarIcon },
-    { name: 'Reviews', href: '/admin/reviews', icon: StarIcon },
     { name: 'FAQ', href: '/admin/faq', icon: QuestionMarkCircleIcon },
     { name: 'House Rules', href: '/admin/house-rules', icon: DocumentTextIcon },
     { name: 'Maintenance', href: '/admin/maintenance', icon: WrenchScrewdriverIcon },

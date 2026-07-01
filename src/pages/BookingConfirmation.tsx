@@ -2,11 +2,16 @@ import { CheckCircleIcon } from '@heroicons/react/24/outline'
 import React, { useEffect, useState } from 'react'
 import { toast } from 'react-hot-toast'
 import { useNavigate, useParams } from 'react-router-dom'
+import BookingPriceBreakdown from '../components/BookingPriceBreakdown'
+import { useVilla } from '../contexts/VillaContext'
+import { getBookingTotalGuests } from '../lib/booking-guests'
+import { resolveBookingPriceBreakdown } from '../lib/booking-pricing'
 import type { Booking, Room } from '../lib/supabase'
 import { api } from '../lib/supabase'
 import { normalizeImageUrl } from '../utils/imageUrl'
 
 const BookingConfirmation: React.FC = () => {
+  const { displayName, settings: villaSettings } = useVilla()
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const [booking, setBooking] = useState<Booking | null>(null)
@@ -78,6 +83,9 @@ const BookingConfirmation: React.FC = () => {
   }
 
   const nights = calculateNights(booking.check_in_date, booking.check_out_date)
+  const villaName = displayName || booking.room_name || room?.name || 'Villa'
+  const villaImage = room?.image_url
+  const priceBreakdown = resolveBookingPriceBreakdown(booking, { villaSettings, room })
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 py-8 sm:py-12">
@@ -163,38 +171,44 @@ const BookingConfirmation: React.FC = () => {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Total Guests:</span>
-                    <span className="font-semibold text-gray-900">{2 + (booking.num_extra_adults || 0) + (booking.num_children_above_5 || 0)}</span>
+                    <span className="font-semibold text-gray-900">{getBookingTotalGuests(booking)}</span>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Room Details Card */}
-            {room && (
-              <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl p-6 mb-6 border border-amber-200">
-                <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
-                  <svg className="w-6 h-6 mr-2 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                  </svg>
-                  Room Details
-                </h2>
-                <div className="flex items-center space-x-4">
+            {/* Villa Details Card */}
+            <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl p-6 mb-6 border border-amber-200">
+              <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                <svg className="w-6 h-6 mr-2 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+                Villa Details
+              </h2>
+              <div className="flex items-center space-x-4">
+                {villaImage && (
                   <img
+<<<<<<< HEAD
                     src={normalizeImageUrl(room.image_url)}
                     alt={room.name}
+=======
+                    src={villaImage}
+                    alt={villaName}
+>>>>>>> 9f9f3922271f7bb3a97135500fa67d5e3b1f6a45
                     className="w-24 h-24 object-cover rounded-xl shadow-md"
                     onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.src = 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';
+                      const target = e.target as HTMLImageElement
+                      target.src =
+                        'https://images.unsplash.com/photo-1571896349842-33c89424de2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
                     }}
                   />
-                  <div>
-                    <h3 className="text-lg font-bold text-gray-900">{room.name}</h3>
-                    <p className="text-gray-600 uppercase text-sm tracking-wide">{room.room_number}</p>
-                  </div>
+                )}
+                <div>
+                  <h3 className="text-lg font-bold text-gray-900">{villaName}</h3>
+                  <p className="text-gray-600 text-sm">Entire villa booking</p>
                 </div>
               </div>
-            )}
+            </div>
 
             {/* Payment Summary Card */}
             <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-6 mb-6 border-2 border-green-200">
@@ -205,35 +219,24 @@ const BookingConfirmation: React.FC = () => {
                 Payment Summary
               </h2>
               <div className="space-y-3">
-                {booking.subtotal_amount && booking.gst_amount ? (
-                  <>
-                    <div className="flex justify-between text-gray-700">
-                      <span>Subtotal:</span>
-                      <span className="font-semibold">₹{booking.subtotal_amount.toLocaleString()}</span>
-                    </div>
-                    <div className="flex justify-between text-gray-700">
-                      <span>GST ({booking.gst_percentage || 12}%):</span>
-                      <span className="font-semibold">₹{booking.gst_amount.toLocaleString()}</span>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <div className="flex justify-between text-gray-700">
-                      <span>Room Rate (per night):</span>
-                      <span className="font-semibold">₹{room?.price_per_night.toLocaleString()}</span>
-                    </div>
-                    <div className="flex justify-between text-gray-700">
-                      <span>Number of Nights:</span>
-                      <span className="font-semibold">{nights}</span>
-                    </div>
-                  </>
-                )}
-                <div className="border-t-2 border-green-300 pt-3 mt-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-xl font-bold text-gray-900">Total Amount:</span>
-                    <span className="text-2xl font-bold text-green-600">₹{booking.total_amount.toLocaleString()}</span>
-                  </div>
+                <div className="flex justify-between text-gray-700">
+                  <span>Number of Nights:</span>
+                  <span className="font-semibold">{nights}</span>
                 </div>
+                {priceBreakdown ? (
+                  <div className="bg-white/70 rounded-lg p-4 border border-green-200">
+                    <BookingPriceBreakdown breakdown={priceBreakdown} />
+                  </div>
+                ) : (
+                  <div className="border-t-2 border-green-300 pt-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-xl font-bold text-gray-900">Total Amount:</span>
+                      <span className="text-2xl font-bold text-green-600">
+                        ₹{booking.total_amount.toLocaleString()}
+                      </span>
+                    </div>
+                  </div>
+                )}
                 <div className={`mt-4 inline-flex items-center px-4 py-2 rounded-lg font-semibold ${
                   booking.payment_status === 'paid' ? 'bg-green-500 text-white' :
                   booking.payment_status === 'pending' ? 'bg-yellow-500 text-white' :
@@ -254,17 +257,10 @@ const BookingConfirmation: React.FC = () => {
               </div>
             )}
 
-            {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 mb-6">
-              <button
-                onClick={() => navigate('/rooms')}
-                className="flex-1 px-6 py-3 bg-white border-2 border-blue-600 text-blue-600 rounded-xl font-semibold hover:bg-blue-50 transition-all duration-200 shadow-md hover:shadow-lg"
-              >
-                Book Another Room
-              </button>
+            <div className="mb-6">
               <button
                 onClick={() => navigate('/')}
-                className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl font-semibold hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-md hover:shadow-lg"
+                className="w-full sm:max-w-xs sm:mx-auto block px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl font-semibold hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-md hover:shadow-lg"
               >
                 Back to Home
               </button>

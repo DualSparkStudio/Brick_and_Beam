@@ -4,10 +4,15 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+<<<<<<< HEAD
     "dev": "node scripts/dev.mjs",
     "dev:netlify": "netlify dev",
     "dev:vite": "vite",
     "dev:api": "node scripts/local-functions-server.mjs",
+=======
+    "dev": "netlify dev",
+    "dev:vite": "vite --port 8766",
+>>>>>>> 9f9f3922271f7bb3a97135500fa67d5e3b1f6a45
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
