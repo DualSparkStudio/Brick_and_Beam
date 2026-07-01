@@ -10,8 +10,11 @@ import HouseRules from '../components/HouseRules'
 import RoomUnavailableModal from '../components/RoomUnavailableModal'
 import LogoLoader from '../components/LogoLoader'
 import SEO from '../components/SEO'
+import PageHero from '../components/PageHero'
+import { PAGE_HERO_IMAGES } from '../config/galleryImages'
 import type { Room } from '../lib/supabase'
 import { api } from '../lib/supabase'
+import { normalizeImageUrl } from '../utils/imageUrl'
 
 const Rooms: React.FC = () => {
   const [searchParams] = useSearchParams()
@@ -126,24 +129,17 @@ const Rooms: React.FC = () => {
         roomName={unavailableRoomName}
       />
       <SEO 
-        title="Luxury Rooms & Accommodations - Resort Booking System"
-        description="Explore our luxury rooms and accommodations at Resort Booking System. From deluxe suites to premium rooms, find your perfect stay."
-        keywords="luxury rooms, Resort Booking System rooms, accommodation, premium rooms, resort rooms, booking system"
+        title="Luxury Rooms & Accommodations - Brick and Beam"
+        description="Explore our luxury rooms and accommodations at Brick and Beam. From deluxe suites to premium rooms, find your perfect stay."
+        keywords="luxury rooms, Brick and Beam rooms, accommodation, premium rooms, resort rooms, booking system"
         url="https://riverbreezehomestay.com/rooms"
       />
       <div className="min-h-screen bg-gray-50">
-        {/* Hero Section */}
-        <section className="relative h-64 sm:h-80 lg:h-96 bg-gradient-to-r from-dark-blue-800 to-golden-500">
-          <div className="absolute inset-0 bg-black/20"></div>
-          <div className="relative z-10 flex items-center justify-center h-full">
-            <div className="text-center text-white px-4 sm:px-6 lg:px-8">
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4">Our Luxury Rooms</h1>
-              <p className="text-lg sm:text-xl max-w-2xl mx-auto">
-                Discover comfort and elegance in our carefully designed accommodations
-              </p>
-            </div>
-          </div>
-        </section>
+        <PageHero
+          title="Our Luxury Villa"
+          subtitle="Discover comfort and elegance in our private hill-station retreat"
+          image={PAGE_HERO_IMAGES.rooms}
+        />
 
         {/* Rooms Grid */}
         <section className="py-8 sm:py-12 lg:py-20">
@@ -205,13 +201,14 @@ const Rooms: React.FC = () => {
                   // Get the primary image or first image from room.images array
                   const getMainImage = () => {
                     if (room.images && room.images.length > 0) {
-                      // Use the first valid image from the images array
                       const firstValidImage = room.images.find((img: string) => img && img.trim())
-                      if (firstValidImage) return firstValidImage
+                      if (firstValidImage) return normalizeImageUrl(firstValidImage)
                     }
-                    
-                    // Fallback to main image_url
-                    return room.image_url || 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
+
+                    return normalizeImageUrl(
+                      room.image_url ||
+                      'https://images.unsplash.com/photo-1571896349842-33c89424de2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
+                    )
                   }
                   
                   const mainImage = getMainImage()

@@ -46,7 +46,7 @@ export default function Preloader({ onComplete }: PreloaderProps) {
               className="mb-8"
             >
               <div className="h-20 w-20 mx-auto bg-gradient-to-br from-golden-500 to-golden-600 rounded-lg flex items-center justify-center">
-                <span className="text-3xl font-bold text-dark-blue-800 font-serif">GVR</span>
+                <span className="text-3xl font-bold text-dark-blue-800 font-serif">B&B</span>
               </div>
             </motion.div>
 

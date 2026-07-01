@@ -1,5 +1,5 @@
-import { CheckCircleIcon, ClockIcon, MapPinIcon, StarIcon, PhotoIcon } from '@heroicons/react/24/outline';
-import React, { useState } from 'react';
+import { CheckCircleIcon, ClockIcon, MapPinIcon, PhotoIcon, StarIcon } from '@heroicons/react/24/outline';
+import React, { useState } from 'react';import { normalizeImageUrl } from '../utils/imageUrl';
 
 interface AttractionCardProps {
   id: number;
@@ -12,12 +12,12 @@ interface AttractionCardProps {
   highlights: string[];
   best_time: string;
   category: string;
+  compact?: boolean;
   onImageClick?: () => void;
   getCategoryColor?: (category: string) => string;
 }
 
 const AttractionCard: React.FC<AttractionCardProps> = ({
-  id,
   name,
   description,
   images,
@@ -27,20 +27,14 @@ const AttractionCard: React.FC<AttractionCardProps> = ({
   highlights,
   best_time,
   category,
+  compact = false,
   onImageClick,
   getCategoryColor
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
-  
-  // Check if description is long enough to need truncation
-  const needsTruncation = description.length > 150;
-  
-  const toggleExpanded = () => {
-    setIsExpanded(!isExpanded);
-  };
+  const needsTruncation = !compact && description.length > 150;
 
-  const defaultGetCategoryColor = (category: string) => {
-    const colors: Record<string, string> = {
+  const defaultGetCategoryColor = (category: string) => {    const colors: Record<string, string> = {
       beach: 'bg-blue-100 text-blue-800',
       fort: 'bg-red-100 text-red-800',
       temple: 'bg-yellow-100 text-yellow-800',
@@ -56,9 +50,9 @@ const AttractionCard: React.FC<AttractionCardProps> = ({
   const categoryColor = getCategoryColor ? getCategoryColor(category) : defaultGetCategoryColor(category);
 
   // Get images to display (up to 4 images)
-  const displayImages = images.length > 0 ? images.slice(0, 4) : [
+  const displayImages = (images.length > 0 ? images.slice(0, 4) : [
     'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
-  ];
+  ]).map(normalizeImageUrl);
   const remainingImages = images.length > 4 ? images.length - 4 : 0;
 
   // Determine grid layout based on number of images
@@ -72,8 +66,7 @@ const AttractionCard: React.FC<AttractionCardProps> = ({
   return (
     <div className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
       {/* Multiple Images Grid */}
-      <div className="relative h-64 sm:h-72">
-        <div className={`grid ${getImageGridClass()} gap-1 h-full`}>
+      <div className={`relative ${compact ? 'h-48 sm:h-52' : 'h-64 sm:h-72'}`}>        <div className={`grid ${getImageGridClass()} gap-1 h-full`}>
           {displayImages.map((image, index) => (
             <div
               key={index}
@@ -117,9 +110,9 @@ const AttractionCard: React.FC<AttractionCardProps> = ({
       </div>
 
       {/* Content */}
-      <div className="p-6">
-        <div className="flex items-start justify-between mb-3">
-          <h3 className="text-xl font-bold text-gray-900 flex-1">{name}</h3>
+      <div className={compact ? 'p-4' : 'p-6'}>
+        <div className={`flex items-start justify-between ${compact ? '' : 'mb-3'}`}>
+          <h3 className={`font-bold text-gray-900 flex-1 ${compact ? 'text-lg' : 'text-xl'}`}>{name}</h3>
           {/* Prominent Distance Badge */}
           <div className="ml-3 flex-shrink-0">
             <div className="bg-gradient-to-r from-dark-blue-800 to-golden-500 text-white px-3 py-1.5 rounded-lg shadow-md">
@@ -130,15 +123,17 @@ const AttractionCard: React.FC<AttractionCardProps> = ({
             </div>
           </div>
         </div>
-        
+
+        {!compact && (
+          <>
         {/* Description with expandable functionality */}
-        <div className="mb-4">
+        <div className="mb-4 mt-3">
           <p className={`text-gray-600 text-sm ${!isExpanded ? 'line-clamp-3' : ''}`}>
             {description}
           </p>
           {needsTruncation && (
             <button
-              onClick={toggleExpanded}
+              onClick={() => setIsExpanded(!isExpanded)}
               className="text-golden-500 hover:text-golden-600 text-sm font-medium hover:underline mt-1 transition-colors"
             >
               {isExpanded ? 'Show less' : 'Read more'}
@@ -159,7 +154,6 @@ const AttractionCard: React.FC<AttractionCardProps> = ({
             </div>
           </div>
         </div>
-
         {/* Highlights */}
         <div className="mb-4">
           <h4 className="text-sm font-semibold text-gray-900 mb-2">Highlights:</h4>
@@ -182,9 +176,10 @@ const AttractionCard: React.FC<AttractionCardProps> = ({
         >
           View Gallery
         </button>
+          </>
+        )}
       </div>
     </div>
   );
 };
-
 export default AttractionCard; 

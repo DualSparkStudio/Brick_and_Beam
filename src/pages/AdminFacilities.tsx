@@ -12,6 +12,7 @@ import toast from 'react-hot-toast'
 import Modal from 'react-modal'
 import type { Facility } from '../lib/supabase'
 import { api } from '../lib/supabase'
+import { normalizeImageUrl } from '../utils/imageUrl'
 
 Modal.setAppElement('#root') // or your app root element
 
@@ -127,7 +128,7 @@ const AdminFacilities: React.FC = () => {
       await api.createFacility({
         name: formData.name,
         description: formData.description,
-        image_url: formData.image_url,
+        image_url: formData.image_url ? normalizeImageUrl(formData.image_url) : '',
         is_active: formData.is_active,
       })
       toast.success('Facility added successfully!')
@@ -187,7 +188,7 @@ const AdminFacilities: React.FC = () => {
                   <div className="h-48 bg-gray-200 flex items-center justify-center">
                     {facility.image_url ? (
                       <img
-                        src={facility.image_url}
+                        src={normalizeImageUrl(facility.image_url)}
                         alt={facility.name}
                         className="h-full w-full object-cover"
                       />

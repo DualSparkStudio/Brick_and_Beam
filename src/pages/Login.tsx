@@ -55,7 +55,7 @@ const Login: React.FC = () => {
           Admin Login
         </h2>
         <p className="mt-2 text-center text-sm text-gray-600">
-          Resort Booking System - Admin Panel
+          Brick and Beam - Admin Panel
         </p>
         <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-lg">
           <p className="text-sm text-amber-800 text-center">

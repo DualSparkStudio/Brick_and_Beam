@@ -1052,7 +1052,7 @@ async function handleSubmitContactForm(data, headers, supabase) {
 
     const adminEmailContent = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #2563eb;">New Contact Form Submission - Resort Booking System</h2>
+        <h2 style="color: #2563eb;">New Contact Form Submission - Brick and Beam</h2>
         <p>A new contact form has been submitted:</p>
         
         <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
@@ -1069,14 +1069,14 @@ async function handleSubmitContactForm(data, headers, supabase) {
         
         <p>Please respond to this inquiry as soon as possible.</p>
         
-        <p>Best regards,<br>Resort Booking System Website</p>
+        <p>Best regards,<br>Brick and Beam Website</p>
       </div>
     `
 
     const mailOptions = {
       from: process.env.MAIL_DEFAULT_SENDER || process.env.MAIL_USERNAME,
       to: adminUser.email,
-      subject: `New Contact Form: ${sanitizedContactData.subject} - Resort Booking System`,
+      subject: `New Contact Form: ${sanitizedContactData.subject} - Brick and Beam`,
       html: adminEmailContent,
     }
 

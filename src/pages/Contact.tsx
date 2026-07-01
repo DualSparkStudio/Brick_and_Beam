@@ -9,7 +9,10 @@ import {
 import React, { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import FAQ from '../components/FAQ'
+import PageHero from '../components/PageHero'
 import SEO from '../components/SEO'
+import { GOOGLE_MAPS_EMBED_URL } from '../config/brand'
+import { PAGE_HERO_IMAGES } from '../config/galleryImages'
 import { api } from '../lib/supabase'
 
 const Contact: React.FC = () => {
@@ -25,7 +28,7 @@ const Contact: React.FC = () => {
   const [adminContactInfo, setAdminContactInfo] = useState({
     email: 'info@resortbooking.com',
     phone: '+91 98765 43210',
-    name: 'Resort Booking System',
+    name: 'Brick and Beam',
     address: 'Sample Address, City, State, PIN Code',
     phone2: '+91 98765 43211',
     phone3: '+91 98765 43212'
@@ -39,7 +42,7 @@ const Contact: React.FC = () => {
         setAdminContactInfo({
           email: adminInfo.email || 'info@resortbooking.com',
           phone: adminInfo.phone || '+91 98765 43210',
-          name: `${adminInfo.first_name} ${adminInfo.last_name}`.trim() || 'Resort Booking System',
+          name: `${adminInfo.first_name} ${adminInfo.last_name}`.trim() || 'Brick and Beam',
           address: adminInfo.address || 'Sample Address, City, State, PIN Code',
           phone2: '+91 98765 43211',
           phone3: '+91 98765 43212'
@@ -152,24 +155,17 @@ const Contact: React.FC = () => {
   return (
     <>
       <SEO 
-        title="Contact Resort Booking System - Get in Touch"
-        description="Contact Resort Booking System for bookings, inquiries, or support. Reach us via phone, email, or our contact form. We're here to help."
+        title="Contact Brick and Beam - Get in Touch"
+        description="Contact Brick and Beam for bookings, inquiries, or support. Reach us via phone, email, or our contact form. We're here to help."
         keywords="contact resort, resort contact, resort booking"
         url="https://resortbooking.com/contact"
       />
       <div className="min-h-screen bg-gray-50">
-        {/* Hero Section */}
-        <section className="relative min-h-[200px] sm:min-h-[280px] lg:min-h-[350px] py-8 sm:py-12 lg:py-16 bg-gradient-to-r from-dark-blue-800 to-golden-500">
-          <div className="absolute inset-0 bg-black/20"></div>
-          <div className="relative z-10 flex items-center justify-center h-full">
-            <div className="text-center text-white px-4 sm:px-6 lg:px-8 max-w-2xl mx-auto">
-              <h1 className="text-2xl sm:text-3xl lg:text-5xl font-bold mb-3 sm:mb-4">Contact Us</h1>
-              <p className="text-sm sm:text-base lg:text-xl max-w-2xl mx-auto leading-relaxed">
-                We're here to help make your stay at Resort Booking System perfect. Get in touch with us anytime.
-              </p>
-            </div>
-          </div>
-        </section>
+        <PageHero
+          title="Contact Us"
+          subtitle="We're here to help make your stay at Brick and Beam perfect. Get in touch with us anytime."
+          image={PAGE_HERO_IMAGES.contact}
+        />
 
         {/* Contact Information */}
         <section className="py-20 bg-white">
@@ -370,7 +366,7 @@ const Contact: React.FC = () => {
                 <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
                   <div className="relative rounded-2xl overflow-hidden shadow-2xl">
                     <iframe 
-                      src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14671.936717416102!2d73.7584162481834!3d17.90826147912499!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bc269ff80f61731%3A0xffc74f4030ef9795!2sGrand%20Valley%20Resort%20Bhilar%20Annex!5e1!3m2!1sen!2sin!4v1769187769047!5m2!1sen!2sin" 
+                      src={GOOGLE_MAPS_EMBED_URL} 
                       width="100%" 
                       height="450" 
                       style={{border: 0}} 
@@ -428,7 +424,7 @@ const Contact: React.FC = () => {
         <section className="py-20 bg-gradient-to-r from-dark-blue-800 to-golden-500">
           <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
             <h2 className="text-4xl font-bold text-white mb-6">
-              Ready to Experience Resort Booking System?
+              Ready to Experience Brick and Beam?
             </h2>
             <p className="text-xl text-white/80 mb-8">
               Book your stay today and let us create the perfect Mahabaleshwar experience for you.

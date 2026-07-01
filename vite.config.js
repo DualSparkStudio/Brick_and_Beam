@@ -11,6 +11,18 @@ export default defineConfig({
             'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
             'Access-Control-Allow-Headers': 'X-Requested-With, content-type, Authorization',
         },
+        proxy: {
+            '/.netlify/functions': {
+                target: 'http://localhost:8888',
+                changeOrigin: true,
+                rewrite: (path) => path.replace(/^\/\.netlify\/functions/, ''),
+            },
+            '/api': {
+                target: 'http://localhost:8888',
+                changeOrigin: true,
+                rewrite: (path) => path.replace(/^\/api/, ''),
+            },
+        },
     },
     build: {
         outDir: 'dist',

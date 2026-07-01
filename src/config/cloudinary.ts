@@ -4,7 +4,7 @@ export const CLOUDINARY_BASE_URL = `https://res.cloudinary.com/${CLOUDINARY_CLOU
 
 /**
  * Generate optimized Cloudinary image URL
- * @param publicId - The image path in Cloudinary (e.g., 'Resort Booking System/delux room/image1')
+ * @param publicId - The image path in Cloudinary (e.g., 'Brick and Beam/delux room/image1')
  * @param options - Transformation options
  * @returns Optimized image URL
  */
@@ -87,16 +87,16 @@ export const getThumbnail = (publicId: string, size: number = 300) => {
 }
 
 /**
- * Cloudinary image paths for Resort Booking System
+ * Cloudinary image paths for Brick and Beam
  */
 export const CLOUDINARY_PATHS = {
   // Room types
-  DELUX_ROOM: 'Resort Booking System/delux room',
-  FAMILY_ROOM: 'Resort Booking System/Family room',
-  VALLEY_VIEW_ROOM: 'Resort Booking System/Valley view room',
+  DELUX_ROOM: 'Brick and Beam/delux room',
+  FAMILY_ROOM: 'Brick and Beam/Family room',
+  VALLEY_VIEW_ROOM: 'Brick and Beam/Valley view room',
   
   // Restaurant
-  RESTAURANT: 'Resort Booking System/Restaurants',
+  RESTAURANT: 'Brick and Beam/Restaurants',
   
   // You can add more paths as needed
 } as const

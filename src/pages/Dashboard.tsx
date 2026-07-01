@@ -11,6 +11,7 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import type { Booking } from '../lib/supabase'
 import { api } from '../lib/supabase'
+import { normalizeImageUrl } from '../utils/imageUrl'
 
 const Dashboard: React.FC = () => {
   const { user } = useAuth()
@@ -300,7 +301,7 @@ const Dashboard: React.FC = () => {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
                           <img
-                            src={booking.room?.image_url || 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'}
+                            src={normalizeImageUrl(booking.room?.image_url || 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80')}
                             alt={booking.room?.name || booking.room_name}
                             className="w-12 h-12 object-cover rounded-lg mr-4"
                           />
@@ -410,7 +411,7 @@ const Dashboard: React.FC = () => {
                     <div key={booking.id} className="space-y-3">
                       <div className="flex items-center">
                         <img
-                          src={booking.room?.image_url}
+                          src={normalizeImageUrl(booking.room?.image_url || '')}
                           alt={booking.room?.name}
                           className="w-16 h-16 object-cover rounded-lg mr-4"
                         />

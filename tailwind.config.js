@@ -7,7 +7,7 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Resort Booking System Color Palette - Dark Blue & Golden
+        // Brick and Beam Color Palette - Dark Blue & Golden
         'dark-blue': {
           50: '#e6eaf5',
           100: '#b3c0e0',

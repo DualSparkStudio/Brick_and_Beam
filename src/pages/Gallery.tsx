@@ -3,7 +3,10 @@ import { motion, AnimatePresence } from 'framer-motion'
 import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import SEO from '../components/SEO'
-import { api } from '../lib/supabase'
+import PageHero from '../components/PageHero'
+import { PAGE_HERO_IMAGES } from '../config/galleryImages'
+import AppImage from '../components/AppImage'
+import { GALLERY_CATEGORIES, GALLERY_IMAGES } from '../config/galleryImages'
 
 interface GalleryImage {
   id: number
@@ -18,13 +21,7 @@ const Gallery: React.FC = () => {
   const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null)
   const [activeCategory, setActiveCategory] = useState('all')
 
-  // Gallery categories
-  const categories = [
-    { id: 'all', name: 'All' },
-    { id: 'exterior', name: 'Exterior' },
-    { id: 'rooms', name: 'Rooms' },
-    { id: 'restaurant', name: 'Restaurant' }
-  ]
+  const categories = GALLERY_CATEGORIES
 
   useEffect(() => {
     loadGalleryImages()
@@ -33,58 +30,10 @@ const Gallery: React.FC = () => {
   const loadGalleryImages = async () => {
     try {
       setLoading(true)
-      
-      // Static resort images
-      const staticImages: GalleryImage[] = [
-        { id: 1, src: '/images/Exterior (Front).PNG', title: 'Resort Front View', category: 'exterior' },
-        { id: 2, src: '/images/Exterior (back).PNG', title: 'Resort Back View', category: 'exterior' },
-        { id: 3, src: '/images/exteror (night).jpg', title: 'Night Ambiance', category: 'exterior' },
-      ]
-
-      // Load room images from API
-      try {
-        const rooms = await api.getRooms()
-        let imageId = 100
-        
-        rooms.forEach((room) => {
-          if (room.images && room.images.length > 0) {
-            room.images.forEach((img: string) => {
-              if (img && img.trim()) {
-                staticImages.push({
-                  id: imageId++,
-                  src: img,
-                  title: room.name,
-                  category: 'rooms'
-                })
-              }
-            })
-          } else if (room.image_url) {
-            staticImages.push({
-              id: imageId++,
-              src: room.image_url,
-              title: room.name,
-              category: 'rooms'
-            })
-          }
-        })
-      } catch (error) {
-        // Continue with static images if API fails
-      }
-
-      // Add restaurant images from Cloudinary
-      const additionalImages: GalleryImage[] = [
-        { id: 200, src: 'https://res.cloudinary.com/dvf39djml/image/upload/w_auto,f_auto,q_auto/v1771431184/6_krjt40.png', title: 'Restaurant Main View', category: 'restaurant' },
-        { id: 201, src: 'https://res.cloudinary.com/dvf39djml/image/upload/w_auto,f_auto,q_auto/v1771431183/9_lgexk2.png', title: 'Restaurant Interior', category: 'restaurant' },
-        { id: 202, src: 'https://res.cloudinary.com/dvf39djml/image/upload/w_auto,f_auto,q_auto/v1771431182/7_exj2bu.png', title: 'Dining Area', category: 'restaurant' },
-        { id: 203, src: 'https://res.cloudinary.com/dvf39djml/image/upload/w_auto,f_auto,q_auto/v1771431181/5_vop9je.png', title: 'Restaurant Ambiance', category: 'restaurant' },
-        { id: 204, src: 'https://res.cloudinary.com/dvf39djml/image/upload/w_auto,f_auto,q_auto/v1771431181/4_loalg6.png', title: 'Restaurant Seating', category: 'restaurant' },
-        { id: 205, src: 'https://res.cloudinary.com/dvf39djml/image/upload/w_auto,f_auto,q_auto/v1771431181/3_apyy7q.png', title: 'Restaurant View', category: 'restaurant' },
-        { id: 206, src: 'https://res.cloudinary.com/dvf39djml/image/upload/w_auto,f_auto,q_auto/v1771431181/1_hlb5eu.png', title: 'Restaurant Exterior', category: 'restaurant' },
-      ]
-
-      setImages([...staticImages, ...additionalImages])
+      setImages(GALLERY_IMAGES)
     } catch (error) {
       console.error('Error loading gallery images:', error)
+      setImages([])
     } finally {
       setLoading(false)
     }
@@ -147,32 +96,20 @@ const Gallery: React.FC = () => {
   return (
     <>
       <SEO 
-        title="Photo Gallery - Resort Booking System"
-        description="Explore stunning photos of Resort Booking System - luxury rooms, beautiful exterior views, and our restaurant."
-        keywords="Resort Booking System gallery, resort photos, luxury resort gallery"
+        title="Photo Gallery - Brick and Beam"
+        description="Explore stunning photos of Brick and Beam - luxury rooms, beautiful exterior views, and our restaurant."
+        keywords="Brick and Beam gallery, resort photos, luxury resort gallery"
         url="https://resortbooking.com/gallery"
       />
       
       <div className="min-h-screen bg-gray-50">
-        {/* Hero Section */}
-        <section className="relative min-h-[200px] sm:min-h-[280px] lg:min-h-[350px] py-8 sm:py-12 lg:py-16 bg-gradient-to-r from-dark-blue-800 to-golden-500">
-          <div className="absolute inset-0 bg-black/20"></div>
-          <div className="relative z-10 flex items-center justify-center h-full">
-            <div className="text-center text-white px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6 }}
-              >
-                <PhotoIcon className="h-12 w-12 sm:h-16 sm:w-16 mx-auto mb-4 text-golden-300" />
-                <h1 className="text-2xl sm:text-3xl lg:text-5xl font-bold mb-3 sm:mb-4">Photo Gallery</h1>
-                <p className="text-sm sm:text-base lg:text-xl max-w-2xl mx-auto leading-relaxed">
-                  Explore the beauty and elegance of Resort Booking System through our curated collection of photographs
-                </p>
-              </motion.div>
-            </div>
-          </div>
-        </section>
+        <PageHero
+          title="Photo Gallery"
+          subtitle="Explore the beauty and elegance of Brick and Beam through our curated collection of photographs"
+          image={PAGE_HERO_IMAGES.gallery}
+        >
+          <PhotoIcon className="mx-auto mb-4 h-12 w-12 text-golden-300 sm:h-14 sm:w-14" />
+        </PageHero>
 
         {/* Category Filter */}
         <section className="py-6 sm:py-8 bg-white border-b border-gray-200 sticky top-0 z-20">
@@ -217,14 +154,11 @@ const Gallery: React.FC = () => {
                     onClick={() => openLightbox(image)}
                   >
                     <div className={`relative ${index % 5 === 0 ? 'h-48 sm:h-80 lg:h-96' : 'h-48 sm:h-56 lg:h-64'}`}>
-                      <img
+                      <AppImage
                         src={image.src}
                         alt={image.title}
                         className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement
-                          target.src = 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800'
-                        }}
+                        fallback="https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800"
                       />
                       
                       {/* Overlay */}
@@ -253,7 +187,8 @@ const Gallery: React.FC = () => {
             {filteredImages.length === 0 && (
               <div className="text-center py-16">
                 <PhotoIcon className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                <p className="text-gray-600 text-lg">No images found in this category</p>
+                <p className="text-gray-600 text-lg mb-2">Gallery photos are being updated</p>
+                <p className="text-gray-500 text-sm">New resort images will be added here soon.</p>
               </div>
             )}
           </div>
@@ -266,7 +201,7 @@ const Gallery: React.FC = () => {
               Ready to Experience This Beauty?
             </h2>
             <p className="text-base sm:text-lg text-white/80 mb-8">
-              Book your stay and create your own beautiful memories at Resort Booking System
+              Book your stay and create your own beautiful memories at Brick and Beam
             </p>
             <Link
               to="/rooms"
@@ -319,7 +254,7 @@ const Gallery: React.FC = () => {
                 className="relative max-w-5xl max-h-[85vh] w-full"
                 onClick={(e) => e.stopPropagation()}
               >
-                <img
+                <AppImage
                   src={selectedImage.src}
                   alt={selectedImage.title}
                   className="w-full h-full max-h-[75vh] object-contain rounded-lg"

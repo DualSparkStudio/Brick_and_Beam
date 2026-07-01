@@ -1,28 +1,30 @@
 import React from 'react'
 import { motion } from 'framer-motion'
 import GlassCard from '../components/GlassCard'
+import PageHero from '../components/PageHero'
 import PremiumImage from '../components/PremiumImage'
 import TextReveal from '../components/TextReveal'
+import { PAGE_HERO_IMAGES } from '../config/galleryImages'
 
 const Features: React.FC = () => {
   const facilities = [
     {
       title: 'COMFORT & CONVENIENCE',
-      description: 'At Resort Booking System, every detail is designed to ensure a comfortable, hassle-free, and relaxing stay for our guests.',
+      description: 'At Brick and Beam, every detail is designed to ensure a comfortable, hassle-free, and relaxing stay for our guests.',
       items: ['FREE WIFI', 'FREE PARKING', 'AC ROOMS', 'BALCONY WITH VALLEY VIEW'],
       icon: '🏨',
       gradient: 'from-blue-500/20 to-cyan-500/20'
     },
     {
       title: 'LIVING & COMMON AREAS',
-      description: 'Resort Booking System areas are thoughtfully designed to offer comfort, warmth, and a welcoming atmosphere where guests can relax, connect, and unwind.',
+      description: 'Brick and Beam areas are thoughtfully designed to offer comfort, warmth, and a welcoming atmosphere where guests can relax, connect, and unwind.',
       items: ['LAWN & OUTDOOR SEATING AREA'],
       icon: '🌳',
       gradient: 'from-green-500/20 to-emerald-500/20'
     },
     {
       title: 'RECREATION & LEISURE',
-      description: 'Resort Booking System offers the perfect balance of comfort, nature, and memorable experiences.',
+      description: 'Brick and Beam offers the perfect balance of comfort, nature, and memorable experiences.',
       items: ['SWIMMING POOL', 'VALLEY VIEW', 'RELAXATION AREA', 'INDOOR ACTIVITIES'],
       icon: '🏊',
       gradient: 'from-cyan-500/20 to-blue-500/20'
@@ -46,14 +48,14 @@ const Features: React.FC = () => {
     },
     {
       title: 'DESTINATION WEDDING',
-      description: 'Plan your dream destination wedding amidst the scenic hills and lush greenery at Resort Booking System. The resort offers beautiful outdoor lawn spaces and natural backdrops ideal for wedding ceremonies, receptions and pre-wedding functions, making your special day unforgettable.',
+      description: 'Plan your dream destination wedding amidst the scenic hills and lush greenery at Brick and Beam. The resort offers beautiful outdoor lawn spaces and natural backdrops ideal for wedding ceremonies, receptions and pre-wedding functions, making your special day unforgettable.',
       image: 'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=800',
       icon: '💒',
       featured: true
     },
     {
       title: 'INDOOR GAMES',
-      description: 'Resort Booking System, guests can enjoy indoor games and entertainment options as part of their stay. Typically, indoor game facilities at hill station resorts include fun, laid-back activities perfect for all ages.',
+      description: 'Brick and Beam, guests can enjoy indoor games and entertainment options as part of their stay. Typically, indoor game facilities at hill station resorts include fun, laid-back activities perfect for all ages.',
       image: 'https://images.unsplash.com/photo-1606092195730-5d7b9af1efc5?w=800',
       icon: '🎮',
       featured: false
@@ -133,30 +135,11 @@ const Features: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Hero Section */}
-      <section className="relative h-64 sm:h-80 lg:h-96 bg-gradient-to-r from-dark-blue-800 to-golden-500">
-        <div className="absolute inset-0 bg-black/20"></div>
-        <div className="relative z-10 flex items-center justify-center h-full">
-          <div className="text-center text-white px-4 sm:px-6 lg:px-8">
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-            >
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4">Facilities & Amenities</h1>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-            >
-              <p className="text-lg sm:text-xl max-w-2xl mx-auto">
-                Discover world-class amenities and services that make Resort Booking System the ultimate luxury destination
-              </p>
-            </motion.div>
-          </div>
-        </div>
-      </section>
+      <PageHero
+        title="Facilities & Amenities"
+        subtitle="Discover world-class amenities and services that make Brick and Beam the ultimate luxury destination"
+        image={PAGE_HERO_IMAGES.features}
+      />
 
       {/* Facilities Grid */}
       <section className="py-12 sm:py-16 lg:py-20 bg-white">

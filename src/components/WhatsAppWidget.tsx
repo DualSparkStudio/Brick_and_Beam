@@ -79,7 +79,7 @@ const WhatsAppWidget: React.FC = () => {
                   </svg>
                 </div>
                 <div>
-                  <h3 className="font-semibold">Resort Booking System Support</h3>
+                  <h3 className="font-semibold">Brick and Beam Support</h3>
                   <p className="text-xs opacity-90">Typically replies instantly</p>
                   <p className="text-xs opacity-70">📱 {whatsappNumber}</p>
                 </div>

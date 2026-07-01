@@ -64,7 +64,32 @@
   
   html {
     font-family: 'Poppins', system-ui, sans-serif;
-    /* scroll-behavior is handled by Lenis for smooth scrolling */
+  }
+
+  html.lenis,
+  html.lenis body {
+    height: auto;
+  }
+
+  html.lenis.lenis-smooth {
+    scroll-behavior: auto !important;
+  }
+
+  html,
+  body {
+    overflow-x: clip;
+  }
+
+  .lenis.lenis-smooth [data-lenis-prevent] {
+    overscroll-behavior: contain;
+  }
+
+  .lenis.lenis-stopped {
+    overflow: clip;
+  }
+
+  .lenis.lenis-smooth iframe {
+    pointer-events: none;
   }
 
   body {
@@ -506,6 +531,20 @@ html {
 
 /* Smooth scroll behavior is handled by Lenis */
 /* Lenis provides better performance and control than CSS scroll-behavior */
+
+.scroll-perf-section {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 700px;
+}
+
+.gallery-grid-image {
+  transform: translateZ(0);
+  transition: transform 0.4s ease-out;
+}
+
+.group:hover .gallery-grid-image {
+  transform: scale(1.05) translateZ(0);
+}
 
 /* Add missing CSS classes for booking forms */
 .input-field {

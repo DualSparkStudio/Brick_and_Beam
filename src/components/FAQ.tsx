@@ -113,7 +113,7 @@ const FAQ: React.FC = () => {
             Frequently Asked Questions
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Find answers to common questions about your stay at Resort Booking System
+            Find answers to common questions about your stay at Brick and Beam
           </p>
         </div>
 

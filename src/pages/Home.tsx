@@ -3,20 +3,18 @@ import {
     CalendarIcon,
     CheckCircleIcon,
     MapPinIcon,
-    PhotoIcon,
     StarIcon,
     UsersIcon,
 } from '@heroicons/react/24/outline'
-import { motion } from 'framer-motion'
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState, useRef, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import AttractionCard from '../components/AttractionCard'
 import FAQ from '../components/FAQ'
-import GoogleReviews from '../components/GoogleReviews'
 import HeroSection from '../components/HeroSection'
-import PremiumImage from '../components/PremiumImage'
+import RoomCarouselCard from '../components/RoomCarouselCard'
 import SEO from '../components/SEO'
-import TextReveal from '../components/TextReveal'
+import { GOOGLE_MAPS_EMBED_URL } from '../config/brand'
+import { ABOUT_IMAGES } from '../config/galleryImages'
 import type { Room } from '../lib/supabase'
 import { api } from '../lib/supabase'
 
@@ -64,6 +62,10 @@ const Home: React.FC = () => {
   const [touchStart, setTouchStart] = useState(0)
   const [touchEnd, setTouchEnd] = useState(0)
   const carouselRef = useRef<HTMLDivElement>(null)
+
+  const handleRoomActivate = useCallback((index: number) => {
+    setCurrentRoomIndex(index)
+  }, [])
 
   // Gallery modal state
   const [galleryModal, setGalleryModal] = useState<{
@@ -205,8 +207,6 @@ const Home: React.FC = () => {
     }
   }, [currentRoomIndex])
 
-  // Testimonials are now handled by the ReviewsSection component
-
   // Get icon component by name
   const getIconComponent = (iconName: string) => {
     const iconMap: { [key: string]: React.ComponentType<any> } = {
@@ -268,9 +268,9 @@ const Home: React.FC = () => {
   return (
     <>
       <SEO 
-        title="Resort Booking System - Luxury Resort Booking Platform"
-        description="Experience luxury and comfort with Resort Booking System. Book your perfect getaway with stunning views, premium amenities, and exceptional service."
-        keywords="Resort Booking System, resort booking, luxury accommodation, booking platform"
+        title="Brick and Beam - Luxury Villa Stay"
+        description="Experience luxury and comfort with Brick and Beam. Book your perfect getaway with stunning views, premium amenities, and exceptional service."
+        keywords="Brick and Beam, resort booking, luxury accommodation, booking platform"
         url="https://grandvalleyresort.com"
       />
       <div className="bg-cream-beige">
@@ -284,8 +284,8 @@ const Home: React.FC = () => {
               <div className="relative">
                 <div className="relative h-[400px] sm:h-[500px] lg:h-[600px] rounded-2xl overflow-hidden">
                   <img
-                    src="https://res.cloudinary.com/dvf39djml/image/upload/w_auto,f_auto,q_auto/v1771431283/5_frweiz.png"
-                    alt="Resort Booking System"
+                    src={ABOUT_IMAGES.main}
+                    alt="Brick and Beam villa exterior with pool"
                     className="w-full h-full object-cover"
                   />
                 </div>
@@ -296,7 +296,7 @@ const Home: React.FC = () => {
                 {/* Sub-heading */}
                 <div className="flex items-center gap-2">
                   <span className="text-golden-500 text-sm sm:text-base font-medium tracking-wider">
-                    ~ ABOUT RESORT BOOKING SYSTEM ~
+                    ~ ABOUT Brick and Beam ~
                   </span>
                 </div>
 
@@ -307,7 +307,7 @@ const Home: React.FC = () => {
 
                 {/* Description */}
                 <p className="text-gray-600 text-base sm:text-lg leading-relaxed">
-                  Resort Booking System is described as a destination where comfort meets nature, blending a relaxed, natural environment with good basic amenities. It's surrounded by greenery — ideal if you want a quieter, more scenic retreat.
+                  Brick and Beam is described as a destination where comfort meets nature, blending a relaxed, natural environment with good basic amenities. It's surrounded by greenery — ideal if you want a quieter, more scenic retreat.
                 </p>
 
                 {/* Explore More Button */}
@@ -338,8 +338,8 @@ const Home: React.FC = () => {
           </div>
         </div>
 
-        {/* Rooms Section - Redesigned */}
-        <div className="py-12 sm:py-16 lg:py-20 bg-cream-beige relative overflow-hidden">
+        {/* Rooms Section */}
+        <div className="scroll-perf-section py-12 sm:py-16 lg:py-20 bg-cream-beige relative overflow-hidden">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             {/* Header Section */}
             <div className="mb-12 sm:mb-16">
@@ -359,34 +359,17 @@ const Home: React.FC = () => {
                     </svg>
                   </div>
                   {/* Main Title */}
-                  <motion.h2
-                    className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-serif font-bold text-gray-900 leading-tight mb-6"
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.6 }}
-                  >
+                  <h2 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-serif font-bold text-gray-900 leading-tight mb-6">
                     Discover Our Rooms
-                  </motion.h2>
+                  </h2>
                 </div>
 
                 {/* Right Side - Description & Button */}
                 <div className="flex-1 lg:max-w-md">
-                  <motion.p
-                    className="text-gray-600 text-base sm:text-lg leading-relaxed mb-6"
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.6, delay: 0.2 }}
-                  >
+                  <p className="text-gray-600 text-base sm:text-lg leading-relaxed mb-6">
                     Explore a variety of rooms tailored to your comfort and style. Whether you're traveling solo or with family, find the perfect space to unwind.
-                  </motion.p>
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.6, delay: 0.4 }}
-                  >
+                  </p>
+                  <div>
                     <Link
                       to="/rooms"
                       className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-medium px-6 sm:px-8 py-3 sm:py-4 rounded-lg transition-all duration-300 hover:shadow-lg transform hover:-translate-y-1"
@@ -394,7 +377,7 @@ const Home: React.FC = () => {
                       <span>Explore All Suite</span>
                       <ArrowRightIcon className="h-5 w-5" />
                     </Link>
-                  </motion.div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -414,6 +397,7 @@ const Home: React.FC = () => {
                 {/* Carousel Container */}
                 <div 
                   ref={carouselRef}
+                  data-lenis-prevent
                   className="flex items-center gap-4 sm:gap-6 lg:gap-8 overflow-x-auto overflow-y-hidden snap-x snap-mandatory scrollbar-hide pb-4 sm:pb-0 sm:justify-center sm:overflow-hidden"
                   style={{
                     scrollbarWidth: 'none',
@@ -436,203 +420,15 @@ const Home: React.FC = () => {
                     }
                   }}
                 >
-                  {rooms.map((room, index) => {
-                    const isCenter = index === currentRoomIndex;
-                    const getMainImage = () => {
-                      if (room.images && room.images.length > 0) {
-                        const firstValidImage = room.images.find((img: string) => img && img.trim())
-                        if (firstValidImage) return firstValidImage
-                      }
-                      return room.image_url || 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
-                    }
-                    
-                    const imageUrl = getMainImage();
-                    
-                    return (
-                      <motion.div
-                        key={room.id}
-                        data-room-index={index}
-                        className={`relative flex-shrink-0 ${isCenter ? 'w-[85%] sm:w-auto sm:flex-1 sm:max-w-md lg:max-w-lg' : 'w-[85%] sm:w-auto sm:flex-1 sm:max-w-xs'} cursor-pointer snap-center`}
-                        onMouseEnter={() => {
-                          if (window.innerWidth >= 640) {
-                            setCurrentRoomIndex(index)
-                          }
-                        }}
-                        onClick={() => {
-                          if (window.innerWidth < 640) {
-                            setCurrentRoomIndex(index)
-                          }
-                        }}
-                        initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                        whileInView={{ opacity: 1, scale: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        animate={{
-                          opacity: isCenter ? 1 : 0.75,
-                          scale: isCenter ? 1 : 0.95,
-                          zIndex: isCenter ? 10 : 1
-                        }}
-                        transition={{
-                          type: "spring",
-                          stiffness: 300,
-                          damping: 30,
-                          mass: 0.8,
-                          opacity: { duration: 0.5, ease: [0.4, 0, 0.2, 1] },
-                          scale: { 
-                            type: "spring",
-                            stiffness: 400,
-                            damping: 25
-                          }
-                        }}
-                        whileHover={{
-                          scale: isCenter ? 1.02 : 0.97,
-                          transition: { 
-                            type: "spring",
-                            stiffness: 400,
-                            damping: 20
-                          }
-                        }}
-                        layout
-                      >
-                        <motion.div 
-                          className="relative rounded-2xl overflow-hidden shadow-lg bg-white"
-                          animate={{
-                            boxShadow: isCenter 
-                              ? "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)"
-                              : "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)"
-                          }}
-                          transition={{ 
-                            type: "spring",
-                            stiffness: 300,
-                            damping: 30
-                          }}
-                        >
-                          {/* Image */}
-                          <motion.div 
-                            className="relative overflow-hidden h-64 sm:h-72"
-                            animate={{
-                              scale: 1
-                            }}
-                            transition={{ duration: 0.7, ease: [0.25, 0.1, 0.25, 1] }}
-                          >
-                            <motion.img
-                              src={imageUrl}
-                              alt={room.name}
-                              className="w-full h-full object-cover"
-                              animate={{
-                                scale: isCenter ? 1.05 : 1
-                              }}
-                              transition={{
-                                type: "spring",
-                                stiffness: 300,
-                                damping: 30
-                              }}
-                              whileHover={{
-                                scale: isCenter ? 1.1 : 1.05,
-                                transition: { 
-                                  type: "spring",
-                                  stiffness: 400,
-                                  damping: 25
-                                }
-                              }}
-                              onError={(e) => {
-                                const target = e.target as HTMLImageElement;
-                                target.src = 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';
-                              }}
-                            />
-                            {/* Price Badge */}
-                            <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-lg shadow-md">
-                              <span className="text-gray-900 font-semibold text-sm sm:text-base">
-                                Per Night ₹{room.price_per_night.toLocaleString()}
-                              </span>
-                            </div>
-                            {!room.is_active && (
-                              <div className="absolute top-4 right-4 bg-red-600 text-white px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold">
-                                Unavailable
-                              </div>
-                            )}
-                          </motion.div>
-
-                          {/* Content */}
-                          <motion.div
-                            className={isCenter ? "p-6 sm:p-8" : "p-4 sm:p-6"}
-                            animate={{
-                              scale: 1
-                            }}
-                            transition={{ duration: 0.6, ease: "easeOut" }}
-                          >
-                            <motion.h3
-                              className={`font-semibold text-gray-900 mb-3 ${isCenter ? 'text-xl sm:text-2xl lg:text-3xl' : 'text-lg sm:text-xl'}`}
-                              animate={{
-                                opacity: 1
-                              }}
-                              transition={{ duration: 0.5, ease: "easeOut" }}
-                            >
-                              {room.name}
-                            </motion.h3>
-                            
-                            {/* Room Details */}
-                            <motion.div
-                              className="space-y-3"
-                              initial={{ opacity: 0, y: -10 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              transition={{ 
-                                type: "spring",
-                                stiffness: 400,
-                                damping: 25,
-                                delay: isCenter ? 0.15 : 0.1
-                              }}
-                            >
-                              {/* Description - Truncated */}
-                              {room.description && (
-                                <p className={`text-gray-600 ${isCenter ? 'text-sm sm:text-base' : 'text-xs sm:text-sm'} line-clamp-2`}>
-                                  {room.description.length > (isCenter ? 120 : 80) 
-                                    ? `${room.description.substring(0, isCenter ? 120 : 80)}...` 
-                                    : room.description}
-                                </p>
-                              )}
-
-                              {/* Amenities - Show first 3 */}
-                              {room.amenities && room.amenities.length > 0 && (
-                                <div className="flex flex-wrap gap-2">
-                                  {room.amenities.slice(0, isCenter ? 4 : 3).map((amenity: string, idx: number) => (
-                                    <span 
-                                      key={idx}
-                                      className="inline-flex items-center px-2.5 py-1 rounded-full text-xs bg-golden-50 text-golden-700 border border-golden-200"
-                                    >
-                                      {amenity}
-                                    </span>
-                                  ))}
-                                  {room.amenities.length > (isCenter ? 4 : 3) && (
-                                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs bg-gray-100 text-gray-600 border border-gray-200">
-                                      +{room.amenities.length - (isCenter ? 4 : 3)} more
-                                    </span>
-                                  )}
-                                </div>
-                              )}
-
-                              {/* View Details Button - Only for center card */}
-                              {isCenter && (
-                                <motion.div
-                                  initial={{ opacity: 0 }}
-                                  animate={{ opacity: 1 }}
-                                  transition={{ delay: 0.3 }}
-                                  className="pt-2"
-                                >
-                                  <Link
-                                    to={room.slug ? `/room/${room.slug}` : '#'}
-                                    className="inline-flex items-center gap-2 text-golden-500 hover:text-golden-600 font-medium text-sm transition-colors duration-200"
-                                  >
-                                    <span>View Details</span>
-                                    <ArrowRightIcon className="w-4 h-4" />
-                                  </Link>
-                                </motion.div>
-                              )}
-                            </motion.div>
-                          </motion.div>
-                        </motion.div>
-                      </motion.div>
-                    );
-                  })}
+                  {rooms.map((room, index) => (
+                    <RoomCarouselCard
+                      key={room.id}
+                      room={room}
+                      index={index}
+                      isCenter={index === currentRoomIndex}
+                      onActivate={handleRoomActivate}
+                    />
+                  ))}
                 </div>
               </div>
             ) : (
@@ -642,140 +438,6 @@ const Home: React.FC = () => {
             )}
           </div>
         </div>
-
-        {/* Gallery Preview Section */}
-        <section className="py-12 sm:py-16 lg:py-20 bg-white relative overflow-hidden">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            {/* Header */}
-            <div className="text-center mb-8 sm:mb-12">
-              <div className="flex items-center justify-center gap-3 mb-4">
-                <svg className="w-8 h-4 text-golden-500" fill="currentColor" viewBox="0 0 24 4">
-                  <path d="M0 2c2 0 4-2 6-2s4 2 6 2 4-2 6-2 4 2 6 2"/>
-                </svg>
-                <span className="text-golden-500 text-sm sm:text-base font-medium tracking-wider">
-                  PHOTO GALLERY
-                </span>
-                <svg className="w-8 h-4 text-golden-500" fill="currentColor" viewBox="0 0 24 4">
-                  <path d="M0 2c2 0 4-2 6-2s4 2 6 2 4-2 6-2 4 2 6 2"/>
-                </svg>
-              </div>
-              <motion.h2
-                className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold text-gray-900 leading-tight mb-4"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6 }}
-              >
-                Glimpse of Our Resort
-              </motion.h2>
-              <motion.p
-                className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: 0.1 }}
-              >
-                Explore the beauty and serenity of Resort Booking System through our gallery
-              </motion.p>
-            </div>
-
-            {/* Gallery Grid - Removed hardcoded images */}
-            
-            {/* Gallery Grid */}
-            <motion.div
-              className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6"
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-            >
-              {/* Collect all images from rooms, restaurant, and exterior */}
-              {(() => {
-                const galleryImages: Array<{ src: string; title: string; isLarge?: boolean }> = [];
-                
-                // Add 2-3 images per room
-                rooms.forEach((room, roomIndex) => {
-                  if (room.images && room.images.length > 0) {
-                    const validImages = room.images.filter((img: string) => img && img.trim());
-                    const imagesToShow = validImages.slice(0, roomIndex === 0 ? 3 : 2);
-                    imagesToShow.forEach((img: string, imgIndex: number) => {
-                      galleryImages.push({
-                        src: img,
-                        title: `${room.name}`,
-                        isLarge: roomIndex === 0 && imgIndex === 0
-                      });
-                    });
-                  } else if (room.image_url) {
-                    galleryImages.push({
-                      src: room.image_url,
-                      title: room.name,
-                      isLarge: roomIndex === 0
-                    });
-                  }
-                });
-                
-                // Add restaurant images
-                const restaurantImages = [
-                  { src: 'https://res.cloudinary.com/dvf39djml/image/upload/w_auto,f_auto,q_auto/v1771431184/6_krjt40.png', title: 'Restaurant' },
-                  { src: 'https://res.cloudinary.com/dvf39djml/image/upload/w_auto,f_auto,q_auto/v1771431183/9_lgexk2.png', title: 'Dining Area' },
-                  { src: 'https://res.cloudinary.com/dvf39djml/image/upload/w_auto,f_auto,q_auto/v1771431182/7_exj2bu.png', title: 'Restaurant View' }
-                ];
-                galleryImages.push(...restaurantImages);
-                
-                // Add exterior images (if you have them in public folder, otherwise use placeholders)
-                const exteriorImages = [
-                  { src: '/images/Exterior (Front).PNG', title: 'Resort Exterior' },
-                  { src: '/images/Exterior (back).PNG', title: 'Resort Back View' }
-                ];
-                galleryImages.push(...exteriorImages);
-                
-                // Limit to first 15 images for better performance
-                return galleryImages.slice(0, 15).map((image, index) => {
-                  const isLarge = image.isLarge || false;
-                  
-                  return (
-                    <div 
-                      key={index}
-                      className={`${isLarge ? 'col-span-2 row-span-2' : ''} relative group overflow-hidden rounded-xl shadow-lg`}
-                    >
-                      <img
-                        src={image.src}
-                        alt={image.title}
-                        className={`w-full h-full ${isLarge ? 'min-h-[200px] sm:min-h-[300px] lg:min-h-[400px]' : 'h-32 sm:h-40 lg:h-48'} object-cover transform group-hover:scale-110 transition-transform duration-700`}
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.src = 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';
-                        }}
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-dark-blue-800/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                      <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-                        <h3 className="text-white font-semibold text-sm sm:text-base lg:text-lg">{image.title}</h3>
-                      </div>
-                    </div>
-                  );
-                });
-              })()}
-            </motion.div>
-
-            {/* View More Button */}
-            <motion.div
-              className="text-center mt-8 sm:mt-12"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-            >
-              <Link
-                to="/gallery"
-                className="inline-flex items-center gap-2 bg-gradient-to-r from-dark-blue-800 to-golden-500 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-lg font-semibold hover:shadow-lg hover:scale-105 transition-all duration-300"
-              >
-                <PhotoIcon className="h-5 w-5" />
-                View Full Gallery
-                <ArrowRightIcon className="h-5 w-5" />
-              </Link>
-            </motion.div>
-          </div>
-        </section>
 
         {/* Tourist Attractions Section */}
         {attractions.length > 0 && (
@@ -810,6 +472,7 @@ const Home: React.FC = () => {
                     {attractions.map((attraction) => (
                       <AttractionCard
                         key={attraction.id}
+                        compact
                         id={attraction.id}
                         name={attraction.name}
                         description={attraction.description}
@@ -842,47 +505,44 @@ const Home: React.FC = () => {
           </div>
         )}
 
-        {/* Google Reviews Section */}
-        <GoogleReviews />
-
         {/* Location & Map Section */}
-        <div className="py-12 sm:py-16 lg:py-20 bg-gray-50">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-12">
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-forest mb-4">Find Us</h2>
-              <p className="text-lg sm:text-xl text-sage max-w-3xl mx-auto">
-                Located in the heart of beautiful Mahabaleshwar, our resort offers easy access to all major attractions
+        <div className="py-8 sm:py-10 bg-gray-50">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-6">
+              <h2 className="text-xl sm:text-2xl font-bold text-forest mb-2">Find Us</h2>
+              <p className="text-sm sm:text-base text-sage max-w-2xl mx-auto">
+                Located in beautiful Mahabaleshwar — easy access to all major attractions
               </p>
             </div>
             
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 lg:gap-6 items-stretch">
               {/* Map */}
               <div className="order-2 lg:order-1">
-                <div className="relative rounded-2xl overflow-hidden shadow-2xl">
+                <div className="relative rounded-xl overflow-hidden shadow-lg h-full min-h-[220px]">
                   <iframe 
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14671.936717416102!2d73.7584162481834!3d17.90826147912499!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bc269ff80f61731%3A0xffc74f4030ef9795!2sGrand%20Valley%20Resort%20Bhilar%20Annex!5e1!3m2!1sen!2sin!4v1769187769047!5m2!1sen!2sin" 
+                    src={GOOGLE_MAPS_EMBED_URL} 
                     width="100%" 
-                    height="450" 
+                    height="280" 
                     style={{border: 0}} 
                     allowFullScreen 
                     loading="lazy" 
                     referrerPolicy="no-referrer-when-downgrade"
-                    className="w-full h-[450px]"
+                    className="w-full h-[220px] sm:h-[260px] lg:h-full lg:min-h-[280px]"
                   ></iframe>
                 </div>
               </div>
               
               {/* Location Details */}
               <div className="order-1 lg:order-2">
-                <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-xl">
-                  <h3 className="text-xl sm:text-2xl font-bold text-forest mb-6">Our Location</h3>
+                <div className="bg-white rounded-xl p-4 sm:p-5 shadow-lg h-full">
+                  <h3 className="text-lg font-bold text-forest mb-4">Our Location</h3>
                   
-                  <div className="space-y-4">
-                    <div className="flex items-start space-x-3">
-                      <MapPinIcon className="h-6 w-6 text-forest-800 mt-1 flex-shrink-0" />
+                  <div className="space-y-3 text-sm">
+                    <div className="flex items-start gap-2.5">
+                      <MapPinIcon className="h-5 w-5 text-forest-800 mt-0.5 flex-shrink-0" />
                       <div>
-                        <h4 className="font-semibold text-forest">Address</h4>
-                        <p className="text-sage">
+                        <h4 className="font-semibold text-forest text-sm">Address</h4>
+                        <p className="text-sage text-sm leading-relaxed">
                           {adminContactInfo.address ? (
                             <span>
                               {adminContactInfo.address.split('\n').map((line, index) => (
@@ -893,38 +553,28 @@ const Home: React.FC = () => {
                               ))}
                             </span>
                           ) : (
-                            <>Resort Booking System<br />Sample Address<br />City, State, PIN Code<br />India</>
+                            <>Brick and Beam<br />Bhilar, Mahabaleshwar<br />Maharashtra, India</>
                           )}
                         </p>
                       </div>
                     </div>
                     
-                    <div className="flex items-start space-x-3">
-                      <CalendarIcon className="h-6 w-6 text-forest-800 mt-1 flex-shrink-0" />
+                    <div className="flex items-start gap-2.5">
+                      <CalendarIcon className="h-5 w-5 text-forest-800 mt-0.5 flex-shrink-0" />
                       <div>
-                        <h4 className="font-semibold text-forest">Check-in / Check-out</h4>
-                        <p className="text-sage">Check-in: 1:00 PM onwards<br />Check-out: 10:00 AM<br /><span className="text-xs italic">* Flexible depending on other bookings</span></p>
+                        <h4 className="font-semibold text-forest text-sm">Check-in / Check-out</h4>
+                        <p className="text-sage text-sm">Check-in: 1:00 PM · Check-out: 10:00 AM</p>
                       </div>
                     </div>
                     
-                    <div className="flex items-start space-x-3">
-                      <svg className="h-6 w-6 text-forest-800 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="flex items-start gap-2.5">
+                      <svg className="h-5 w-5 text-forest-800 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                       </svg>
                       <div>
-                        <h4 className="font-semibold text-forest">Contact</h4>
-                        <p className="text-sage">{adminContactInfo.phone}<br />{adminContactInfo.email}</p>
+                        <h4 className="font-semibold text-forest text-sm">Contact</h4>
+                        <p className="text-sage text-sm">{adminContactInfo.phone}<br />{adminContactInfo.email}</p>
                       </div>
-                    </div>
-                  </div>
-                  
-                  <div className="mt-6 pt-6 border-t border-gray-200">
-                    <h4 className="font-semibold text-forest mb-3">Nearby Attractions</h4>
-                    <div className="grid grid-cols-2 gap-2 text-sm text-sage">
-                      <div>• Pratapgad Fort (24 km)</div>
-                      <div>• Venna Lake (12 km)</div>
-                      <div>• Mapro Garden (8 km)</div>
-                      <div>• Lingmala Waterfall (18 km)</div>
                     </div>
                   </div>
                 </div>
@@ -939,7 +589,7 @@ const Home: React.FC = () => {
         {/* CTA Section */}
         <div className="py-12 sm:py-16 lg:py-20 bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-forest mb-4">Ready to Experience Resort Booking System?</h2>
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-forest mb-4">Ready to Experience Brick and Beam?</h2>
             <p className="text-lg sm:text-xl text-sage mb-6 sm:mb-8 max-w-3xl mx-auto">
               Book your stay today and create memories that will last a lifetime
             </p>

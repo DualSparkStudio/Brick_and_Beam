@@ -182,7 +182,7 @@ const BookingSuccess: React.FC<BookingSuccessProps> = () => {
             <CheckCircleIcon className="h-12 w-12 mr-3 print:hidden" />
             <h1 className="text-3xl font-bold">Booking Confirmed!</h1>
           </div>
-          <p className="text-xl opacity-90 print:opacity-100">Thank you for choosing Resort Booking System</p>
+          <p className="text-xl opacity-90 print:opacity-100">Thank you for choosing Brick and Beam</p>
         </div>
 
         {/* Main Content */}
@@ -190,7 +190,7 @@ const BookingSuccess: React.FC<BookingSuccessProps> = () => {
           {/* Header */}
           <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-6 text-white print:bg-white print:text-black">
             <h2 className="text-2xl font-bold mb-2">Dear {booking.first_name} {booking.last_name},</h2>
-            <p className="text-blue-100 print:text-gray-800">Your booking has been successfully confirmed! We're excited to welcome you to Resort Booking System.</p>
+            <p className="text-blue-100 print:text-gray-800">Your booking has been successfully confirmed! We're excited to welcome you to Brick and Beam.</p>
           </div>
 
           {/* Booking Details */}
@@ -324,7 +324,7 @@ const BookingSuccess: React.FC<BookingSuccessProps> = () => {
             {/* Disclaimer */}
             <div className="mt-6 p-4 bg-gray-50 rounded-xl">
               <p className="text-sm text-gray-600 text-center">
-                This is an automated notification from Resort Booking System. 
+                This is an automated notification from Brick and Beam. 
                 If you have any questions, please contact us directly.
               </p>
             </div>

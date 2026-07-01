@@ -2,6 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
 import type { Room } from '../lib/supabase';
 import { api } from '../lib/supabase';
+import { normalizeImageUrl, validateImageUrl } from '../utils/imageUrl';
+
+const MAX_VILLAS = 1;
 
 const AdminRooms: React.FC = () => {
   const [loading, setLoading] = useState(true);
@@ -40,7 +43,7 @@ const AdminRooms: React.FC = () => {
   // Update image preview whenever roomTypeForm.images changes
   useEffect(() => {
     const firstValidImage = roomTypeForm.images.find(img => img.trim());
-    setImagePreview(firstValidImage || '');
+    setImagePreview(firstValidImage ? normalizeImageUrl(firstValidImage) : '');
   }, [roomTypeForm.images]);
 
   // Debug modal mode changes
@@ -81,7 +84,7 @@ const AdminRooms: React.FC = () => {
       const activeRooms = (data || []).filter(room => !room.is_deleted);
       setRoomTypes(activeRooms);
     } catch (error) {
-      toast.error('Failed to load room type data');
+      toast.error('Failed to load villa data');
       // Set empty array to prevent undefined errors
       setRoomTypes([]);
     } finally {
@@ -149,16 +152,6 @@ const AdminRooms: React.FC = () => {
     });
   };
 
-  const validateImageUrl = (url: string): boolean => {
-    if (!url.trim()) return false;
-    try {
-      new URL(url);
-      return true;
-    } catch {
-      return false;
-    }
-  };
-
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, imageIndex?: number) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -181,6 +174,11 @@ const AdminRooms: React.FC = () => {
 
   const handleAddRoomType = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (roomTypeModalMode === 'add' && roomTypes.length >= MAX_VILLAS) {
+      toast.error('Only one villa can be added. Please edit the existing villa.');
+      return;
+    }
     
     try {
       // Collect all validation errors
@@ -189,7 +187,7 @@ const AdminRooms: React.FC = () => {
       
       // Validate required fields
       if (!roomTypeForm.name.trim()) {
-        errors.push('Room type name is required');
+        errors.push('Villa name is required');
         newFieldErrors.name = true;
       }
       
@@ -201,16 +199,12 @@ const AdminRooms: React.FC = () => {
         newFieldErrors.price_per_night = true;
       }
 
-      if (!roomTypeForm.quantity.trim()) {
-        errors.push('Number of rooms is required');
-        newFieldErrors.quantity = true;
-      } else if (parseInt(roomTypeForm.quantity) < 1) {
-        errors.push('Number of rooms must be at least 1');
-        newFieldErrors.quantity = true;
-      }
+      // Quantity is always 1 for this single-villa website
 
       // Filter out empty image URLs and validate
-      const validImages = roomTypeForm.images.filter(img => img.trim() && validateImageUrl(img));
+      const validImages = roomTypeForm.images
+        .filter(img => img.trim() && validateImageUrl(img))
+        .map(normalizeImageUrl);
       
       if (validImages.length === 0) {
         errors.push('At least one valid image URL is required');
@@ -235,7 +229,7 @@ const AdminRooms: React.FC = () => {
         description: roomTypeForm.description.trim(),
         price_per_night: parseFloat(roomTypeForm.price_per_night),
         max_capacity: parseInt(roomTypeForm.max_capacity) || 4,
-        quantity: parseInt(roomTypeForm.quantity) || 1,
+        quantity: 1,
         amenities: roomTypeForm.amenities.split('\n').filter(item => item.trim()),
         image_url: validImages[0], // Use first image as main image
         images: validImages, // Store all images
@@ -255,10 +249,10 @@ const AdminRooms: React.FC = () => {
 
       if (roomTypeModalMode === 'edit' && selectedRoomType) {
         await api.updateRoom(selectedRoomType.id, roomData);
-        toast.success('Room type updated successfully!');
+        toast.success('Villa updated successfully!');
       } else {
         const result = await api.createRoom(roomData);
-        toast.success('Room type added successfully!');
+        toast.success('Villa added successfully!');
       }
 
       closeModal();
@@ -266,7 +260,7 @@ const AdminRooms: React.FC = () => {
     } catch (error) {
       console.error('Error saving room type:', error);
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      toast.error(`Failed to save room type: ${errorMessage}`);
+      toast.error(`Failed to save villa: ${errorMessage}`);
       // Show more detailed error in console for debugging
       if (error && typeof error === 'object' && 'details' in error) {
         console.error('Error details:', error);
@@ -276,18 +270,18 @@ const AdminRooms: React.FC = () => {
 
   const handleDeleteRoom = async (roomId: number) => {
     const room = roomTypes.find(r => r.id === roomId);
-    const roomName = room?.name || 'this room';
+    const roomName = room?.name || 'this villa';
     
     toast((t) => (
       <div className="flex flex-col gap-3">
         <p className="font-semibold">Are you sure you want to delete "{roomName}"?</p>
         <p className="text-sm text-gray-600">This will:</p>
         <ul className="text-sm text-gray-600 list-disc list-inside">
-          <li>Delete the room permanently</li>
-          <li>Remove all blocked dates for this room</li>
+          <li>Delete the villa permanently</li>
+          <li>Remove all blocked dates for this villa</li>
           <li>This action cannot be undone</li>
         </ul>
-        <p className="text-xs text-orange-600">Note: Rooms with existing bookings cannot be deleted.</p>
+        <p className="text-xs text-orange-600">Note: The villa cannot be deleted if it has existing bookings.</p>
         <div className="flex gap-2">
           <button
             onClick={async () => {
@@ -310,12 +304,12 @@ const AdminRooms: React.FC = () => {
                   error?.message?.includes('foreign key constraint') ||
                   error?.message?.includes('violates foreign')
                 ) {
-                  toast.error('Cannot delete this room type because it has existing bookings. Please deactivate it instead or delete the bookings first.', {
+                  toast.error('Cannot delete this villa because it has existing bookings. Please deactivate it instead or delete the bookings first.', {
                     duration: 6000
                   });
                 } else {
                   const errorMessage = error?.message || error?.details || 'Unknown error';
-                  toast.error(`Failed to delete room type: ${errorMessage}`, {
+                  toast.error(`Failed to delete villa: ${errorMessage}`, {
                     duration: 4000
                   });
                 }
@@ -345,14 +339,19 @@ const AdminRooms: React.FC = () => {
         is_active: !currentStatus,
         is_available: !currentStatus 
       });
-      toast.success(`Room type ${!currentStatus ? 'activated' : 'deactivated'} successfully!`);
+      toast.success(`Villa ${!currentStatus ? 'activated' : 'deactivated'} successfully!`);
       await loadData(); // Reload the data
     } catch (error) {
-      toast.error(`Failed to update room type status: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      toast.error(`Failed to update villa status: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
 
   const openRoomTypeModal = async (mode: 'edit' | 'add' | 'view', roomType?: Room) => {
+    if (mode === 'add' && roomTypes.length >= MAX_VILLAS) {
+      toast.error('Only one villa can be added. Please edit the existing villa.');
+      return;
+    }
+
     try {
       
       // Set the modal mode first and wait for it to be set
@@ -427,9 +426,11 @@ const AdminRooms: React.FC = () => {
       }, 0);
       
     } catch (error) {
-      toast.error('Error opening room type details. Please try again.');
+      toast.error('Error opening villa details. Please try again.');
     }
   };
+
+  const villaLimitReached = roomTypes.length >= MAX_VILLAS;
 
   if (loading) {
     return (
@@ -444,14 +445,25 @@ const AdminRooms: React.FC = () => {
       <div>
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8">
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Room Type Management</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Villa Management</h1>
             <button
               onClick={() => openRoomTypeModal('add')}
-              className="w-full sm:w-auto bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
+              disabled={villaLimitReached}
+              title={villaLimitReached ? 'Only one villa can be added to this website' : undefined}
+              className={`w-full sm:w-auto px-4 py-2 rounded-md transition-colors ${
+                villaLimitReached
+                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  : 'bg-blue-600 text-white hover:bg-blue-700'
+              }`}
             >
-              Add New Room Type
+              Add New Villa
             </button>
           </div>
+          {villaLimitReached && (
+            <p className="mb-4 text-sm text-gray-600">
+              This website supports one villa. You can edit the existing listing below.
+            </p>
+          )}
 
           <div className="bg-white rounded-lg shadow overflow-hidden">
             {/* Desktop Table View - Hidden on mobile */}
@@ -460,13 +472,13 @@ const AdminRooms: React.FC = () => {
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Room Type
+                      Villa
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Price/Night (Couple)
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Number of Rooms
+                      Max Guests
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Status
@@ -487,7 +499,7 @@ const AdminRooms: React.FC = () => {
                           <div className="flex-shrink-0 h-12 w-12">
                             <img
                               className="h-12 w-12 rounded-lg object-cover"
-                              src={room.image_url || 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300&q=80'}
+                              src={normalizeImageUrl(room.image_url || 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300&q=80')}
                               alt={room.name}
                               onError={(e) => {
                                 e.currentTarget.src = 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300&q=80';
@@ -504,7 +516,7 @@ const AdminRooms: React.FC = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                          {room.quantity || 1} {(room.quantity || 1) === 1 ? 'room' : 'rooms'}
+                          {room.max_capacity || room.max_occupancy || 4} guests
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -572,7 +584,7 @@ const AdminRooms: React.FC = () => {
                   <div className="flex items-start space-x-3 mb-3">
                     <img
                       className="h-16 w-16 rounded-lg object-cover flex-shrink-0"
-                      src={room.image_url || 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300&q=80'}
+                      src={normalizeImageUrl(room.image_url || 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300&q=80')}
                       alt={room.name}
                       onError={(e) => {
                         e.currentTarget.src = 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300&q=80';
@@ -591,11 +603,13 @@ const AdminRooms: React.FC = () => {
                     </div>
                     <div>
                       <span className="text-gray-500">Max Guests:</span>
-                      <span className="ml-1 font-semibold text-gray-900">{room.max_occupancy}</span>
+                      <span className="ml-1 font-semibold text-gray-900">{room.max_capacity || room.max_occupancy || 4}</span>
                     </div>
                     <div>
-                      <span className="text-gray-500">Rooms:</span>
-                      <span className="ml-1 font-semibold text-gray-900">{room.quantity}</span>
+                      <span className="text-gray-500">Status:</span>
+                      <span className={`ml-1 font-semibold ${room.is_active ? 'text-green-700' : 'text-red-700'}`}>
+                        {room.is_active ? 'Active' : 'Inactive'}
+                      </span>
                     </div>
                     <div>
                       <span className="text-gray-500">Images:</span>
@@ -607,7 +621,7 @@ const AdminRooms: React.FC = () => {
 
                   <div className="flex items-center justify-between mb-3">
                     <button
-                      onClick={() => handleToggleActive(room.id, room.is_active)}
+                      onClick={() => handleToggleRoomStatus(room.id, room.is_active)}
                       className={`px-3 py-1 rounded-full text-xs font-semibold ${
                         room.is_active
                           ? 'bg-green-100 text-green-800'
@@ -620,25 +634,25 @@ const AdminRooms: React.FC = () => {
 
                   <div className="flex flex-wrap gap-2">
                     <button
-                      onClick={() => openModal(room, 'view')}
+                      onClick={() => openRoomTypeModal('view', room)}
                       className="flex-1 min-w-[80px] px-3 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700"
                     >
                       View
                     </button>
                     <button
-                      onClick={() => openModal(room, 'edit')}
+                      onClick={() => openRoomTypeModal('edit', room)}
                       className="flex-1 min-w-[80px] px-3 py-2 bg-green-600 text-white text-sm rounded-md hover:bg-green-700"
                     >
                       Edit
                     </button>
                     <button
-                      onClick={() => handleToggleActive(room.id, room.is_active)}
+                      onClick={() => handleToggleRoomStatus(room.id, room.is_active)}
                       className="flex-1 min-w-[80px] px-3 py-2 bg-yellow-600 text-white text-sm rounded-md hover:bg-yellow-700"
                     >
                       {room.is_active ? 'Deactivate' : 'Activate'}
                     </button>
                     <button
-                      onClick={() => handleDeleteRoom(room.id, room.name)}
+                      onClick={() => handleDeleteRoom(room.id)}
                       className="flex-1 min-w-[80px] px-3 py-2 bg-red-600 text-white text-sm rounded-md hover:bg-red-700"
                     >
                       Delete
@@ -670,13 +684,13 @@ const AdminRooms: React.FC = () => {
               <div className="flex justify-between items-center">
                 <h2 className="text-xl font-semibold text-gray-900">
                   {(() => {
-                    let title = 'Room Type Details'; // Default
+                    let title = 'Villa Details';
                     if (roomTypeModalMode === 'add') {
-                      title = 'Add New Room Type';
+                      title = 'Add New Villa';
                     } else if (roomTypeModalMode === 'edit') {
-                      title = 'Edit Room Type';
+                      title = 'Edit Villa';
                     } else if (roomTypeModalMode === 'view') {
-                      title = 'View Room Type';
+                      title = 'View Villa';
                     }
                     return title;
                   })()}
@@ -704,7 +718,7 @@ const AdminRooms: React.FC = () => {
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Room Type Name *
+                      Villa Name *
                     </label>
                     <input
                       type="text"
@@ -716,7 +730,7 @@ const AdminRooms: React.FC = () => {
                           ? 'border-red-300 focus:ring-red-500' 
                           : 'border-gray-300 focus:ring-blue-500'
                       }`}
-                      placeholder="e.g., Deluxe Suite, Premium Room"
+                      placeholder="e.g., Brick and Beam Villa"
                       required
                       disabled={roomTypeModalMode === 'view'}
                     />
@@ -735,7 +749,7 @@ const AdminRooms: React.FC = () => {
                       onChange={handleRoomTypeFormChange}
                       rows={3}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
-                      placeholder="Enter room description"
+                      placeholder="Enter villa description"
                       disabled={roomTypeModalMode === 'view'}
                     />
                   </div>
@@ -791,32 +805,7 @@ const AdminRooms: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Number of Rooms *
-                      </label>
-                      <input
-                        type="number"
-                        name="quantity"
-                        value={roomTypeForm.quantity}
-                        onChange={handleRoomTypeFormChange}
-                        className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 text-gray-900 ${
-                          fieldErrors.quantity 
-                            ? 'border-red-300 focus:ring-red-500' 
-                            : 'border-gray-300 focus:ring-blue-500'
-                        }`}
-                        placeholder="1"
-                        disabled={roomTypeModalMode === 'view'}
-                        required
-                        min="1"
-                      />
-                      {fieldErrors.quantity && (
-                        <p className="mt-1 text-xs text-red-600">At least 1 room is required</p>
-                      )}
-                      <p className="mt-1 text-xs text-gray-500">How many rooms of this type?</p>
-                    </div>
-                  </div>
+                  <input type="hidden" name="quantity" value="1" />
 
                   {/* Additional Charges */}
                   <div className="border-t pt-4 mt-4">
@@ -959,7 +948,7 @@ const AdminRooms: React.FC = () => {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <label className="block text-sm font-medium text-gray-700">
-                      Room Images *
+                      Villa Images *
                     </label>
                     {roomTypeModalMode !== 'view' && (
                       <button
@@ -974,6 +963,9 @@ const AdminRooms: React.FC = () => {
                   
                   {/* Image URL Fields */}
                   <div className="space-y-3">
+                    <div className="text-sm text-gray-600 mb-2">
+                      Paste a direct image URL or a Google Drive share link. Drive files must be shared as &quot;Anyone with the link&quot;.
+                    </div>
                     <div className="text-sm text-gray-600 mb-2">
                       {roomTypeForm.images.filter(img => img.trim()).length} valid image(s) ready to save
                     </div>
@@ -1015,7 +1007,7 @@ const AdminRooms: React.FC = () => {
                                 ? 'border-green-300 focus:ring-green-500'
                                 : 'border-gray-300'
                             }`}
-                            placeholder="https://example.com/image.jpg"
+                            placeholder="https://example.com/image.jpg or Google Drive share link"
                             disabled={roomTypeModalMode === 'view'}
                           />
                           {image.trim() && !validateImageUrl(image) && (
@@ -1064,10 +1056,10 @@ const AdminRooms: React.FC = () => {
                         {roomTypeForm.images.filter(img => img.trim()).map((image, index) => (
                           <div key={index} className="aspect-square bg-gray-200 rounded-lg overflow-hidden group">
                             <img
-                              src={image}
+                              src={normalizeImageUrl(image)}
                               alt={`Preview ${index + 1}`}
                               className="w-full h-full object-cover cursor-pointer hover:opacity-95 transition-opacity"
-                              onClick={() => window.open(image, '_blank')}
+                              onClick={() => window.open(normalizeImageUrl(image), '_blank')}
                               onError={(e) => {
                                 e.currentTarget.src = 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300&q=80';
                               }}
@@ -1090,7 +1082,7 @@ const AdminRooms: React.FC = () => {
                 {/* Video URL Field */}
                 <div className="space-y-2">
                   <label className="block text-sm font-medium text-gray-700">
-                    Room Video URL (Optional)
+                    Villa Video URL (Optional)
                   </label>
                   <input
                     type="url"

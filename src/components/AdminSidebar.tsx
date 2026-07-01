@@ -16,6 +16,7 @@ import {
 import React from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
+import { LOGO_IMAGE } from '../config/galleryImages'
 
 interface AdminSidebarProps {
   onClose?: () => void
@@ -27,7 +28,7 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ onClose }) => {
 
   const navigation = [
     { name: 'Dashboard', href: '/admin', icon: ChartBarIcon },
-    { name: 'Rooms', href: '/admin/rooms', icon: BuildingOfficeIcon },
+    { name: 'Villas', href: '/admin/rooms', icon: BuildingOfficeIcon },
     { name: 'Bookings', href: '/admin/bookings', icon: CalendarIcon },
     { name: 'Calendar', href: '/admin/calendar', icon: CalendarIcon },
     { name: 'Reviews', href: '/admin/reviews', icon: StarIcon },
@@ -61,8 +62,8 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ onClose }) => {
       <div className="flex items-center justify-between h-16 px-4 border-b border-golden-500/20 flex-shrink-0 bg-dark-blue-800">
         <div className="flex items-center">
           <img 
-            src="/images/GRAND VALLEY LOGO.jpg.jpeg" 
-            alt="Resort Booking System Logo" 
+            src={LOGO_IMAGE} 
+            alt="Brick and Beam Logo" 
             className="h-10 w-auto mr-3"
             onError={(e) => {
               const target = e.target as HTMLImageElement;
@@ -72,10 +73,10 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ onClose }) => {
             }}
           />
           <div className="h-10 w-10 bg-gradient-luxury rounded-lg flex items-center justify-center mr-3 hidden">
-            <span className="text-golden font-bold text-sm">GVR</span>
+            <span className="text-golden font-bold text-sm">B&B</span>
           </div>
           <div>
-            <h1 className="text-sm font-bold text-golden">Resort Booking System</h1>
+            <h1 className="text-sm font-bold text-golden">Brick and Beam</h1>
             <p className="text-xs text-golden/70">Admin Panel</p>
           </div>
         </div>

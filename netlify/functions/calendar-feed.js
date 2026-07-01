@@ -93,11 +93,11 @@ function generateICalContent(bookings, blockedDates) {
   let ical = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
-    'PRODID:-//Resort Booking System//Website Calendar//EN',
+    'PRODID:-//Brick and Beam//Website Calendar//EN',
     'CALSCALE:GREGORIAN',
     'METHOD:PUBLISH',
-    'X-WR-CALNAME:Resort Booking System - Availability',
-    'X-WR-CALDESC:Website bookings and blocked dates for Resort Booking System',
+    'X-WR-CALNAME:Brick and Beam - Availability',
+    'X-WR-CALDESC:Website bookings and blocked dates for Brick and Beam',
     'X-WR-TIMEZONE:Asia/Kolkata',
     'X-PUBLISHED-TTL:PT5M', // Refresh every 5 minutes
     ''
@@ -119,7 +119,7 @@ function generateICalContent(bookings, blockedDates) {
       `SUMMARY:${summary}`,
       `DESCRIPTION:Website booking for ${booking.rooms.name}. Guest: ${booking.first_name} ${booking.last_name}. Status: ${booking.booking_status.toUpperCase()}`,
       `STATUS:${booking.booking_status === 'confirmed' ? 'CONFIRMED' : 'TENTATIVE'}`,
-      `LOCATION:Resort Booking System, Ratnagiri`,
+      `LOCATION:Brick and Beam, Ratnagiri`,
       `CATEGORIES:BOOKING`,
       'END:VEVENT',
       ''
@@ -142,7 +142,7 @@ function generateICalContent(bookings, blockedDates) {
       `SUMMARY:${summary}`,
       `DESCRIPTION:Manually blocked dates for ${blocked.rooms.name}. Reason: ${blocked.reason || 'Not available'}`,
       'STATUS:CONFIRMED',
-      `LOCATION:Resort Booking System, Ratnagiri`,
+      `LOCATION:Brick and Beam, Ratnagiri`,
       'CATEGORIES:BLOCKED',
       'END:VEVENT',
       ''

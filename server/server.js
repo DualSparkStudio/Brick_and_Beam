@@ -34,7 +34,7 @@ app.get('/health', (req, res) => {
   res.json({ 
     status: 'OK', 
     timestamp: new Date().toISOString(),
-    service: 'Resort Booking API'
+    service: 'Brick and Beam API'
   });
 });
 

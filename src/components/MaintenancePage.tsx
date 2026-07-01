@@ -5,9 +5,9 @@ const MaintenancePage: React.FC = () => {
   return (
     <>
       <SEO 
-        title="Site Under Maintenance - Resort Booking System"
+        title="Site Under Maintenance - Brick and Beam"
         description="We're currently performing scheduled maintenance to improve your experience. We'll be back soon!"
-        keywords="maintenance, Resort Booking System, booking system"
+        keywords="maintenance, Brick and Beam, booking system"
         url="https://riverbreezehomestay.com"
       />
       <div className="min-h-screen bg-gradient-to-br from-ocean-800 to-forest-800 flex items-center justify-center px-4">
@@ -17,7 +17,7 @@ const MaintenancePage: React.FC = () => {
             <div className="h-20 w-20 mx-auto bg-white/20 rounded-full flex items-center justify-center mb-4">
               <span className="text-4xl">🏠</span>
             </div>
-            <h1 className="text-4xl md:text-5xl font-bold mb-2">Resort Booking System</h1>
+            <h1 className="text-4xl md:text-5xl font-bold mb-2">Brick and Beam</h1>
             <p className="text-xl text-white/80">Bhilar, Mahabaleshwar, Maharashtra</p>
           </div>
 
@@ -96,7 +96,7 @@ const MaintenancePage: React.FC = () => {
           <div className="mt-8 text-white/60">
             <p>Thank you for your patience. We'll be back soon!</p>
             <p className="text-sm mt-2">
-              © 2024 Resort Booking System. All rights reserved.
+              © 2024 Brick and Beam. All rights reserved.
             </p>
           </div>
         </div>

@@ -7,11 +7,11 @@ const path = require('path');
 const replacements = [
   {
     old: 'Grand Valley Resort Bhilar Annex - A Hilltop Heaven',
-    new: 'Resort Booking System'
+    new: 'Brick and Beam'
   },
   {
     old: 'Grand Valley Resort',
-    new: 'Resort Booking System'
+    new: 'Brick and Beam'
   },
   {
     old: 'Bhilar Annex - A Hilltop Heaven',
@@ -19,7 +19,7 @@ const replacements = [
   },
   {
     old: 'Grand Valley Resort Team',
-    new: 'Resort Booking System'
+    new: 'Brick and Beam'
   }
 ];
 

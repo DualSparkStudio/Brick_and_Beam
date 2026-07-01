@@ -235,7 +235,7 @@ const AdminCalendar: React.FC = () => {
         {/* Room Filter */}
         <div className="mb-6">
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Filter by Room
+            Filter by Villa
           </label>
           <select
             value={selectedRoom}
@@ -243,9 +243,9 @@ const AdminCalendar: React.FC = () => {
             className="block w-full max-w-xs rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm text-gray-900"
             disabled={loading}
           >
-            <option value="all">All Rooms</option>
+            <option value="all">All Villas</option>
             {loading ? (
-              <option value="" disabled>Loading rooms...</option>
+              <option value="" disabled>Loading villas...</option>
             ) : rooms && rooms.length > 0 ? (
               rooms.map(room => (
                 <option key={room.id} value={room.id}>
@@ -253,12 +253,12 @@ const AdminCalendar: React.FC = () => {
                 </option>
               ))
             ) : (
-              <option value="" disabled>No rooms available</option>
+              <option value="" disabled>No villas available</option>
             )}
           </select>
           {!loading && rooms && rooms.length === 0 && (
             <p className="mt-1 text-sm text-red-600">
-              ⚠️ No rooms found. Please check your database connection.
+              ⚠️ No villas found. Please check your database connection.
             </p>
           )}
         </div>
@@ -292,7 +292,7 @@ const AdminCalendar: React.FC = () => {
                   <div className="space-y-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Room
+                        Villa
                       </label>
                       <select
                         value={blockForm.room_id}
@@ -301,10 +301,10 @@ const AdminCalendar: React.FC = () => {
                         className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm text-gray-900"
                         disabled={loading || isUnblockMode}
                       >
-                        <option value="">Select a room</option>
-                        {!isUnblockMode && <option value="all">🏠 All Rooms</option>}
+                        <option value="">Select a villa</option>
+                        {!isUnblockMode && <option value="all">🏠 All Villas</option>}
                         {loading ? (
-                          <option value="" disabled>Loading rooms...</option>
+                          <option value="" disabled>Loading villas...</option>
                         ) : rooms && rooms.length > 0 ? (
                           rooms.map(room => (
                             <option key={room.id} value={room.id}>
@@ -312,7 +312,7 @@ const AdminCalendar: React.FC = () => {
                             </option>
                           ))
                         ) : (
-                          <option value="" disabled>No rooms available</option>
+                          <option value="" disabled>No villas available</option>
                         )}
                       </select>
                     </div>

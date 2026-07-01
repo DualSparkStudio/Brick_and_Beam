@@ -60,7 +60,7 @@ export const handler = async (event, context) => {
     // Email to guest
     const guestEmailContent = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #2563eb;">Booking Confirmation - Resort Booking System</h2>
+        <h2 style="color: #2563eb;">Booking Confirmation - Brick and Beam</h2>
         <p>Dear ${guestName},</p>
         <p>Your booking has been confirmed! Here are the details:</p>
         
@@ -74,17 +74,17 @@ export const handler = async (event, context) => {
           <p><strong>Payment Status:</strong> ${paymentStatus}</p>
         </div>
         
-        <p>We look forward to welcoming you at Resort Booking System!</p>
+        <p>We look forward to welcoming you at Brick and Beam!</p>
         <p>If you have any questions, please don't hesitate to contact us.</p>
         
-        <p>Best regards,<br>Resort Booking System Team</p>
+        <p>Best regards,<br>Brick and Beam Team</p>
       </div>
     `;
 
     // Email to admin
     const adminEmailContent = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #2563eb;">New Booking Received - Resort Booking System</h2>
+        <h2 style="color: #2563eb;">New Booking Received - Brick and Beam</h2>
         <p>A new booking has been made:</p>
         
         <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
@@ -107,7 +107,7 @@ export const handler = async (event, context) => {
     const guestMailOptions = {
       from: process.env.MAIL_DEFAULT_SENDER || process.env.MAIL_USERNAME,
       to: guestEmail,
-      subject: 'Booking Confirmation - Resort Booking System',
+      subject: 'Booking Confirmation - Brick and Beam',
       html: guestEmailContent,
     };
 
@@ -115,7 +115,7 @@ export const handler = async (event, context) => {
     const adminMailOptions = {
       from: process.env.MAIL_DEFAULT_SENDER || process.env.MAIL_USERNAME,
       to: adminEmail,
-      subject: `New Booking #${bookingId} - Resort Booking System`,
+      subject: `New Booking #${bookingId} - Brick and Beam`,
       html: adminEmailContent,
     };
 

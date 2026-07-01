@@ -16,6 +16,7 @@ import HouseRules from '../components/HouseRules'
 import RoomUnavailableModal from '../components/RoomUnavailableModal'
 import type { Room } from '../lib/supabase'
 import { api } from '../lib/supabase'
+import { normalizeImageUrl } from '../utils/imageUrl'
 
 const RoomDetail: React.FC = () => {
   
@@ -234,11 +235,13 @@ const RoomDetail: React.FC = () => {
     
     // Get images from room.images array (multiple images)
     if (room.images && room.images.length > 0) {
-      return room.images.filter((img: string) => img && img.trim())
+      return room.images
+        .filter((img: string) => img && img.trim())
+        .map(normalizeImageUrl)
     }
-    
+
     // Fallback to main image_url
-    return room.image_url ? [room.image_url] : []
+    return room.image_url ? [normalizeImageUrl(room.image_url)] : []
   }
 
   const nextImage = () => {

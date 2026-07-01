@@ -4,6 +4,7 @@ import { toast } from 'react-hot-toast'
 import { useNavigate, useParams } from 'react-router-dom'
 import type { Booking, Room } from '../lib/supabase'
 import { api } from '../lib/supabase'
+import { normalizeImageUrl } from '../utils/imageUrl'
 
 const BookingConfirmation: React.FC = () => {
   const { id } = useParams<{ id: string }>()
@@ -179,7 +180,7 @@ const BookingConfirmation: React.FC = () => {
                 </h2>
                 <div className="flex items-center space-x-4">
                   <img
-                    src={room.image_url}
+                    src={normalizeImageUrl(room.image_url)}
                     alt={room.name}
                     className="w-24 h-24 object-cover rounded-xl shadow-md"
                     onError={(e) => {

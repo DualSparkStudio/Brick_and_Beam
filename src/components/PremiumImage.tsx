@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
+import { canUseWebpVariant, normalizeImageUrl } from '../utils/imageUrl'
 
 interface PremiumImageProps {
   src: string
@@ -23,14 +24,20 @@ export default function PremiumImage({
   const [webpSrc, setWebpSrc] = useState<string | null>(null)
   const imgRef = useRef<HTMLImageElement>(null)
 
+  const resolvedSrc = normalizeImageUrl(src)
+
   useEffect(() => {
-    // Try to use WebP if available
-    const webpPath = src.replace(/\.(jpg|jpeg|png)$/i, '.webp')
+    if (!canUseWebpVariant(resolvedSrc)) {
+      setWebpSrc(null)
+      return
+    }
+
+    const webpPath = resolvedSrc.replace(/\.(jpg|jpeg|png)$/i, '.webp')
     const testImg = new Image()
     testImg.onload = () => setWebpSrc(webpPath)
     testImg.onerror = () => setWebpSrc(null)
     testImg.src = webpPath
-  }, [src])
+  }, [resolvedSrc])
 
   useEffect(() => {
     if (parallax && imgRef.current) {
@@ -67,7 +74,7 @@ export default function PremiumImage({
       )}
       <motion.img
         ref={imgRef}
-        src={webpSrc || src}
+        src={webpSrc || resolvedSrc}
         alt={alt}
         loading={priority ? 'eager' : 'lazy'}
         onLoad={() => setLoaded(true)}

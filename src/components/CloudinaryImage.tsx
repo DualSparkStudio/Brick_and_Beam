@@ -1,7 +1,7 @@
 import React from 'react'
 
 interface CloudinaryImageProps {
-  publicId: string // e.g., "Resort Booking System/delux room/image1.jpg"
+  publicId: string // e.g., "Brick and Beam/delux room/image1.jpg"
   alt: string
   className?: string
   sizes?: string // Optional: custom sizes attribute

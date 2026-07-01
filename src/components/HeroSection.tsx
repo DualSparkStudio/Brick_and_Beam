@@ -3,16 +3,10 @@ import {
   ChevronDownIcon,
   MapPinIcon,
   SparklesIcon,
-  StarIcon,
 } from '@heroicons/react/24/outline'
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
-
-const HERO_IMAGES = {
-  main: '/images/Exterior (Front).PNG',
-  pool: '/images/Exterior (back).PNG',
-  night: '/images/exteror (night).jpg',
-}
+import { HERO_IMAGES } from '../config/galleryImages'
 
 const fadeUp = (delay = 0) => ({
   initial: { opacity: 0, y: 32 },
@@ -109,11 +103,10 @@ const HeroSection = () => {
             {/* Trust stats */}
             <motion.div
               {...fadeUp(0.65)}
-              className="mt-10 grid grid-cols-2 gap-3 sm:mt-12 sm:grid-cols-3 sm:gap-4"
+              className="mt-10 grid grid-cols-2 gap-3 sm:mt-12 sm:gap-4"
             >
               {[
-                { icon: StarIcon, label: 'Guest Rating', value: '4.8 / 5' },
-                { icon: SparklesIcon, label: 'Premium Rooms', value: 'Curated Suites' },
+                { icon: SparklesIcon, label: 'Premium Villas', value: 'Curated Stay' },
                 { icon: MapPinIcon, label: 'Location', value: 'Near Venna Lake' },
               ].map(({ icon: Icon, label, value }) => (
                 <div
@@ -171,18 +164,6 @@ const HeroSection = () => {
                 />
                 <div className="absolute inset-0 bg-gradient-to-br from-golden-500/10 to-transparent" />
               </motion.div>
-
-              {/* Floating badge */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.7, delay: 0.85 }}
-                className="absolute left-[45%] top-[42%] z-10 rounded-2xl border border-white/20 bg-dark-blue-900/80 px-5 py-4 backdrop-blur-xl"
-              >
-                <p className="text-xs uppercase tracking-widest text-golden-400">Check-in</p>
-                <p className="font-serif text-2xl font-bold text-white">1:00 PM</p>
-                <p className="text-xs text-white/60">Flexible on availability</p>
-              </motion.div>
             </div>
           </div>
         </div>
@@ -193,6 +174,7 @@ const HeroSection = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.6 }}
           className="mt-8 flex gap-3 overflow-x-auto pb-2 scrollbar-hide lg:hidden"
+          data-lenis-prevent
         >
           {[HERO_IMAGES.main, HERO_IMAGES.pool, HERO_IMAGES.night].map((src, i) => (
             <div

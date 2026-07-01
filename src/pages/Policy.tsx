@@ -1,4 +1,6 @@
 import { CreditCardIcon, DocumentTextIcon, ShieldCheckIcon, XCircleIcon } from '@heroicons/react/24/outline';
+import PageHero from '../components/PageHero';
+import { PAGE_HERO_IMAGES } from '../config/galleryImages';
 import React from 'react';
 
 const Policy: React.FC = () => {
@@ -63,18 +65,11 @@ const Policy: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Hero Section */}
-      <section className="relative h-64 bg-gradient-to-r from-dark-blue-800 to-golden-500">
-        <div className="absolute inset-0 bg-black/30"></div>
-        <div className="relative z-10 flex items-center justify-center h-full">
-          <div className="text-center text-white">
-            <h1 className="text-4xl font-bold mb-4">Policies & Terms</h1>
-            <p className="text-lg max-w-2xl mx-auto">
-              Important information about your stay at Resort Booking System
-            </p>
-          </div>
-        </div>
-      </section>
+      <PageHero
+        title="Policies & Terms"
+        subtitle="Important information about your stay at Brick and Beam"
+        image={PAGE_HERO_IMAGES.policy}
+      />
 
       {/* Policies Content */}
       <section className="py-16">

@@ -91,7 +91,7 @@ export const handler = async (event, context) => {
       <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Booking Confirmation - Resort Booking System</title>
+        <title>Booking Confirmation - Brick and Beam</title>
         <style>
           body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
           .container { max-width: 600px; margin: 0 auto; background: #ffffff; }
@@ -126,13 +126,13 @@ export const handler = async (event, context) => {
         <div class="container">
           <div class="header">
             <h1>🎉 Booking Confirmed!</h1>
-            <p>Thank you for choosing Resort Booking System</p>
+            <p>Thank you for choosing Brick and Beam</p>
           </div>
           
           <div class="content">
             <div class="greeting">
               <h2>Dear ${booking.first_name} ${booking.last_name},</h2>
-              <p>Your booking has been successfully confirmed and payment received! We're excited to welcome you to Resort Booking System for an unforgettable experience.</p>
+              <p>Your booking has been successfully confirmed and payment received! We're excited to welcome you to Brick and Beam for an unforgettable experience.</p>
             </div>
             
             <div class="booking-details">
@@ -249,11 +249,11 @@ export const handler = async (event, context) => {
               <p><strong>Phone:</strong> +91 98765 43210</p>
               <p><strong>WhatsApp:</strong> +91 98765 43210</p>
               <p><strong>Email:</strong> ${finalAdminEmail || 'Not configured'}</p>
-              <p><strong>Address:</strong> Resort Booking System, Ratnagiri, Maharashtra, India</p>
+              <p><strong>Address:</strong> Brick and Beam, Ratnagiri, Maharashtra, India</p>
             </div>
             
             <div class="footer">
-              <p><strong>Thank you for choosing Resort Booking System!</strong></p>
+              <p><strong>Thank you for choosing Brick and Beam!</strong></p>
               <p>We look forward to providing you with an exceptional stay experience.</p>
               <p style="margin-top: 20px; font-size: 12px; color: #9ca3af;">
                 This is an automated confirmation email. Please save this for your records.
@@ -272,7 +272,7 @@ export const handler = async (event, context) => {
       <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>New Booking Notification - Resort Booking System</title>
+        <title>New Booking Notification - Brick and Beam</title>
         <style>
           body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
           .container { max-width: 600px; margin: 0 auto; background: #ffffff; }
@@ -303,7 +303,7 @@ export const handler = async (event, context) => {
         <div class="container">
           <div class="header">
             <h1>🔔 New Booking Received!</h1>
-            <p>Resort Booking System - Admin Notification</p>
+            <p>Brick and Beam - Admin Notification</p>
           </div>
           
           <div class="content">
@@ -442,7 +442,7 @@ export const handler = async (event, context) => {
             </div>
             
             <div class="footer">
-              <p><strong>This is an automated notification from Resort Booking System.</strong></p>
+              <p><strong>This is an automated notification from Brick and Beam.</strong></p>
               <p>Please log into the admin dashboard for more details and management options.</p>
               <p style="margin-top: 20px; font-size: 12px; color: #9ca3af;">
                 Booking ID: #${booking.id} | Generated: ${new Date().toLocaleString('en-IN')}
@@ -458,7 +458,7 @@ export const handler = async (event, context) => {
     const customerMailOptions = {
       from: process.env.MAIL_DEFAULT_SENDER || process.env.MAIL_USERNAME,
       to: booking.email,
-      subject: `Booking Confirmation #${booking.id} - Resort Booking System`,
+      subject: `Booking Confirmation #${booking.id} - Brick and Beam`,
       html: customerEmailHtml,
     }
 
@@ -466,7 +466,7 @@ export const handler = async (event, context) => {
     const adminMailOptions = {
       from: process.env.MAIL_DEFAULT_SENDER || process.env.MAIL_USERNAME,
       to: finalAdminEmail,
-      subject: `New Booking #${booking.id} - Resort Booking System`,
+      subject: `New Booking #${booking.id} - Brick and Beam`,
       html: adminEmailHtml,
     }
 

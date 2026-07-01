@@ -1,4 +1,4 @@
-import React from 'react'
+import { LOGO_IMAGE } from '../config/galleryImages'
 
 interface LogoLoaderProps {
   size?: 'sm' | 'md' | 'lg'
@@ -21,9 +21,9 @@ const LogoLoader: React.FC<LogoLoaderProps> = ({ size = 'md', text = 'Loading...
         {/* Logo in center */}
         <div className="absolute inset-0 flex items-center justify-center">
           <img
-            src="/images/GRAND VALLEY LOGO.jpg.jpeg"
-            alt="Resort Booking System"
-            className={`${sizeClasses[size]} rounded-full object-cover p-2`}
+            src={LOGO_IMAGE}
+            alt="Brick and Beam"
+            className={`${sizeClasses[size]} rounded-full object-contain p-2 bg-white`}
           />
         </div>
       </div>

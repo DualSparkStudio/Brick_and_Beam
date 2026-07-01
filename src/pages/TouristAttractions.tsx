@@ -3,6 +3,8 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import AttractionCard from '../components/AttractionCard';
 import LogoLoader from '../components/LogoLoader';
+import PageHero from '../components/PageHero';
+import { PAGE_HERO_IMAGES } from '../config/galleryImages';
 
 interface Attraction {
   id: number;
@@ -503,18 +505,11 @@ const TouristAttractions: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Hero Section */}
-      <section className="relative h-64 sm:h-80 lg:h-96 bg-gradient-to-r from-dark-blue-800 to-golden-500">
-        <div className="absolute inset-0 bg-black/20"></div>
-        <div className="relative z-10 flex items-center justify-center h-full">
-          <div className="text-center text-white px-4 sm:px-6 lg:px-8">
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4">Explore Mahabaleshwar</h1>
-            <p className="text-lg sm:text-xl max-w-2xl mx-auto">
-              Discover the beautiful places to visit around Resort Booking System
-            </p>
-          </div>
-        </div>
-      </section>
+      <PageHero
+        title="Explore Mahabaleshwar"
+        subtitle="Discover the beautiful places to visit around Brick and Beam"
+        image={PAGE_HERO_IMAGES.attractions}
+      />
 
       {/* Attractions Grid */}
       <section className="py-12 sm:py-16 lg:py-20">
@@ -546,7 +541,7 @@ const TouristAttractions: React.FC = () => {
               Ready to Explore?
             </h3>
             <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
-              Book your stay at Resort Booking System and experience these amazing attractions firsthand
+              Book your stay at Brick and Beam and experience these amazing attractions firsthand
             </p>
             <Link
               to="/rooms"

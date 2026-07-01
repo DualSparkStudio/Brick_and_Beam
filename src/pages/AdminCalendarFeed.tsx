@@ -124,7 +124,7 @@ const AdminCalendarFeed: React.FC = () => {
                   <div>
                     <h4 className="font-medium text-blue-900 mb-2">Calendar Details</h4>
                     <ul className="space-y-1 text-blue-800">
-                      <li><strong>Name:</strong> Resort Booking System - Availability</li>
+                      <li><strong>Name:</strong> Brick and Beam - Availability</li>
                       <li><strong>Type:</strong> iCal (.ics) format</li>
                       <li><strong>Update Frequency:</strong> Every 5 minutes</li>
                       <li><strong>Timezone:</strong> Asia/Kolkata</li>

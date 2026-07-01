@@ -39,7 +39,7 @@ exports.handler = async (event, context) => {
     }
 
     // Search for the place by name
-    const placeName = 'Resort Booking System'
+    const placeName = 'Brick and Beam'
     const searchUrl = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(placeName)}&key=${apiKey}`
     
     const searchResponse = await fetch(searchUrl)

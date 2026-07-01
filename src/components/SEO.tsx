@@ -11,9 +11,9 @@ interface SEOProps {
 }
 
 const SEO: React.FC<SEOProps> = ({
-  title = "Resort Booking System - Luxury Resort Booking Platform",
-  description = "Experience luxury and comfort with Resort Booking System. Book your perfect getaway with stunning views, premium amenities, and exceptional service.",
-  keywords = "Resort Booking System, resort booking, luxury accommodation, booking platform, luxury stay",
+  title = "Brick and Beam - Luxury Villa Stay",
+  description = "Experience luxury and comfort with Brick and Beam. Book your perfect getaway with stunning views, premium amenities, and exceptional service.",
+  keywords = "Brick and Beam, resort booking, luxury accommodation, booking platform, luxury stay",
   image = "https://riverbreezehomestay.com/og-image.jpg",
   url = "https://riverbreezehomestay.com",
   type = "website"
@@ -30,7 +30,7 @@ const SEO: React.FC<SEOProps> = ({
       <meta property="og:image" content={image} />
       <meta property="og:url" content={url} />
       <meta property="og:type" content={type} />
-      <meta property="og:site_name" content="Resort Booking System" />
+      <meta property="og:site_name" content="Brick and Beam" />
       
       {/* Twitter */}
       <meta name="twitter:card" content="summary_large_image" />

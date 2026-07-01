@@ -8,6 +8,7 @@ import PaymentConfirmationModal from '../components/PaymentConfirmationModal'
 import RoomUnavailableModal from '../components/RoomUnavailableModal'
 import { loadRazorpayScript } from '../lib/razorpay'
 import { api } from '../lib/supabase'
+import { normalizeImageUrl } from '../utils/imageUrl'
 
 interface BookingFormData {
   first_name: string
@@ -305,7 +306,7 @@ const BookingForm: React.FC = () => {
         key: import.meta.env.VITE_RAZORPAY_KEY_ID,
         amount: totalAmount,
         currency: 'INR',
-        name: 'Resort Booking System',
+        name: 'Brick and Beam',
         description: `Booking for ${room.name}`,
         order_id: orderData.order.id,
         handler: (response: any) => handlePaymentSuccess(response, orderData),
@@ -555,7 +556,7 @@ const BookingForm: React.FC = () => {
         key: import.meta.env.VITE_RAZORPAY_KEY_ID,
         amount: totalAmount,
         currency: 'INR',
-        name: 'Resort Booking System',
+        name: 'Brick and Beam',
         description: `Booking for ${room.name}`,
         order_id: orderData.order.id,
         handler: (response: any) => handlePaymentSuccess(response, orderData),
@@ -801,7 +802,7 @@ const BookingForm: React.FC = () => {
                 {/* Room Image */}
                 <div className="lg:col-span-4">
                   <img 
-                    src={room.image_url} 
+                    src={normalizeImageUrl(room.image_url)} 
                     alt={room.name}
                     className="w-full h-48 lg:h-full object-cover rounded-lg shadow-md"
                   />

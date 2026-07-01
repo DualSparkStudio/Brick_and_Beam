@@ -121,7 +121,7 @@ exports.handler = async (event, context) => {
           </div>
           
           <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #dee2e6; color: #6c757d; font-size: 14px;">
-            <p>This message was sent from the Resort Booking System contact form.</p>
+            <p>This message was sent from the Brick and Beam contact form.</p>
             <p>To reply to this message, please email: <a href="mailto:${contactData.email}" style="color: #2c5530;">${contactData.email}</a></p>
           </div>
         </div>

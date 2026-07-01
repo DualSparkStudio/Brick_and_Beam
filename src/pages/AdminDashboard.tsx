@@ -132,7 +132,7 @@ const AdminDashboard: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold text-gray-900">Welcome back, Admin!</h1>
-              <p className="text-gray-600 mt-1">Here's what's happening at Resort Booking System today</p>
+              <p className="text-gray-600 mt-1">Here's what's happening at Brick and Beam today</p>
             </div>
             <div className="flex items-center space-x-3">
               <button
@@ -183,7 +183,7 @@ const AdminDashboard: React.FC = () => {
             trendUp={false}
           />
           <StatCard
-            title="Total Rooms"
+            title="Villa"
             value={stats.totalRooms}
             solidIcon={BuildingOfficeIcon}
             color="text-orange-600"
@@ -211,8 +211,8 @@ const AdminDashboard: React.FC = () => {
                 bgColor="bg-blue-100"
               />
               <QuickActionCard
-                title="Room Management"
-                description="Update room details, availability, and pricing"
+                title="Villa Management"
+                description="Update villa details, availability, and pricing"
                 icon={BuildingOfficeIcon}
                 href="/admin/rooms"
                 color="text-green-600"
@@ -273,7 +273,7 @@ const AdminDashboard: React.FC = () => {
                 </div>
                 <div className="flex items-center text-sm text-blue-800">
                   <CheckCircleIcon className="h-4 w-4 mr-2 text-blue-600" />
-                  Review room availability
+                  Review villa availability
                 </div>
                 <div className="flex items-center text-sm text-blue-800">
                   <CheckCircleIcon className="h-4 w-4 mr-2 text-blue-600" />

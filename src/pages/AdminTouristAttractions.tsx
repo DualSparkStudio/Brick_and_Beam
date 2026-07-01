@@ -10,6 +10,7 @@ import React, { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import type { TouristAttraction } from '../lib/supabase'
 import { api } from '../lib/supabase'
+import { normalizeImageUrl } from '../utils/imageUrl'
 
 const AdminTouristAttractions: React.FC = () => {
   const [attractions, setAttractions] = useState<TouristAttraction[]>([])
@@ -120,7 +121,10 @@ const AdminTouristAttractions: React.FC = () => {
         distance_from_resort: parseFloat(formData.distance_from_resort),
         rating: parseFloat(formData.rating),
         display_order: parseInt(formData.display_order) || 0,
-        images: formData.images.filter(img => img.trim() !== '') // Remove empty strings
+        image_url: formData.image_url ? normalizeImageUrl(formData.image_url) : '',
+        images: formData.images
+          .filter(img => img.trim() !== '')
+          .map(normalizeImageUrl),
       }
 
       if (modalMode === 'add') {
@@ -270,7 +274,7 @@ const AdminTouristAttractions: React.FC = () => {
             <div key={attraction.id} className="bg-white rounded-lg shadow-md overflow-hidden">
               <div className="relative">
                 <img
-                  src={attraction.image_url || 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'}
+                  src={normalizeImageUrl(attraction.image_url || 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80')}
                   alt={attraction.name}
                   className="w-full h-48 object-cover"
                 />

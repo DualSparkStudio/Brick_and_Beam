@@ -1,29 +1,37 @@
-import { useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
-import Lenis from 'lenis';
+import { useEffect } from 'react'
+import { useLocation } from 'react-router-dom'
+import type Lenis from 'lenis'
 
-// Global Lenis instance reference (will be set by SmoothScroll)
-let globalLenisInstance: Lenis | null = null;
+let globalLenisInstance: Lenis | null = null
+const scrollListeners = new Set<(scroll: number) => void>()
 
 export const setLenisInstance = (lenis: Lenis | null) => {
-  globalLenisInstance = lenis;
-};
+  globalLenisInstance = lenis
+}
+
+export const getLenisInstance = () => globalLenisInstance
+
+export const subscribeLenisScroll = (listener: (scroll: number) => void) => {
+  scrollListeners.add(listener)
+  return () => scrollListeners.delete(listener)
+}
+
+export const notifyLenisScroll = (scroll: number) => {
+  scrollListeners.forEach((listener) => listener(scroll))
+}
 
 const ScrollToTop: React.FC = () => {
-  const { pathname } = useLocation();
+  const { pathname } = useLocation()
 
   useEffect(() => {
-    // Scroll to top when pathname changes
-    // Use Lenis if available, otherwise fallback to window.scrollTo
     if (globalLenisInstance) {
-      globalLenisInstance.scrollTo(0, { immediate: false });
+      globalLenisInstance.scrollTo(0, { immediate: false, lerp: 0.075, duration: 1.2 })
     } else {
-      // Fallback for admin routes or before Lenis is initialized
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo({ top: 0, behavior: 'smooth' })
     }
-  }, [pathname]);
+  }, [pathname])
 
-  return null; // This component doesn't render anything
-};
+  return null
+}
 
-export default ScrollToTop; 
+export default ScrollToTop

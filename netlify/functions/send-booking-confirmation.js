@@ -86,7 +86,7 @@ export const handler = async (event, context) => {
       const testMailOptions = {
         from: mailUsername,
         to: to || mailUsername,
-        subject: '✅ SMTP Test Email - Resort Booking System',
+        subject: '✅ SMTP Test Email - Brick and Beam',
         html: `
           <!DOCTYPE html>
           <html>
@@ -115,7 +115,7 @@ export const handler = async (event, context) => {
                 <p><strong>From Email:</strong> ${mailUsername}</p>
                 <p><strong>Test Date:</strong> ${new Date().toLocaleString()}</p>
                 <hr style="margin: 20px 0; border: none; border-top: 1px solid #e5e7eb;">
-                <p style="color: #6b7280; font-size: 14px;">This is an automated test email from Resort Booking System.</p>
+                <p style="color: #6b7280; font-size: 14px;">This is an automated test email from Brick and Beam.</p>
               </div>
             </div>
           </body>
@@ -228,19 +228,19 @@ export const handler = async (event, context) => {
       switch (type) {
         case 'confirmation':
           return {
-            guestSubject: `Booking Confirmation #${booking.id} - Resort Booking System`,
-            adminSubject: `New Booking Confirmed #${booking.id} - Resort Booking System`,
+            guestSubject: `Booking Confirmation #${booking.id} - Brick and Beam`,
+            adminSubject: `New Booking Confirmed #${booking.id} - Brick and Beam`,
             guestTitle: '🎉 Booking Confirmed!',
             adminTitle: '📋 New Booking Confirmed',
-            guestMessage: 'Your booking has been successfully confirmed! We\'re excited to welcome you to Resort Booking System.',
+            guestMessage: 'Your booking has been successfully confirmed! We\'re excited to welcome you to Brick and Beam.',
             adminMessage: 'A new booking has been confirmed and requires your attention.',
             statusClass: 'status-confirmed',
             statusText: 'Confirmed'
           }
         case 'update':
           return {
-            guestSubject: `Booking Updated #${booking.id} - Resort Booking System`,
-            adminSubject: `Booking Updated #${booking.id} - Resort Booking System`,
+            guestSubject: `Booking Updated #${booking.id} - Brick and Beam`,
+            adminSubject: `Booking Updated #${booking.id} - Brick and Beam`,
             guestTitle: '📝 Booking Updated',
             adminTitle: '📝 Booking Updated',
             guestMessage: 'Your booking has been updated. Please review the details below.',
@@ -250,8 +250,8 @@ export const handler = async (event, context) => {
           }
         case 'cancellation':
           return {
-            guestSubject: `Booking Cancelled #${booking.id} - Resort Booking System`,
-            adminSubject: `Booking Cancelled #${booking.id} - Resort Booking System`,
+            guestSubject: `Booking Cancelled #${booking.id} - Brick and Beam`,
+            adminSubject: `Booking Cancelled #${booking.id} - Brick and Beam`,
             guestTitle: '❌ Booking Cancelled',
             adminTitle: '❌ Booking Cancelled',
             guestMessage: 'Your booking has been cancelled. If you have any questions, please contact us.',
@@ -261,11 +261,11 @@ export const handler = async (event, context) => {
           }
         default:
           return {
-            guestSubject: `Booking Notification #${booking.id} - Resort Booking System`,
-            adminSubject: `Booking Notification #${booking.id} - Resort Booking System`,
+            guestSubject: `Booking Notification #${booking.id} - Brick and Beam`,
+            adminSubject: `Booking Notification #${booking.id} - Brick and Beam`,
             guestTitle: '📋 Booking Notification',
             adminTitle: '📋 Booking Notification',
-            guestMessage: 'You have received a booking notification from Resort Booking System.',
+            guestMessage: 'You have received a booking notification from Brick and Beam.',
             adminMessage: 'A booking notification has been received.',
             statusClass: 'status-notification',
             statusText: 'Notification'
@@ -306,7 +306,7 @@ export const handler = async (event, context) => {
         <div class="container">
           <div class="header">
             <h1>${notificationContent.guestTitle}</h1>
-            <p>Thank you for choosing Resort Booking System</p>
+            <p>Thank you for choosing Brick and Beam</p>
           </div>
           
           <div class="content">
@@ -365,7 +365,7 @@ export const handler = async (event, context) => {
               <h4>📞 Important Information</h4>
               <p><strong>Check-in Time:</strong> 1:00 PM onwards (flexible depending on other bookings)</p>
               <p><strong>Check-out Time:</strong> 10:00 AM (flexible depending on other bookings)</p>
-              <p><strong>Address:</strong> Resort Booking System, Ratnagiri, Maharashtra</p>
+              <p><strong>Address:</strong> Brick and Beam, Ratnagiri, Maharashtra</p>
               <p><em>Note: Check-in and check-out times are flexible depending on other bookings. Please contact us for early check-in or late check-out requests.</em></p>
             </div>
             
@@ -378,7 +378,7 @@ export const handler = async (event, context) => {
             ` : ''}
             
             <div class="footer">
-              <p>This is an automated notification from Resort Booking System.</p>
+              <p>This is an automated notification from Brick and Beam.</p>
               <p>If you have any questions, please contact us directly.</p>
             </div>
           </div>
@@ -416,7 +416,7 @@ export const handler = async (event, context) => {
         <div class="container">
           <div class="header">
             <h1>${notificationContent.adminTitle}</h1>
-            <p>Resort Booking System - Admin Notification</p>
+            <p>Brick and Beam - Admin Notification</p>
           </div>
           
           <div class="content">
@@ -489,7 +489,7 @@ export const handler = async (event, context) => {
             </div>
             
             <div class="footer">
-              <p>This is an automated notification from Resort Booking System.</p>
+              <p>This is an automated notification from Brick and Beam.</p>
               <p>Please log into the admin dashboard for more details and management options.</p>
             </div>
           </div>

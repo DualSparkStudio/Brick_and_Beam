@@ -12,6 +12,7 @@ import {
 import React, { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { api } from '../lib/supabase'
+import { LOGO_IMAGE } from '../config/galleryImages'
 import BackgroundEffects from './BackgroundEffects'
 import SocialMediaWidget from './SocialMediaWidget'
 import WhatsAppWidget from './WhatsAppWidget'
@@ -56,7 +57,17 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     const onScroll = () => setScrolled(window.scrollY > 24)
     onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
+
+    const onLenisScroll = (e: Event) => {
+      const detail = (e as CustomEvent<{ scroll: number }>).detail
+      setScrolled(detail.scroll > 24)
+    }
+    window.addEventListener('app-scroll', onLenisScroll)
+
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('app-scroll', onLenisScroll)
+    }
   }, [location.pathname])
 
   useEffect(() => {
@@ -105,8 +116,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               <Link to="/" className="flex items-center group">
                 <div className="mr-3 rounded-xl border border-white/20 bg-white/10 p-1 backdrop-blur-sm transition-colors group-hover:border-golden-500/40">
                   <img 
-                    src="/images/GRAND VALLEY LOGO.jpg.jpeg" 
-                    alt="Resort Booking System Logo" 
+                    src={LOGO_IMAGE} 
+                    alt="Brick and Beam Logo" 
                     className="h-14 w-auto object-contain"
                     onError={(e) => {
                       const target = e.target as HTMLImageElement;
@@ -116,12 +127,12 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                     }}
                   />
                   <div className="h-14 w-14 bg-gradient-luxury rounded-lg flex items-center justify-center hidden">
-                    <span className="text-golden font-bold text-xl">GVR</span>
+                    <span className="text-golden font-bold text-xl">B&B</span>
                   </div>
                 </div>
                 <div>
                   <h1 className={`text-lg font-bold transition-colors duration-300 ${titleColor}`}>
-                    Resort Booking System
+                    Brick and Beam
                   </h1>
                   <p className={`text-xs transition-colors duration-300 ${subtitleColor}`}>
                     Your Perfect Getaway
@@ -239,8 +250,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             <div className="col-span-1 md:col-span-2">
               <div className="flex items-center mb-4">
                 <img 
-                  src="/images/GRAND VALLEY LOGO.jpg.jpeg" 
-                  alt="Resort Booking System Logo" 
+                  src={LOGO_IMAGE} 
+                  alt="Brick and Beam Logo" 
                   className="h-12 w-auto mr-3 object-contain"
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
@@ -250,10 +261,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   }}
                 />
                 <div className="h-12 w-12 bg-gradient-luxury rounded-lg flex items-center justify-center mr-3 hidden">
-                  <span className="text-golden font-bold text-lg">GVR</span>
+                  <span className="text-golden font-bold text-lg">B&B</span>
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-gray-900">Resort Booking System</h3>
+                  <h3 className="text-lg font-bold text-gray-900">Brick and Beam</h3>
                   <p className="text-sm text-gray-600">Your Perfect Getaway</p>
                 </div>
               </div>
@@ -357,7 +368,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           <div className="mt-8 pt-8 border-t border-gray-200">
             <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center text-xs sm:text-sm text-gray-600">
               <div className="flex flex-wrap justify-center sm:justify-start sm:items-center gap-x-4 gap-y-2">
-                <span>© 2025 Resort Booking System. All rights reserved.</span>
+                <span>© 2025 Brick and Beam. All rights reserved.</span>
                 <span className="text-gray-400">•</span>
                 <span className="text-golden-500 hover:text-golden-600 font-medium transition-colors duration-200">
                   <a href="/policy">Privacy Policy & Terms</a>

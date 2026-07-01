@@ -55,10 +55,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const callAuthAPI = async (action: string, data: any) => {
     try {
-      // Use simple-login for all operations - FORCE REBUILD
       const functionName = 'simple-login'
-      
-      
+
       const response = await fetch(`/.netlify/functions/${functionName}`, {
         method: 'POST',
         headers: {
@@ -70,7 +68,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         })
       })
 
-      const result = await response.json()
+      const raw = await response.text()
+      if (!raw) {
+        throw new Error('Auth service unavailable. Restart the dev server with: npm run dev')
+      }
+
+      let result: any
+      try {
+        result = JSON.parse(raw)
+      } catch {
+        throw new Error('Auth service returned an invalid response. Make sure the API server is running.')
+      }
 
       if (!response.ok) {
         throw new Error(result.error || 'API call failed')

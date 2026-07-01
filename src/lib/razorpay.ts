@@ -66,7 +66,7 @@ export const openRazorpayPayment = (
     key: import.meta.env.VITE_RAZORPAY_KEY_ID,
     amount: amount * 100, // Convert to paise
     currency: currency,
-    name: 'Resort Booking System',
+    name: 'Brick and Beam',
     description: description,
     order_id: orderId,
     handler: onSuccess,
@@ -76,7 +76,7 @@ export const openRazorpayPayment = (
       contact: customerPhone,
     },
     notes: {
-      address: 'Resort Booking System',
+      address: 'Brick and Beam',
     },
     theme: {
       color: '#2563eb',
