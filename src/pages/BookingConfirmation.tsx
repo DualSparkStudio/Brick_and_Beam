@@ -188,13 +188,8 @@ const BookingConfirmation: React.FC = () => {
               <div className="flex items-center space-x-4">
                 {villaImage && (
                   <img
-<<<<<<< HEAD
-                    src={normalizeImageUrl(room.image_url)}
-                    alt={room.name}
-=======
-                    src={villaImage}
+                    src={normalizeImageUrl(villaImage)}
                     alt={villaName}
->>>>>>> 9f9f3922271f7bb3a97135500fa67d5e3b1f6a45
                     className="w-24 h-24 object-cover rounded-xl shadow-md"
                     onError={(e) => {
                       const target = e.target as HTMLImageElement

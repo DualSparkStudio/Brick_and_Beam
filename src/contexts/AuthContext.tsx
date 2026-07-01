@@ -57,14 +57,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const callAuthAPI = async (action: string, data: any) => {
     try {
       const functionName = 'simple-login'
-<<<<<<< HEAD
-
       const response = await fetch(`/.netlify/functions/${functionName}`, {
-=======
-      
-      
-      const response = await fetch(netlifyFunctionUrl(functionName), {
->>>>>>> 9f9f3922271f7bb3a97135500fa67d5e3b1f6a45
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

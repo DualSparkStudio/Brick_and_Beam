@@ -11,12 +11,9 @@ import toast from 'react-hot-toast'
 import FAQ from '../components/FAQ'
 import PageHero from '../components/PageHero'
 import SEO from '../components/SEO'
-<<<<<<< HEAD
 import { GOOGLE_MAPS_EMBED_URL } from '../config/brand'
 import { PAGE_HERO_IMAGES } from '../config/galleryImages'
-=======
 import { netlifyFunctionUrl } from '../lib/netlify-functions'
->>>>>>> 9f9f3922271f7bb3a97135500fa67d5e3b1f6a45
 import { api } from '../lib/supabase'
 
 const Contact: React.FC = () => {

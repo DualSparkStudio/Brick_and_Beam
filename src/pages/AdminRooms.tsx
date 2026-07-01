@@ -160,7 +160,6 @@ const AdminRooms: React.FC = () => {
       const newFieldErrors: {[key: string]: boolean} = {};
       
       // Validate required fields
-<<<<<<< HEAD
       if (!roomTypeForm.name.trim()) {
         errors.push('Villa name is required');
         newFieldErrors.name = true;
@@ -176,8 +175,6 @@ const AdminRooms: React.FC = () => {
 
       // Quantity is always 1 for this single-villa website
 
-=======
->>>>>>> 9f9f3922271f7bb3a97135500fa67d5e3b1f6a45
       // Filter out empty image URLs and validate
       const validImages = roomTypeForm.images
         .filter(img => img.trim() && validateImageUrl(img))
@@ -205,7 +202,6 @@ const AdminRooms: React.FC = () => {
       const roomData = {
         name: fallbackName,
         description: roomTypeForm.description.trim(),
-<<<<<<< HEAD
         price_per_night: parseFloat(roomTypeForm.price_per_night),
         max_capacity: parseInt(roomTypeForm.max_capacity) || 4,
         quantity: 1,
@@ -221,22 +217,6 @@ const AdminRooms: React.FC = () => {
         accommodation_details: roomTypeForm.accommodation_details.trim(),
         floor: roomTypeForm.floor ? parseInt(roomTypeForm.floor) : undefined,
         extra_mattress_price: roomTypeForm.extra_mattress_price ? parseFloat(roomTypeForm.extra_mattress_price) : 200,
-=======
-        price_per_night: selectedRoomType?.price_per_night ?? 0,
-        max_capacity: selectedRoomType?.max_capacity ?? 4,
-        quantity: selectedRoomType?.quantity ?? 1,
-        amenities: [],
-        image_url: validImages[0],
-        images: validImages,
-        video_url: roomTypeForm.video_url.trim() || undefined,
-        is_active: selectedRoomType?.is_active ?? true,
-        is_available: selectedRoomType?.is_available ?? true,
-        extra_guest_price: selectedRoomType?.extra_guest_price ?? 0,
-        child_above_5_price: selectedRoomType?.child_above_5_price ?? 0,
-        accommodation_details: selectedRoomType?.accommodation_details ?? '',
-        floor: selectedRoomType?.floor,
-        extra_mattress_price: selectedRoomType?.extra_mattress_price ?? 200,
->>>>>>> 9f9f3922271f7bb3a97135500fa67d5e3b1f6a45
         check_in_time: '12:00 PM',
         check_out_time: '10:00 AM',
         room_number: (selectedRoomType?.room_number || fallbackName).replace(/\s+/g, '-').toUpperCase(),
@@ -444,15 +424,12 @@ const AdminRooms: React.FC = () => {
                       Villa
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-<<<<<<< HEAD
                       Price/Night (Couple)
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Max Guests
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-=======
->>>>>>> 9f9f3922271f7bb3a97135500fa67d5e3b1f6a45
                       Status
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -483,7 +460,6 @@ const AdminRooms: React.FC = () => {
                           </div>
                         </div>
                       </td>
-<<<<<<< HEAD
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         ₹{room.price_per_night?.toLocaleString()}
                       </td>
@@ -492,8 +468,6 @@ const AdminRooms: React.FC = () => {
                           {room.max_capacity || room.max_occupancy || 4} guests
                         </span>
                       </td>
-=======
->>>>>>> 9f9f3922271f7bb3a97135500fa67d5e3b1f6a45
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                           room.is_active 
@@ -571,7 +545,6 @@ const AdminRooms: React.FC = () => {
                     </div>
                   </div>
                   
-<<<<<<< HEAD
                   <div className="grid grid-cols-2 gap-2 mb-3 text-sm">
                     <div>
                       <span className="text-gray-500">Price:</span>
@@ -593,24 +566,6 @@ const AdminRooms: React.FC = () => {
                         {room.images?.length || 1}
                       </span>
                     </div>
-                  </div>
-
-                  <div className="flex items-center justify-between mb-3">
-                    <button
-                      onClick={() => handleToggleRoomStatus(room.id, room.is_active)}
-=======
-                  <div className="flex flex-wrap gap-3 mb-3 text-sm">
-                    <span
->>>>>>> 9f9f3922271f7bb3a97135500fa67d5e3b1f6a45
-                      className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                        room.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                      }`}
-                    >
-                      {room.is_active ? 'Active' : 'Inactive'}
-                    </span>
-                    <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
-                      {room.images?.length || 1} image{(room.images?.length || 1) !== 1 ? 's' : ''}
-                    </span>
                   </div>
 
                   <div className="flex flex-wrap gap-2">
@@ -698,7 +653,6 @@ const AdminRooms: React.FC = () => {
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-<<<<<<< HEAD
                       Villa Name *
                     </label>
                     <input
@@ -722,8 +676,6 @@ const AdminRooms: React.FC = () => {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-=======
->>>>>>> 9f9f3922271f7bb3a97135500fa67d5e3b1f6a45
                       Description
                     </label>
                     <textarea
@@ -737,7 +689,6 @@ const AdminRooms: React.FC = () => {
                     />
                   </div>
 
-<<<<<<< HEAD
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -926,8 +877,6 @@ const AdminRooms: React.FC = () => {
                       <span className="ml-2 text-sm text-gray-700">Active</span>
                     </label>
                   </div>
-=======
->>>>>>> 9f9f3922271f7bb3a97135500fa67d5e3b1f6a45
                 </div>
 
                 <div className="space-y-4">

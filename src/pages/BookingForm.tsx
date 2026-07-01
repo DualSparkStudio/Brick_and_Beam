@@ -376,13 +376,8 @@ const BookingForm: React.FC = () => {
         key: import.meta.env.VITE_RAZORPAY_KEY_ID,
         amount: totalAmount,
         currency: 'INR',
-<<<<<<< HEAD
-        name: 'Brick and Beam',
-        description: `Booking for ${room.name}`,
-=======
-        name: displayName || 'Brick & Beam',
-        description: `Booking for ${displayName}`,
->>>>>>> 9f9f3922271f7bb3a97135500fa67d5e3b1f6a45
+        name: displayName || 'Brick and Beam',
+        description: `Booking for ${displayName || room.name}`,
         order_id: orderData.order.id,
         handler: (response: any) => handlePaymentSuccess(response, orderData),
         prefill: {
@@ -639,13 +634,8 @@ const BookingForm: React.FC = () => {
         key: import.meta.env.VITE_RAZORPAY_KEY_ID,
         amount: totalAmount,
         currency: 'INR',
-<<<<<<< HEAD
-        name: 'Brick and Beam',
-        description: `Booking for ${room.name}`,
-=======
-        name: displayName || 'Brick & Beam',
-        description: `Booking for ${displayName}`,
->>>>>>> 9f9f3922271f7bb3a97135500fa67d5e3b1f6a45
+        name: displayName || 'Brick and Beam',
+        description: `Booking for ${displayName || room.name}`,
         order_id: orderData.order.id,
         handler: (response: any) => handlePaymentSuccess(response, orderData),
         prefill: {
@@ -885,13 +875,8 @@ const BookingForm: React.FC = () => {
                 {/* Room Image */}
                 <div className="lg:col-span-4">
                   <img 
-<<<<<<< HEAD
-                    src={normalizeImageUrl(room.image_url)} 
-                    alt={room.name}
-=======
-                    src={room.image_url} 
-                    alt={displayName}
->>>>>>> 9f9f3922271f7bb3a97135500fa67d5e3b1f6a45
+                    src={normalizeImageUrl(room.image_url)}
+                    alt={displayName || room.name}
                     className="w-full h-48 lg:h-full object-cover rounded-lg shadow-md"
                   />
                 </div>

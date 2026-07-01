@@ -134,11 +134,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 </div>
                 <div>
                   <h1 className={`text-lg font-bold transition-colors duration-300 ${titleColor}`}>
-<<<<<<< HEAD
                     Brick and Beam
-=======
-                    {displayName}
->>>>>>> 9f9f3922271f7bb3a97135500fa67d5e3b1f6a45
                   </h1>
                   <p className={`text-xs transition-colors duration-300 ${subtitleColor}`}>
                     Your Perfect Getaway
@@ -270,11 +266,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   <span className="text-golden font-bold text-lg">B&B</span>
                 </div>
                 <div>
-<<<<<<< HEAD
                   <h3 className="text-lg font-bold text-gray-900">Brick and Beam</h3>
-=======
-                  <h3 className="text-lg font-bold text-gray-900">{displayName}</h3>
->>>>>>> 9f9f3922271f7bb3a97135500fa67d5e3b1f6a45
                   <p className="text-sm text-gray-600">Your Perfect Getaway</p>
                 </div>
               </div>
@@ -378,11 +370,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           <div className="mt-8 pt-8 border-t border-gray-200">
             <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center text-xs sm:text-sm text-gray-600">
               <div className="flex flex-wrap justify-center sm:justify-start sm:items-center gap-x-4 gap-y-2">
-<<<<<<< HEAD
                 <span>© 2025 Brick and Beam. All rights reserved.</span>
-=======
-                <span>© 2025 {displayName}. All rights reserved.</span>
->>>>>>> 9f9f3922271f7bb3a97135500fa67d5e3b1f6a45
                 <span className="text-gray-400">•</span>
                 <span className="text-golden-500 hover:text-golden-600 font-medium transition-colors duration-200">
                   <a href="/policy">Privacy Policy & Terms</a>

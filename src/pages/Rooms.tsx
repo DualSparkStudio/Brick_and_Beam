@@ -4,14 +4,11 @@ import { Link, useSearchParams } from 'react-router-dom'
 import HouseRules from '../components/HouseRules'
 import LogoLoader from '../components/LogoLoader'
 import SEO from '../components/SEO'
-<<<<<<< HEAD
 import PageHero from '../components/PageHero'
-import { PAGE_HERO_IMAGES } from '../config/galleryImages'
-=======
 import VillaDetailsSection from '../components/VillaDetailsSection'
+import { PAGE_HERO_IMAGES } from '../config/galleryImages'
 import { useVilla } from '../contexts/VillaContext'
 import { resolveVillaGuestLimits } from '../lib/villa-settings'
->>>>>>> 9f9f3922271f7bb3a97135500fa67d5e3b1f6a45
 import type { Room } from '../lib/supabase'
 import { api } from '../lib/supabase'
 import { normalizeImageUrl } from '../utils/imageUrl'
@@ -120,15 +117,6 @@ const Rooms: React.FC = () => {
 
   return (
     <>
-<<<<<<< HEAD
-      <RoomUnavailableModal
-        isOpen={showUnavailableModal}
-        onClose={() => {
-          setShowUnavailableModal(false)
-          setUnavailableRoomName(undefined)
-        }}
-        roomName={unavailableRoomName}
-      />
       <SEO 
         title="Luxury Rooms & Accommodations - Brick and Beam"
         description="Explore our luxury rooms and accommodations at Brick and Beam. From deluxe suites to premium rooms, find your perfect stay."
@@ -141,26 +129,6 @@ const Rooms: React.FC = () => {
           subtitle="Discover comfort and elegance in our private hill-station retreat"
           image={PAGE_HERO_IMAGES.rooms}
         />
-=======
-      <SEO
-        title={`Villa Spaces - ${displayName}`}
-        description="Explore our villa spaces, room layout, and photos. Booking is for the entire villa experience."
-        keywords="villa rooms, villa layout, whole villa booking, accommodations"
-        url="https://riverbreezehomestay.com/rooms"
-      />
-      <div className="min-h-screen bg-gray-50">
-        <section className="relative h-64 sm:h-80 lg:h-96 bg-gradient-to-r from-dark-blue-800 to-golden-500">
-          <div className="absolute inset-0 bg-black/20" />
-          <div className="relative z-10 flex items-center justify-center h-full">
-            <div className="text-center text-white px-4 sm:px-6 lg:px-8">
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4">Our Villa Spaces</h1>
-              <p className="text-lg sm:text-xl max-w-2xl mx-auto">
-                Book the entire villa — browse each room and its photos below
-              </p>
-            </div>
-          </div>
-        </section>
->>>>>>> 9f9f3922271f7bb3a97135500fa67d5e3b1f6a45
 
         <section className="py-8 sm:py-12 lg:py-16">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -223,37 +191,11 @@ const Rooms: React.FC = () => {
                 </p>
               </div>
             ) : (
-<<<<<<< HEAD
-              <div className={`grid gap-6 sm:gap-8 auto-rows-fr ${
-                filteredRooms.length === 1 
-                  ? 'grid-cols-1 max-w-4xl mx-auto' 
-                  : filteredRooms.length === 2
-                  ? 'grid-cols-1 lg:grid-cols-2 max-w-6xl mx-auto'
-                  : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3'
-              }`}>
-                {filteredRooms.map((room) => {
-                  // Get the primary image or first image from room.images array
-                  const getMainImage = () => {
-                    if (room.images && room.images.length > 0) {
-                      const firstValidImage = room.images.find((img: string) => img && img.trim())
-                      if (firstValidImage) return normalizeImageUrl(firstValidImage)
-                    }
-
-                    return normalizeImageUrl(
-                      room.image_url ||
-                      'https://images.unsplash.com/photo-1571896349842-33c89424de2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
-                    )
-                  }
-                  
-                  const mainImage = getMainImage()
-                  
-=======
               <div className="space-y-14 sm:space-y-20">
                 {filteredRooms.map((room, index) => {
                   const images = getRoomImages(room)
                   const label = getRoomLabel(room, index)
 
->>>>>>> 9f9f3922271f7bb3a97135500fa67d5e3b1f6a45
                   return (
                     <article
                       key={room.id}
