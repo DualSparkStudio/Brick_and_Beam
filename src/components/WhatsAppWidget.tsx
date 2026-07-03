@@ -40,7 +40,7 @@ const WhatsAppWidget: React.FC = () => {
   
   const predefinedMessages = [
     'Hello! I would like to make a reservation.',
-    'Can you tell me about room availability?',
+    'Can you tell me about villa availability?',
     'What are your current rates?',
     'I need help with my booking.',
     'Can you provide information about your facilities?'

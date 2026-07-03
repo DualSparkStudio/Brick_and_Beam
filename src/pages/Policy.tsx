@@ -1,10 +1,14 @@
 import { CreditCardIcon, DocumentTextIcon, ShieldCheckIcon, XCircleIcon } from '@heroicons/react/24/outline';
 import PageHero from '../components/PageHero';
 import { PAGE_HERO_IMAGES } from '../config/galleryImages';
-import React from 'react';
+import { useVilla } from '../contexts/VillaContext';
+import { formatPolicyCheckInOut } from '../lib/villa-check-times';
+import React, { useMemo } from 'react';
 
 const Policy: React.FC = () => {
-  const policies = [
+  const { checkTimes } = useVilla();
+
+  const policies = useMemo(() => [
     {
       title: 'Guest Consent & General Rules',
       icon: DocumentTextIcon,
@@ -35,7 +39,7 @@ const Policy: React.FC = () => {
         },
         {
           subtitle: 'Alcohol & Pets',
-          text: 'Alcohol is allowed in Room Only. Pet animals are not allowed inside the Room.'
+          text: 'Alcohol is allowed inside the villa only. Pet animals are not allowed inside the villa.'
         },
         {
           subtitle: 'Photography & Media',
@@ -44,12 +48,12 @@ const Policy: React.FC = () => {
       ]
     },
     {
-      title: 'For Room Guests - Check-in/Check-out',
+      title: 'For Villa Guests - Check-in/Check-out',
       icon: ShieldCheckIcon,
       content: [
         {
           subtitle: 'Check-in & Check-out Times',
-          text: 'Room Check-In time is 12 noon & Check-Out time is 10 am next day (22 Hours). Check out strictly at 10 am. For late check out you have to pay actual room rent for that day and we will suppose you are checked out at 10 am and allot your room to the next check-in guest.'
+          text: formatPolicyCheckInOut(checkTimes)
         },
         {
           subtitle: 'Intercom Facility',
@@ -57,11 +61,11 @@ const Policy: React.FC = () => {
         },
         {
           subtitle: 'Power & Electricity',
-          text: 'As our resort is situated far away from the city, power cuts are often. Please co-operate in such circumstances. Please switch off lights before leaving your room.'
+          text: 'As our villa is situated away from the city, power cuts can occur. Please co-operate in such circumstances and switch off lights when leaving the villa.'
         }
       ]
     }
-  ];
+  ], [checkTimes]);
 
   return (
     <div className="min-h-screen bg-gray-50">

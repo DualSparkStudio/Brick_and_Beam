@@ -147,7 +147,7 @@ const AdminBookings: React.FC = () => {
         subtotalAmount: booking.subtotal_amount,
         roomName: room 
           ? (room.is_deleted ? `${room.name} (Deleted)` : room.name) 
-          : (booking.room_name ? `${booking.room_name} (Deleted)` : 'Unknown Room'),
+          : (booking.room_name ? `${booking.room_name} (Deleted)` : 'Unknown Villa'),
         source: 'Website',
         special_requests: booking.special_requests,
         originalBooking: booking,
@@ -370,7 +370,7 @@ const AdminBookings: React.FC = () => {
               onChange={(e) => setRoomFilter(e.target.value)}
               className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900"
             >
-              <option value="all">All Room Types</option>
+              <option value="all">All Villas</option>
               {rooms.map(room => (
                 <option key={room.id} value={room.name}>{room.name}</option>
               ))}
@@ -690,7 +690,7 @@ const AdminBookings: React.FC = () => {
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="bg-white rounded-lg p-3">
-                        <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Room</label>
+                        <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Villa</label>
                         <p className="text-sm font-semibold text-gray-900">{selectedBooking.roomName}</p>
                       </div>
                       <div className="bg-white rounded-lg p-3">

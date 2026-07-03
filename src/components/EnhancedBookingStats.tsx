@@ -322,8 +322,8 @@ const EnhancedBookingStats: React.FC<EnhancedBookingStatsProps> = ({
             <HomeIcon className="h-5 w-5 text-white" />
           </div>
           <div>
-            <h3 className="text-lg font-bold text-gray-900">Room Performance</h3>
-            <p className="text-sm text-gray-600">Individual room statistics</p>
+            <h3 className="text-lg font-bold text-gray-900">Villa Performance</h3>
+            <p className="text-sm text-gray-600">Booking statistics for the villa</p>
           </div>
         </div>
         

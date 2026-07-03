@@ -7,7 +7,7 @@ import React, { useEffect, useState } from 'react'
 import PremiumImage from '../components/PremiumImage'
 import SEO from '../components/SEO'
 import PageHero from '../components/PageHero'
-import { GOOGLE_MAPS_EMBED_URL } from '../config/brand'
+import { DEFAULT_VILLA_ADDRESS, GOOGLE_MAPS_EMBED_URL } from '../config/brand'
 import { PAGE_HERO_IMAGES, ABOUT_IMAGES } from '../config/galleryImages'
 import { api } from '../lib/supabase'
 
@@ -15,7 +15,7 @@ const About: React.FC = () => {
   const [adminContactInfo, setAdminContactInfo] = useState({
     email: 'info@resortbooking.com',
     phone: '+91 98765 43210',
-    address: 'Sample Address, City, State, PIN Code'
+    address: DEFAULT_VILLA_ADDRESS
   })
 
   useEffect(() => {
@@ -25,7 +25,7 @@ const About: React.FC = () => {
         setAdminContactInfo({
           email: adminInfo.email || 'info@resortbooking.com',
           phone: adminInfo.phone || '+91 98765 43210',
-          address: adminInfo.address || 'Sample Address, City, State, PIN Code'
+          address: adminInfo.address,
         })
       } catch (error) {
         // Keep default values

@@ -5,7 +5,6 @@ import {
     ChartBarIcon,
     DocumentTextIcon,
     HomeIcon,
-    MapPinIcon,
     QuestionMarkCircleIcon,
     UserIcon,
     WrenchScrewdriverIcon,
@@ -26,7 +25,7 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ onClose }) => {
 
   const navigation = [
     { name: 'Dashboard', href: '/admin', icon: ChartBarIcon },
-    { name: 'Villas', href: '/admin/rooms', icon: BuildingOfficeIcon },
+    { name: 'Villa', href: '/admin/rooms', icon: BuildingOfficeIcon },
     { name: 'Bookings', href: '/admin/bookings', icon: CalendarIcon },
     { name: 'Calendar', href: '/admin/calendar', icon: CalendarIcon },
     { name: 'FAQ', href: '/admin/faq', icon: QuestionMarkCircleIcon },

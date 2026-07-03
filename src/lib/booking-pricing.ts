@@ -1,4 +1,3 @@
-import { getBookingAdultCount } from './booking-guests'
 import type { Booking, Room } from './supabase'
 import {
   calculateVillaBookingPrice,
@@ -68,19 +67,16 @@ export function resolveBookingPriceBreakdown(
 
   const villaSettings = options?.villaSettings ?? defaultVillaSettings()
   const room = options?.room
-  const numAdults = getBookingAdultCount(booking)
-  const numChildren = booking.num_children_above_5 ?? 0
 
   return calculateVillaBookingPrice({
     checkIn: booking.check_in_date,
     checkOut: booking.check_out_date,
-    numAdults,
-    numChildren,
     villaSettings,
     roomFallback: room
       ? {
+          weekday_price_per_night: room.weekday_price_per_night,
+          weekend_price_per_night: room.weekend_price_per_night,
           price_per_night: room.price_per_night,
-          extra_guest_price: room.extra_guest_price,
         }
       : undefined,
   })

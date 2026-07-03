@@ -2,6 +2,7 @@ import { memo } from 'react'
 import { ArrowRightIcon } from '@heroicons/react/24/outline'
 import { Link } from 'react-router-dom'
 import type { Room } from '../lib/supabase'
+import { formatVillaPriceBadge } from '../lib/villa-pricing'
 import { normalizeImageUrl } from '../utils/imageUrl'
 
 function getRoomImage(room: Room) {
@@ -20,6 +21,8 @@ interface RoomCarouselCardProps {
   index: number
   isCenter: boolean
   onActivate: (index: number) => void
+  /** When set, badge reflects weekday vs Saturday rates for the stay */
+  selectedDates?: { checkIn?: string; checkOut?: string }
 }
 
 const RoomCarouselCard = memo(function RoomCarouselCard({
@@ -27,8 +30,10 @@ const RoomCarouselCard = memo(function RoomCarouselCard({
   index,
   isCenter,
   onActivate,
+  selectedDates,
 }: RoomCarouselCardProps) {
   const imageUrl = getRoomImage(room)
+  const priceBadge = formatVillaPriceBadge(room, selectedDates)
 
   return (
     <div
@@ -65,10 +70,15 @@ const RoomCarouselCard = memo(function RoomCarouselCard({
                 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
             }}
           />
-          <div className="absolute left-4 top-4 rounded-lg bg-white/90 px-3 py-1.5 shadow-md backdrop-blur-sm">
-            <span className="text-sm font-semibold text-gray-900 sm:text-base">
-              Per Night ₹{room.price_per_night.toLocaleString()}
+          <div className="absolute left-4 top-4 max-w-[calc(100%-2rem)] rounded-lg bg-white/90 px-3 py-1.5 shadow-md backdrop-blur-sm">
+            <span className="block text-sm font-semibold text-gray-900 sm:text-base">
+              {priceBadge.primary}
             </span>
+            {priceBadge.secondary && (
+              <span className="block text-xs font-medium text-gray-600 sm:text-sm">
+                {priceBadge.secondary}
+              </span>
+            )}
           </div>
           {!room.is_active && (
             <div className="absolute right-4 top-4 rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white sm:text-sm">

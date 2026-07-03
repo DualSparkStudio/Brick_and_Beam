@@ -1,10 +1,27 @@
 import type { VillaSettings } from './villa-settings'
 import { parseVillaGuestLimits } from './villa-settings'
 
+export interface VillaNightlyRates {
+  weekdayPrice: number
+  weekendPrice: number
+}
+
+export interface StayNightlySummary extends VillaNightlyRates {
+  nights: number
+  weekdayNights: number
+  weekendNights: number
+  baseAmount: number
+}
+
 export interface VillaPriceBreakdown {
   nights: number
   capacity: number
   maxCapacity: number
+  weekdayPrice: number
+  weekendPrice: number
+  weekdayNights: number
+  weekendNights: number
+  /** Average base rate across the stay (for display only) */
   basePricePerNight: number
   baseAmount: number
   extraAdults: number
@@ -42,13 +59,116 @@ function parseLocalDate(dateStr: string): Date | null {
   return date
 }
 
-function nightsBetween(checkIn: string, checkOut: string): number {
+export function nightsBetween(checkIn: string, checkOut: string): number {
   const checkInDate = parseLocalDate(checkIn) ?? new Date(checkIn)
   const checkOutDate = parseLocalDate(checkOut) ?? new Date(checkOut)
   if (Number.isNaN(checkInDate.getTime()) || Number.isNaN(checkOutDate.getTime())) return 0
   return Math.ceil(
     Math.abs(checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24)
   )
+}
+
+/** Saturday is treated as the weekend night. */
+export function isWeekendNight(date: Date): boolean {
+  return date.getDay() === 6
+}
+
+export function eachStayNight(checkIn: string, checkOut: string): Date[] {
+  const nightCount = nightsBetween(checkIn, checkOut)
+  const start = parseLocalDate(checkIn)
+  if (!start || nightCount <= 0) return []
+
+  const nights: Date[] = []
+  for (let i = 0; i < nightCount; i++) {
+    const night = new Date(start)
+    night.setDate(night.getDate() + i)
+    nights.push(night)
+  }
+  return nights
+}
+
+export function resolveVillaNightlyRates(source?: {
+  weekday_price_per_night?: number | string | null
+  weekend_price_per_night?: number | string | null
+  price_per_night?: number | string | null
+  price?: string | number | null
+} | null): VillaNightlyRates {
+  if (!source) return { weekdayPrice: 0, weekendPrice: 0 }
+
+  const legacy = parseAmount(source.price_per_night ?? source.price)
+  const weekday = parseAmount(source.weekday_price_per_night) || legacy
+  const weekend = parseAmount(source.weekend_price_per_night) || legacy
+
+  return { weekdayPrice: weekday, weekendPrice: weekend }
+}
+
+export function sumStayNightlyRates(
+  checkIn: string,
+  checkOut: string,
+  weekdayPrice: number,
+  weekendPrice: number
+): StayNightlySummary {
+  const nights = eachStayNight(checkIn, checkOut)
+  let weekdayNights = 0
+  let weekendNights = 0
+  let baseAmount = 0
+
+  for (const night of nights) {
+    if (isWeekendNight(night)) {
+      weekendNights += 1
+      baseAmount += weekendPrice
+    } else {
+      weekdayNights += 1
+      baseAmount += weekdayPrice
+    }
+  }
+
+  return {
+    nights: nights.length,
+    weekdayNights,
+    weekendNights,
+    weekdayPrice,
+    weekendPrice,
+    baseAmount,
+  }
+}
+
+/** Label for cards and listings — reflects selected dates when provided. */
+export function formatVillaPriceBadge(
+  source: Parameters<typeof resolveVillaNightlyRates>[0],
+  dates?: { checkIn?: string; checkOut?: string }
+): { primary: string; secondary?: string } {
+  const { weekdayPrice, weekendPrice } = resolveVillaNightlyRates(source)
+
+  if (dates?.checkIn && dates?.checkOut && dates.checkIn !== dates.checkOut) {
+    const summary = sumStayNightlyRates(dates.checkIn, dates.checkOut, weekdayPrice, weekendPrice)
+    if (summary.weekendNights > 0 && summary.weekdayNights === 0) {
+      return {
+        primary: `Weekend (Sat) ₹${weekendPrice.toLocaleString('en-IN')}/night`,
+      }
+    }
+    if (summary.weekdayNights > 0 && summary.weekendNights === 0) {
+      return {
+        primary: `Weekday ₹${weekdayPrice.toLocaleString('en-IN')}/night`,
+      }
+    }
+    if (summary.nights > 0) {
+      return {
+        primary: `From ₹${Math.round(summary.baseAmount / summary.nights).toLocaleString('en-IN')}/night`,
+        secondary: `Weekday ₹${weekdayPrice.toLocaleString('en-IN')} · Sat ₹${weekendPrice.toLocaleString('en-IN')}`,
+      }
+    }
+  }
+
+  if (weekdayPrice > 0 && weekendPrice > 0 && weekdayPrice !== weekendPrice) {
+    return {
+      primary: `Weekday ₹${weekdayPrice.toLocaleString('en-IN')}`,
+      secondary: `Sat ₹${weekendPrice.toLocaleString('en-IN')}`,
+    }
+  }
+
+  const rate = weekdayPrice || weekendPrice
+  return { primary: `Per Night ₹${rate.toLocaleString('en-IN')}` }
 }
 
 /** Guests above capacity that are charged extra rates (adults fill base slots first). */
@@ -69,73 +189,74 @@ export function allocateExtraGuests(
 }
 
 /**
- * Base nightly rate covers up to `capacity` guests.
- * Same extra guest rate applies to adults and children above capacity (up to max_capacity).
+ * Whole-villa nightly rates: weekday (Mon–Fri, Sun) vs weekend (Saturday).
+ * The entire villa is booked at a flat rate regardless of guest count.
  */
 export function calculateVillaBookingPrice(params: {
   checkIn: string
   checkOut: string
-  numAdults: number
-  numChildren: number
   villaSettings: VillaSettings
   roomFallback?: {
+    weekday_price_per_night?: number | string | null
+    weekend_price_per_night?: number | string | null
     price_per_night?: number | string
-    extra_guest_price?: number | string
   }
 }): VillaPriceBreakdown | null {
-  const { checkIn, checkOut, numAdults, numChildren, villaSettings, roomFallback } = params
+  const { checkIn, checkOut, villaSettings, roomFallback } = params
 
   if (!checkIn || !checkOut || checkIn === checkOut) return null
 
-  const nights = nightsBetween(checkIn, checkOut)
-  if (nights <= 0) return null
-
   const { capacity, maxCapacity } = parseVillaGuestLimits(villaSettings)
-  const totalGuests = numAdults + numChildren
-  if (maxCapacity > 0 && totalGuests > maxCapacity) return null
 
-  let basePricePerNight = parseAmount(villaSettings.price)
-  let extraGuestPricePerNight = parseAmount(villaSettings.extra_guest_price)
+  let { weekdayPrice, weekendPrice } = resolveVillaNightlyRates({
+    price: villaSettings.price,
+    ...roomFallback,
+  })
 
-  if (roomFallback) {
-    if (!basePricePerNight) {
-      basePricePerNight = parseAmount(roomFallback.price_per_night)
-    }
-    if (!extraGuestPricePerNight) {
-      extraGuestPricePerNight = parseAmount(roomFallback.extra_guest_price)
-    }
-  }
+  if (!weekdayPrice && !weekendPrice) return null
+  if (!weekdayPrice) weekdayPrice = weekendPrice
+  if (!weekendPrice) weekendPrice = weekdayPrice
 
-  if (!basePricePerNight) return null
+  const stayRates = sumStayNightlyRates(checkIn, checkOut, weekdayPrice, weekendPrice)
+  if (stayRates.nights <= 0) return null
 
   const effectiveCapacity = capacity > 0 ? capacity : maxCapacity
-  const { extraAdults, extraChildren } = allocateExtraGuests(
-    numAdults,
-    numChildren,
-    effectiveCapacity
-  )
-  const extraGuests = extraAdults + extraChildren
-
-  const baseAmount = basePricePerNight * nights
-  const extraGuestsAmount = extraGuestPricePerNight * extraGuests * nights
-  const subtotal = baseAmount + extraGuestsAmount
+  const baseAmount = stayRates.baseAmount
+  const subtotal = baseAmount
   const total = subtotal
 
   return {
-    nights,
+    nights: stayRates.nights,
     capacity: effectiveCapacity,
     maxCapacity,
-    basePricePerNight,
+    weekdayPrice,
+    weekendPrice,
+    weekdayNights: stayRates.weekdayNights,
+    weekendNights: stayRates.weekendNights,
+    basePricePerNight: stayRates.nights > 0 ? baseAmount / stayRates.nights : 0,
     baseAmount,
-    extraAdults,
-    extraChildren,
-    extraGuests,
-    extraGuestPricePerNight,
-    extraGuestsAmount,
-    numChildren,
+    extraAdults: 0,
+    extraChildren: 0,
+    extraGuests: 0,
+    extraGuestPricePerNight: 0,
+    extraGuestsAmount: 0,
+    numChildren: 0,
     subtotal,
     total,
   }
+}
+
+export function hasConfiguredVillaRates(
+  villaSettings: VillaSettings,
+  room?: {
+    weekday_price_per_night?: number | string | null
+    weekend_price_per_night?: number | string | null
+    price_per_night?: number | string | null
+  } | null
+): boolean {
+  const fromSettings = parseAmount(villaSettings.price)
+  const { weekdayPrice, weekendPrice } = resolveVillaNightlyRates(room ?? { price: villaSettings.price })
+  return fromSettings > 0 || weekdayPrice > 0 || weekendPrice > 0
 }
 
 export function formatRupee(amount: number): string {

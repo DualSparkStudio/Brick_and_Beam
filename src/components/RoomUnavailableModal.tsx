@@ -35,15 +35,15 @@ const RoomUnavailableModal: React.FC<RoomUnavailableModalProps> = ({
           <div className="p-3 rounded-full bg-red-100 mr-4">
             <XCircleIcon className="h-8 w-8 text-red-500" />
           </div>
-          <h2 className="text-2xl font-bold text-gray-900">Room Not Available</h2>
+          <h2 className="text-2xl font-bold text-gray-900">Villa Not Available</h2>
         </div>
 
         {/* Message */}
         <p className="text-gray-600 text-center mb-6 leading-relaxed">
-          This room is currently not available for booking.
+          {roomName ? `${roomName} is` : 'This villa is'} currently not available for booking.
           <br />
           <br />
-          Please check back later or browse our other available rooms.
+          Please check back later or contact us for availability.
         </p>
 
         {/* Action Buttons */}
@@ -52,7 +52,7 @@ const RoomUnavailableModal: React.FC<RoomUnavailableModalProps> = ({
             onClick={handleGoToRooms}
             className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors font-semibold flex items-center justify-center"
           >
-            Browse Other Rooms
+            View Villa Details
           </button>
 
           <button

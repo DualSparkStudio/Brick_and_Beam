@@ -369,7 +369,7 @@ export const handler = async (event, context) => {
                 <span class="${notificationContent.statusClass}">${notificationContent.statusText}</span>
               </div>
               <div class="detail-row">
-                <span class="detail-label">Room:</span>
+                <span class="detail-label">Villa:</span>
                 <span class="detail-value">${room.name}</span>
               </div>
               <div class="detail-row">
@@ -483,7 +483,7 @@ export const handler = async (event, context) => {
                 <span class="detail-value">${booking.phone || 'N/A'}</span>
               </div>
               <div class="detail-row">
-                <span class="detail-label">Room:</span>
+                <span class="detail-label">Villa:</span>
                 <span class="detail-value">${room.name}</span>
               </div>
               <div class="detail-row">

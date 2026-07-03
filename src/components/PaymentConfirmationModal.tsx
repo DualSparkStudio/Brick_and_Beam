@@ -7,7 +7,6 @@ interface PaymentConfirmationModalProps {
   onProceed: () => void
   roomName: string
   guestName: string
-  guestCount: number
   checkIn: string
   checkOut: string
   totalAmount: number
@@ -19,7 +18,6 @@ const PaymentConfirmationModal: React.FC<PaymentConfirmationModalProps> = ({
   onProceed,
   roomName,
   guestName,
-  guestCount,
   checkIn,
   checkOut,
   totalAmount
@@ -66,7 +64,7 @@ const PaymentConfirmationModal: React.FC<PaymentConfirmationModalProps> = ({
                 Please Review Your Booking Details
               </h3>
               <p className="text-sm text-yellow-700">
-                Please check all the details before making payment like room, personal details and guest count.
+                Please check all the details before making payment — villa, dates, and your contact information.
               </p>
             </div>
           </div>
@@ -77,7 +75,7 @@ const PaymentConfirmationModal: React.FC<PaymentConfirmationModalProps> = ({
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Booking Summary</h3>
           <div className="space-y-3 text-sm">
             <div className="flex justify-between">
-              <span className="text-gray-600">Room:</span>
+              <span className="text-gray-600">Villa:</span>
               <span className="font-medium text-gray-900">{roomName}</span>
             </div>
             <div className="flex justify-between">
@@ -85,8 +83,8 @@ const PaymentConfirmationModal: React.FC<PaymentConfirmationModalProps> = ({
               <span className="font-medium text-gray-900">{guestName}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-600">Number of Guests:</span>
-              <span className="font-medium text-gray-900">{guestCount}</span>
+              <span className="text-gray-600">Booking:</span>
+              <span className="font-medium text-gray-900">Entire villa</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Check-in:</span>
@@ -134,7 +132,7 @@ const PaymentConfirmationModal: React.FC<PaymentConfirmationModalProps> = ({
               className="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
             />
             <span className="ml-3 text-sm text-gray-700">
-              I have reviewed all the booking details (room, personal information, guest count, dates, and total amount) and confirm they are correct. I understand that the confirmation page may take a few seconds to load.
+              I have reviewed all the booking details (villa, personal information, dates, and total amount) and confirm they are correct. I understand that the confirmation page may take a few seconds to load.
             </span>
           </label>
         </div>

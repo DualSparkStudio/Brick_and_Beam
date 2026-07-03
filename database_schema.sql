@@ -38,6 +38,8 @@ CREATE TABLE IF NOT EXISTS rooms (
     slug TEXT UNIQUE,
     description TEXT NOT NULL,
     price_per_night NUMERIC(10, 2) NOT NULL,
+    weekday_price_per_night NUMERIC(10, 2),
+    weekend_price_per_night NUMERIC(10, 2),
     max_occupancy INTEGER NOT NULL DEFAULT 2,
     amenities TEXT[], -- Array of amenities
     image_url TEXT,

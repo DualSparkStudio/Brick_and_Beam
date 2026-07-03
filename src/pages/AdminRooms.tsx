@@ -6,15 +6,27 @@ import { normalizeImageUrl, validateImageUrl } from '../utils/imageUrl';
 
 const MAX_VILLAS = 1;
 
+const defaultVillaForm = () => ({
+  name: '',
+  description: '',
+  weekday_price_per_night: '',
+  weekend_price_per_night: '',
+  max_capacity: '4',
+  amenities: '',
+  images: [''],
+  video_url: '',
+  is_active: true,
+  gst_percentage: '12',
+  accommodation_details: '',
+  floor: '',
+  extra_mattress_price: '200',
+});
+
 const AdminRooms: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const [roomTypeForm, setRoomTypeForm] = useState({
-    description: '',
-    images: [''],
-    video_url: ''
-  });
+  const [roomTypeForm, setRoomTypeForm] = useState(defaultVillaForm);
   const [selectedRoomType, setSelectedRoomType] = useState<Room | null>(null);
   const [roomTypeModalMode, setRoomTypeModalMode] = useState<'edit' | 'add' | 'view'>('add');
 
@@ -83,12 +95,8 @@ const AdminRooms: React.FC = () => {
     setIsModalOpen(false);
     setRoomTypeModalMode('add'); // Reset modal mode to default
     setSelectedRoomType(null);
-    setFieldErrors({}); // Clear field errors
-        setRoomTypeForm({ 
-          description: '', 
-          images: [''],
-          video_url: ''
-        });
+    setFieldErrors({});
+    setRoomTypeForm(defaultVillaForm());
     setImagePreview('');
   };
 
@@ -165,12 +173,20 @@ const AdminRooms: React.FC = () => {
         newFieldErrors.name = true;
       }
       
-      if (!roomTypeForm.price_per_night.trim()) {
-        errors.push('Price per night is required');
-        newFieldErrors.price_per_night = true;
-      } else if (parseFloat(roomTypeForm.price_per_night) <= 0) {
-        errors.push('Price per night must be greater than 0');
-        newFieldErrors.price_per_night = true;
+      if (!roomTypeForm.weekday_price_per_night.trim()) {
+        errors.push('Weekday price is required');
+        newFieldErrors.weekday_price_per_night = true;
+      } else if (parseFloat(roomTypeForm.weekday_price_per_night) <= 0) {
+        errors.push('Weekday price must be greater than 0');
+        newFieldErrors.weekday_price_per_night = true;
+      }
+
+      if (!roomTypeForm.weekend_price_per_night.trim()) {
+        errors.push('Weekend (Saturday) price is required');
+        newFieldErrors.weekend_price_per_night = true;
+      } else if (parseFloat(roomTypeForm.weekend_price_per_night) <= 0) {
+        errors.push('Weekend price must be greater than 0');
+        newFieldErrors.weekend_price_per_night = true;
       }
 
       // Quantity is always 1 for this single-villa website
@@ -198,11 +214,15 @@ const AdminRooms: React.FC = () => {
       // Clear field errors if validation passes
       setFieldErrors({});
 
-      const fallbackName = selectedRoomType?.name || `Room Type ${roomTypes.length + 1}`;
+      const villaName = roomTypeForm.name.trim();
+      const weekdayPrice = parseFloat(roomTypeForm.weekday_price_per_night);
+      const weekendPrice = parseFloat(roomTypeForm.weekend_price_per_night);
       const roomData = {
-        name: fallbackName,
+        name: villaName,
         description: roomTypeForm.description.trim(),
-        price_per_night: parseFloat(roomTypeForm.price_per_night),
+        weekday_price_per_night: weekdayPrice,
+        weekend_price_per_night: weekendPrice,
+        price_per_night: weekdayPrice,
         max_capacity: parseInt(roomTypeForm.max_capacity) || 4,
         quantity: 1,
         amenities: roomTypeForm.amenities.split('\n').filter(item => item.trim()),
@@ -211,15 +231,13 @@ const AdminRooms: React.FC = () => {
         video_url: roomTypeForm.video_url.trim() || undefined, // Add video URL
         is_active: roomTypeForm.is_active,
         is_available: true, // Set room as available when creating
-        extra_guest_price: roomTypeForm.extra_guest_price ? parseFloat(roomTypeForm.extra_guest_price) : 0,
-        child_above_5_price: roomTypeForm.child_above_5_price ? parseFloat(roomTypeForm.child_above_5_price) : 0,
         gst_percentage: roomTypeForm.gst_percentage ? parseFloat(roomTypeForm.gst_percentage) : 12,
         accommodation_details: roomTypeForm.accommodation_details.trim(),
         floor: roomTypeForm.floor ? parseInt(roomTypeForm.floor) : undefined,
         extra_mattress_price: roomTypeForm.extra_mattress_price ? parseFloat(roomTypeForm.extra_mattress_price) : 200,
-        check_in_time: '12:00 PM',
-        check_out_time: '10:00 AM',
-        room_number: (selectedRoomType?.room_number || fallbackName).replace(/\s+/g, '-').toUpperCase(),
+        check_in_time: selectedRoomType?.check_in_time || '12:00 PM',
+        check_out_time: selectedRoomType?.check_out_time || '10:00 AM',
+        room_number: (selectedRoomType?.room_number || villaName).replace(/\s+/g, '-').toUpperCase(),
       };
 
       if (roomTypeModalMode === 'edit' && selectedRoomType) {
@@ -262,7 +280,7 @@ const AdminRooms: React.FC = () => {
             onClick={async () => {
               toast.dismiss(t.id)
               try {
-                const loadingToast = toast.loading('Deleting room...');
+                const loadingToast = toast.loading('Deleting villa...');
                 await api.deleteRoom(roomId);
                 toast.dismiss(loadingToast);
                 toast.success(`${roomName} deleted successfully!`);
@@ -350,22 +368,23 @@ const AdminRooms: React.FC = () => {
         };
         
         setRoomTypeForm({
+          name: roomType.name || '',
           description: roomType.description || '',
+          weekday_price_per_night: safeToString(roomType.weekday_price_per_night ?? roomType.price_per_night),
+          weekend_price_per_night: safeToString(roomType.weekend_price_per_night ?? roomType.price_per_night),
+          max_capacity: safeToString(roomType.max_capacity || roomType.max_occupancy || 4),
+          amenities: Array.isArray(roomType.amenities) ? roomType.amenities.join('\n') : '',
           images: Array.isArray(roomType.images) && roomType.images.length > 0 ? roomType.images : [''],
           video_url: roomType.video_url || '',
+          is_active: roomType.is_active ?? true,
+          gst_percentage: safeToString(roomType.gst_percentage ?? 12),
+          accommodation_details: roomType.accommodation_details || '',
+          floor: safeToString(roomType.floor),
+          extra_mattress_price: safeToString(roomType.extra_mattress_price ?? 200),
         });
-
-        // Load existing room images if editing
-        if (roomType.images && roomType.images.length > 0) {
-          // Images are now stored directly in the room data
-        }
       } else {
         setSelectedRoomType(null);
-        setRoomTypeForm({ 
-          description: '', 
-          images: [''],
-          video_url: '',
-        });
+        setRoomTypeForm(defaultVillaForm());
         setImagePreview('');
       }
       
@@ -424,7 +443,7 @@ const AdminRooms: React.FC = () => {
                       Villa
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Price/Night (Couple)
+                      Pricing
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Max Guests
@@ -461,7 +480,8 @@ const AdminRooms: React.FC = () => {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        ₹{room.price_per_night?.toLocaleString()}
+                        <div>Wkday ₹{(room.weekday_price_per_night ?? room.price_per_night)?.toLocaleString()}</div>
+                        <div className="text-gray-500">Sat ₹{(room.weekend_price_per_night ?? room.price_per_night)?.toLocaleString()}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
@@ -547,8 +567,13 @@ const AdminRooms: React.FC = () => {
                   
                   <div className="grid grid-cols-2 gap-2 mb-3 text-sm">
                     <div>
-                      <span className="text-gray-500">Price:</span>
-                      <span className="ml-1 font-semibold text-gray-900">₹{room.price_per_night.toLocaleString()}</span>
+                      <span className="text-gray-500">Pricing:</span>
+                      <span className="ml-1 font-semibold text-gray-900 block">
+                        Wkday ₹{(room.weekday_price_per_night ?? room.price_per_night).toLocaleString()}
+                      </span>
+                      <span className="ml-1 text-sm text-gray-600 block">
+                        Sat ₹{(room.weekend_price_per_night ?? room.price_per_night).toLocaleString()}
+                      </span>
                     </div>
                     <div>
                       <span className="text-gray-500">Max Guests:</span>
@@ -692,28 +717,54 @@ const AdminRooms: React.FC = () => {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Price per Night (Couple) *
+                        Weekday Price per Night *
                       </label>
                       <input
                         type="number"
-                        name="price_per_night"
-                        value={roomTypeForm.price_per_night}
+                        name="weekday_price_per_night"
+                        value={roomTypeForm.weekday_price_per_night}
                         onChange={handleRoomTypeFormChange}
                         className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 text-gray-900 ${
-                          fieldErrors.price_per_night 
-                            ? 'border-red-300 focus:ring-red-500' 
+                          fieldErrors.weekday_price_per_night
+                            ? 'border-red-300 focus:ring-red-500'
                             : 'border-gray-300 focus:ring-blue-500'
                         }`}
                         placeholder="0"
                         disabled={roomTypeModalMode === 'view'}
                         required
                       />
-                      {fieldErrors.price_per_night && (
-                        <p className="mt-1 text-xs text-red-600">Valid price is required</p>
+                      {fieldErrors.weekday_price_per_night && (
+                        <p className="mt-1 text-xs text-red-600">Valid weekday price is required</p>
                       )}
-                      <p className="mt-1 text-xs text-gray-500">Base price for couple (2 adults)</p>
+                      <p className="mt-1 text-xs text-gray-500">Mon–Fri & Sun (whole 4BHK villa)</p>
                     </div>
 
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Weekend Price per Night (Saturday) *
+                      </label>
+                      <input
+                        type="number"
+                        name="weekend_price_per_night"
+                        value={roomTypeForm.weekend_price_per_night}
+                        onChange={handleRoomTypeFormChange}
+                        className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 text-gray-900 ${
+                          fieldErrors.weekend_price_per_night
+                            ? 'border-red-300 focus:ring-red-500'
+                            : 'border-gray-300 focus:ring-blue-500'
+                        }`}
+                        placeholder="0"
+                        disabled={roomTypeModalMode === 'view'}
+                        required
+                      />
+                      {fieldErrors.weekend_price_per_night && (
+                        <p className="mt-1 text-xs text-red-600">Valid weekend price is required</p>
+                      )}
+                      <p className="mt-1 text-xs text-gray-500">Saturday nights (whole 4BHK villa)</p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         Max Capacity *
@@ -745,39 +796,7 @@ const AdminRooms: React.FC = () => {
                   {/* Additional Charges */}
                   <div className="border-t pt-4 mt-4">
                     <h3 className="text-sm font-semibold text-gray-900 mb-3">Additional Charges</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Extra Guest Price
-                        </label>
-                        <input
-                          type="number"
-                          name="extra_guest_price"
-                          value={roomTypeForm.extra_guest_price}
-                          onChange={handleRoomTypeFormChange}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
-                          placeholder="0"
-                          disabled={roomTypeModalMode === 'view'}
-                          min="0"
-                        />
-                        <p className="mt-1 text-xs text-gray-500">Per extra adult per night</p>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Child Above 5 Years
-                        </label>
-                        <input
-                          type="number"
-                          name="child_above_5_price"
-                          value={roomTypeForm.child_above_5_price}
-                          onChange={handleRoomTypeFormChange}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
-                          placeholder="0"
-                          disabled={roomTypeModalMode === 'view'}
-                          min="0"
-                        />
-                        <p className="mt-1 text-xs text-gray-500">Per child per night</p>
-                      </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                           GST %
@@ -796,22 +815,22 @@ const AdminRooms: React.FC = () => {
                         />
                         <p className="mt-1 text-xs text-gray-500">GST percentage (default: 12%)</p>
                       </div>
-                    </div>
-                    <div className="mt-4">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Extra Mattress Price
-                      </label>
-                      <input
-                        type="number"
-                        name="extra_mattress_price"
-                        value={roomTypeForm.extra_mattress_price}
-                        onChange={handleRoomTypeFormChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
-                        placeholder="200"
-                        disabled={roomTypeModalMode === 'view'}
-                        min="0"
-                      />
-                      <p className="mt-1 text-xs text-gray-500">Per mattress per night (default: ₹200)</p>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Extra Mattress Price
+                        </label>
+                        <input
+                          type="number"
+                          name="extra_mattress_price"
+                          value={roomTypeForm.extra_mattress_price}
+                          onChange={handleRoomTypeFormChange}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
+                          placeholder="200"
+                          disabled={roomTypeModalMode === 'view'}
+                          min="0"
+                        />
+                        <p className="mt-1 text-xs text-gray-500">Per mattress per night (default: ₹200)</p>
+                      </div>
                     </div>
                   </div>
 
@@ -1061,7 +1080,7 @@ const AdminRooms: React.FC = () => {
                     }}
                     className="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
                   >
-                    Edit Room
+                    Edit Villa
                   </button>
                 )}
                 {roomTypeModalMode !== 'view' && (
@@ -1069,7 +1088,7 @@ const AdminRooms: React.FC = () => {
                     type="submit"
                     className="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
                   >
-                    {roomTypeModalMode === 'edit' ? 'Update Room' : 'Add Room'}
+                    {roomTypeModalMode === 'edit' ? 'Update Villa' : 'Add Villa'}
                   </button>
                 )}
               </div>

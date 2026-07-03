@@ -1,7 +1,8 @@
 import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/outline';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { useVilla } from '../contexts/VillaContext';
+import { formatCheckInFaqAnswer, resolveFaqAnswer } from '../lib/villa-check-times';
 import { supabase } from '../lib/supabase';
-
 interface FAQ {
   id: number;
   question: string;
@@ -11,8 +12,8 @@ interface FAQ {
 }
 
 const FAQ: React.FC = () => {
-  const [faqs, setFaqs] = useState<FAQ[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { checkTimes } = useVilla();
+  const [faqs, setFaqs] = useState<FAQ[]>([]);  const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState<number | null>(null);
 
   useEffect(() => {
@@ -34,7 +35,7 @@ const FAQ: React.FC = () => {
           {
             id: 1,
             question: 'What are your check-in and check-out times?',
-            answer: `Check-in time is 1:00 PM onwards and check-out time is 10:00 AM. Check-in and check-out times are flexible depending on other bookings. Please contact us for early check-in or late check-out requests.`,
+            answer: formatCheckInFaqAnswer(checkTimes),
             order: 1,
             is_active: true
           },
@@ -47,8 +48,8 @@ const FAQ: React.FC = () => {
           },
           {
             id: 3,
-            question: 'What amenities are included in the room rate?',
-            answer: 'All our rooms include complimentary Wi-Fi, daily housekeeping, toiletries, and a delicious breakfast. Some rooms also feature private balconies with garden views.',
+            question: 'What amenities are included in the villa rate?',
+            answer: 'The villa includes complimentary Wi-Fi, daily housekeeping, toiletries, and breakfast. Enjoy private balconies with valley views across the 4BHK property.',
             order: 3,
             is_active: true
           },
@@ -88,6 +89,15 @@ const FAQ: React.FC = () => {
     setExpandedId(expandedId === id ? null : id);
   };
 
+  const displayFaqs = useMemo(
+    () =>
+      faqs.map((faq) => ({
+        ...faq,
+        answer: resolveFaqAnswer(faq.question, faq.answer, checkTimes),
+      })),
+    [faqs, checkTimes]
+  );
+
   if (loading) {
     return (
       <div className="py-12 bg-gray-50">
@@ -100,7 +110,7 @@ const FAQ: React.FC = () => {
     );
   }
 
-  if (faqs.length === 0) {
+  if (displayFaqs.length === 0) {
     return null; // Don't render anything if no FAQs
   }
 
@@ -119,7 +129,7 @@ const FAQ: React.FC = () => {
 
         {/* FAQ Items */}
         <div className="space-y-4">
-          {faqs.map((faq) => (
+          {displayFaqs.map((faq) => (
             <div
               key={faq.id}
               className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden"

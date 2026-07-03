@@ -135,7 +135,7 @@ const AdminCalendar: React.FC = () => {
         })
 
         await Promise.all(blockPromises)
-        toast.success(`Dates blocked successfully for all ${rooms.length} rooms`)
+        toast.success(`Dates blocked successfully for the villa`)
       } else {
         // Block dates for single room
         const blockDataWithSource = {
@@ -182,7 +182,7 @@ const AdminCalendar: React.FC = () => {
         )
 
         await Promise.all(unblockPromises)
-        toast.success(`Dates unblocked successfully for ${blockedDatesToRemove.length} rooms`)
+        toast.success(`Dates unblocked successfully`)
       } else {
         // Unblock single room
         await api.deleteBlockedDate(selectedBlockedDate.id)
@@ -227,7 +227,7 @@ const AdminCalendar: React.FC = () => {
         <div className="mb-8 flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">Calendar Management</h1>
-            <p className="mt-2 text-gray-600">Manage bookings and block dates for your resort</p>
+            <p className="mt-2 text-gray-600">Manage bookings and block dates for your villa</p>
           </div>
           
         </div>

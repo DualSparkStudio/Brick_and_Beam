@@ -77,7 +77,7 @@ export const GALLERY_IMAGES: GalleryImage[] = [
 export const GALLERY_CATEGORIES: { id: GalleryCategory | 'all'; name: string }[] = [
   { id: 'all', name: 'All' },
   { id: 'exterior', name: 'Exterior' },
-  { id: 'rooms', name: 'Rooms' },
+  { id: 'rooms', name: 'Bedrooms' },
   { id: 'living', name: 'Living' },
   { id: 'dining', name: 'Dining' },
   { id: 'amenities', name: 'Amenities' },

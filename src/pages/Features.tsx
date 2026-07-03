@@ -11,7 +11,7 @@ const Features: React.FC = () => {
     {
       title: 'COMFORT & CONVENIENCE',
       description: 'At Brick and Beam, every detail is designed to ensure a comfortable, hassle-free, and relaxing stay for our guests.',
-      items: ['FREE WIFI', 'FREE PARKING', 'AC ROOMS', 'BALCONY WITH VALLEY VIEW'],
+      items: ['FREE WIFI', 'FREE PARKING', 'AC THROUGHOUT', 'BALCONY WITH VALLEY VIEW'],
       icon: '🏨',
       gradient: 'from-blue-500/20 to-cyan-500/20'
     },

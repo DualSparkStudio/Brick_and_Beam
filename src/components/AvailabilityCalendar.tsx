@@ -66,7 +66,7 @@ const AvailabilityCalendar: React.FC<AvailabilityCalendarProps> = ({
       
       // Find the room name and quantity
       const room = roomsData?.find(r => r.id === roomId)
-      const currentRoomName = room ? (room.is_deleted ? `${room.name} (Deleted)` : room.name) : 'Unknown Room'
+      const currentRoomName = room ? (room.is_deleted ? `${room.name} (Deleted)` : room.name) : 'Unknown Villa'
       const currentRoomQuantity = room?.quantity || 1
       setRoomName(currentRoomName)
       setRoomQuantity(currentRoomQuantity)

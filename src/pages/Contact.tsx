@@ -11,12 +11,15 @@ import toast from 'react-hot-toast'
 import FAQ from '../components/FAQ'
 import PageHero from '../components/PageHero'
 import SEO from '../components/SEO'
-import { GOOGLE_MAPS_EMBED_URL } from '../config/brand'
+import { useVilla } from '../contexts/VillaContext'
+import { GOOGLE_MAPS_EMBED_URL, DEFAULT_VILLA_ADDRESS, resolveVillaAddress } from '../config/brand'
 import { PAGE_HERO_IMAGES } from '../config/galleryImages'
+import { formatCheckInOutPipe } from '../lib/villa-check-times'
 import { netlifyFunctionUrl } from '../lib/netlify-functions'
 import { api } from '../lib/supabase'
 
 const Contact: React.FC = () => {
+  const { checkTimes } = useVilla()
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -30,7 +33,7 @@ const Contact: React.FC = () => {
     email: 'info@resortbooking.com',
     phone: '+91 98765 43210',
     name: 'Brick and Beam',
-    address: 'Sample Address, City, State, PIN Code',
+    address: DEFAULT_VILLA_ADDRESS,
     phone2: '+91 98765 43211',
     phone3: '+91 98765 43212'
   })
@@ -44,7 +47,7 @@ const Contact: React.FC = () => {
           email: adminInfo.email || 'info@resortbooking.com',
           phone: adminInfo.phone || '+91 98765 43210',
           name: `${adminInfo.first_name} ${adminInfo.last_name}`.trim() || 'Brick and Beam',
-          address: adminInfo.address || 'Sample Address, City, State, PIN Code',
+          address: resolveVillaAddress(adminInfo.address),
           phone2: '+91 98765 43211',
           phone3: '+91 98765 43212'
         })
@@ -119,7 +122,7 @@ const Contact: React.FC = () => {
   const contactInfo = [
     {
       title: 'Address',
-      content: adminContactInfo.address || 'Sample Address, City, State, PIN Code',
+      content: adminContactInfo.address,
       icon: MapPinIcon,
       link: 'https://maps.google.com'
     },
@@ -137,7 +140,7 @@ const Contact: React.FC = () => {
     },
     {
       title: 'Check-in/Check-out',
-      content: 'Check In: 12:00 PM | Check Out: 10:00 AM',
+      content: formatCheckInOutPipe(checkTimes),
       icon: ClockIcon,
       link: null
     }
@@ -145,7 +148,7 @@ const Contact: React.FC = () => {
 
   const departments = [
     'General Inquiries',
-    'Room Reservations',
+    'Villa Reservations',
     'Local Tours & Activities',
     'Transportation',
     'Special Occasions',
@@ -181,12 +184,20 @@ const Contact: React.FC = () => {
                   {info.link ? (
                     <a 
                       href={info.link} 
-                      className="text-gray-600 hover:text-blue-800 transition-colors duration-200 text-center"
+                      className={`text-gray-600 hover:text-blue-800 transition-colors duration-200 text-center ${
+                        info.title === 'Address' ? 'whitespace-pre-line' : ''
+                      }`}
                     >
                       {info.content}
                     </a>
                   ) : (
-                    <p className="text-gray-600 text-center">{info.content}</p>
+                    <p
+                      className={`text-gray-600 text-center ${
+                        info.title === 'Address' ? 'whitespace-pre-line' : ''
+                      }`}
+                    >
+                      {info.content}
+                    </p>
                   )}
                 </div>
               ))}
@@ -408,7 +419,7 @@ const Contact: React.FC = () => {
                       <MapPinIcon className="h-6 w-6 text-forest-800 mr-3" />
                       <div>
                         <p className="font-medium text-gray-900">Location</p>
-                        <p className="text-gray-600">{adminContactInfo.address || 'Sample Address, City, State, PIN Code'}</p>
+                        <p className="text-gray-600 whitespace-pre-line">{adminContactInfo.address}</p>
                       </div>
                     </div>
                   </div>

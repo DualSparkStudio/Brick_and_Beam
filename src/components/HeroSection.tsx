@@ -76,8 +76,8 @@ const HeroSection = () => {
               {...fadeUp(0.45)}
               className="max-w-xl text-base leading-relaxed text-white/75 sm:text-lg"
             >
-              Nestled in the Western Ghats, our resort blends serene nature with
-              refined comfort — private rooms, warm hospitality, and views that
+              Nestled in the Western Ghats, our 4BHK villa blends serene nature with
+              refined comfort — private spaces, warm hospitality, and views that
               stay with you long after checkout.
             </motion.p>
 
@@ -107,7 +107,7 @@ const HeroSection = () => {
             >
               {[
                 { icon: SparklesIcon, label: 'Premium Villas', value: 'Curated Stay' },
-                { icon: MapPinIcon, label: 'Location', value: 'Near Venna Lake' },
+                { icon: MapPinIcon, label: 'Location', value: 'Mahabaleshwar' },
               ].map(({ icon: Icon, label, value }) => (
                 <div
                   key={label}

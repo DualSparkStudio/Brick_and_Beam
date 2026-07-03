@@ -3,7 +3,6 @@ import {
     BuildingOfficeIcon,
     EnvelopeIcon,
     HomeIcon,
-    MapPinIcon,
     PhotoIcon,
     SparklesIcon,
     UserGroupIcon,
@@ -80,43 +79,68 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
 
 
-  const isActive = (path: string) => location.pathname === path
+  const isActive = (path: string) => {
+    if (path === '/rooms') {
+      return location.pathname === '/rooms' || location.pathname.startsWith('/room/')
+    }
+    return location.pathname === path
+  }
 
   const navigation = [
     { name: 'Home', href: '/', icon: HomeIcon },
-    { name: 'Rooms', href: '/rooms', icon: BuildingOfficeIcon },
-    { name: 'Attractions', href: '/attractions', icon: MapPinIcon },
+    { name: 'Villa', href: '/rooms', icon: BuildingOfficeIcon },
     { name: 'Gallery', href: '/gallery', icon: PhotoIcon },
     { name: 'Features', href: '/features', icon: SparklesIcon },
     { name: 'About', href: '/about', icon: UserGroupIcon },
     { name: 'Contact', href: '/contact', icon: EnvelopeIcon },
   ]
 
-  const isHomeHero = location.pathname === '/' && !scrolled
+  const isHomePage = location.pathname === '/'
+  const isHomeHero = isHomePage && !scrolled
   const navSurface = isHomeHero
-    ? 'border-white/10 bg-dark-blue-900/30 shadow-[0_8px_32px_rgba(0,0,0,0.25)]'
-    : 'border-white/40 bg-white/65 shadow-[0_8px_32px_rgba(0,0,0,0.08)]'
-  const titleColor = isHomeHero ? 'text-white' : 'text-gray-900'
-  const subtitleColor = isHomeHero ? 'text-white/70' : 'text-gray-600'
-  const linkIdle = isHomeHero ? 'text-white/85 hover:text-golden-300' : 'text-gray-700 hover:text-golden-500'
-  const linkActive = isHomeHero ? 'text-golden-300' : 'text-golden-500'
-  const menuBtn = isHomeHero
+    ? 'border-transparent bg-transparent shadow-none'
+    : isHomePage
+      ? 'border-white/10 bg-dark-blue-900/92 shadow-[0_8px_40px_rgba(0,0,0,0.45)]'
+      : 'border-white/40 bg-white/70 shadow-[0_8px_32px_rgba(0,0,0,0.08)]'
+  const titleColor = isHomeHero || (isHomePage && scrolled) ? 'text-white' : 'text-gray-900'
+  const subtitleColor = isHomeHero || (isHomePage && scrolled) ? 'text-golden-300/80' : 'text-gray-600'
+  const linkIdle = isHomeHero || (isHomePage && scrolled)
+    ? 'text-white/80 hover:text-golden-300'
+    : 'text-gray-700 hover:text-golden-500'
+  const linkActive = isHomeHero || (isHomePage && scrolled) ? 'text-golden-300' : 'text-golden-500'
+  const menuBtn = isHomeHero || (isHomePage && scrolled)
     ? 'text-white/90 hover:text-golden-300 hover:bg-white/10'
     : 'text-gray-700 hover:text-golden-500 hover:bg-white/50'
+  const useDarkNavChrome = isHomeHero || (isHomePage && scrolled)
 
   return (
     <div className="min-h-screen bg-white relative">
       <BackgroundEffects />
-      {/* Navigation — glassmorphism */}
+      {/* Navigation — overlays hero on home, glass on scroll */}
       <nav
-        className={`fixed top-0 left-0 right-0 z-50 border-b backdrop-blur-xl backdrop-saturate-150 transition-all duration-500 ${navSurface}`}
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+          isHomeHero ? '' : 'border-b backdrop-blur-xl backdrop-saturate-150'
+        } ${navSurface}`}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-20">
+        {isHomeHero && (
+          <div
+            className="pointer-events-none absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-dark-blue-900/70 via-dark-blue-900/25 to-transparent"
+            aria-hidden
+          />
+        )}
+
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className={`flex justify-between transition-all duration-500 ${isHomeHero ? 'h-24' : 'h-20'}`}>
             {/* Logo */}
             <div className="flex items-center">
               <Link to="/" className="flex items-center group">
-                <div className="mr-3 rounded-xl border border-white/20 bg-white/10 p-1 backdrop-blur-sm transition-colors group-hover:border-golden-500/40">
+                <div
+                  className={`mr-3 rounded-xl p-1 transition-all duration-300 ${
+                    useDarkNavChrome
+                      ? 'border border-white/20 bg-white/10 backdrop-blur-sm group-hover:border-golden-400/50 group-hover:shadow-[0_0_24px_rgba(212,175,55,0.15)]'
+                      : 'border border-gray-200/80 bg-white/80 group-hover:border-golden-500/40'
+                  }`}
+                >
                   <img 
                     src={LOGO_IMAGE} 
                     alt="Brick and Beam Logo" 
@@ -133,7 +157,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   </div>
                 </div>
                 <div>
-                  <h1 className={`text-lg font-bold transition-colors duration-300 ${titleColor}`}>
+                  <h1
+                    className={`text-lg font-bold transition-colors duration-300 ${
+                      useDarkNavChrome ? 'font-serif tracking-tight' : ''
+                    } ${titleColor}`}
+                  >
                     Brick and Beam
                   </h1>
                   <p className={`text-xs transition-colors duration-300 ${subtitleColor}`}>
@@ -143,20 +171,29 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               </Link>
             </div>
 
-            {/* Desktop Navigation */}
-            <div className="hidden lg:flex items-center space-x-1">
+            {/* Desktop Navigation — floating pill on hero */}
+            <div
+              className={`hidden lg:flex items-center transition-all duration-500 ${
+                isHomeHero
+                  ? 'rounded-full border border-white/15 bg-black/25 px-2 py-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-md'
+                  : 'space-x-1'
+              }`}
+            >
               {navigation.map((item) => (
                 <Link
                   key={item.name}
                   to={item.href}
                   className={`relative rounded-full px-4 py-2 text-sm font-medium transition-all duration-300 ${
                     isActive(item.href)
-                      ? `${linkActive} ${isHomeHero ? 'bg-white/10' : 'bg-golden-50/80'}`
-                      : `${linkIdle} hover:bg-white/10`
+                      ? `${linkActive} ${useDarkNavChrome ? 'bg-white/12 shadow-inner' : 'bg-golden-50/80'}`
+                      : `${linkIdle} ${useDarkNavChrome ? 'hover:bg-white/10' : 'hover:bg-white/60'}`
                   }`}
                 >
                   {item.name}
-                  {isActive(item.href) && (
+                  {isActive(item.href) && useDarkNavChrome && (
+                    <span className="absolute -bottom-0.5 left-1/2 h-px w-5 -translate-x-1/2 bg-gradient-to-r from-transparent via-golden-400 to-transparent" />
+                  )}
+                  {isActive(item.href) && !useDarkNavChrome && (
                     <span className="absolute bottom-1 left-1/2 h-0.5 w-4 -translate-x-1/2 rounded-full bg-golden-400" />
                   )}
                 </Link>
@@ -169,8 +206,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 <Link
                   to="/rooms"
                   className={`inline-flex items-center rounded-full px-5 py-2.5 text-sm font-semibold transition-all duration-300 ${
-                    isHomeHero
-                      ? 'border border-golden-400/50 bg-golden-500/90 text-dark-blue-900 shadow-lg shadow-golden-500/20 hover:bg-golden-400'
+                    useDarkNavChrome
+                      ? 'border border-golden-400/40 bg-gradient-to-r from-golden-500 to-golden-600 text-dark-blue-900 shadow-lg shadow-golden-500/25 hover:from-golden-400 hover:to-golden-500 hover:shadow-golden-500/35'
                       : 'btn-primary rounded-lg'
                   }`}
                 >
@@ -196,10 +233,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
         {/* Mobile Navigation */}
         {isMobileMenuOpen && (
-          <div className="lg:hidden border-t border-white/10">
+          <div className={`lg:hidden border-t ${useDarkNavChrome ? 'border-white/10' : 'border-gray-200/60'}`}>
             <div
               className={`space-y-1 px-3 py-3 backdrop-blur-xl ${
-                isHomeHero ? 'bg-dark-blue-900/50' : 'bg-white/75'
+                useDarkNavChrome ? 'bg-dark-blue-900/90' : 'bg-white/80'
               }`}
             >
               {navigation.map((item) => (
@@ -208,10 +245,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   to={item.href}
                   className={`flex items-center rounded-xl px-3 py-3 text-base font-medium transition-all duration-200 ${
                     isActive(item.href)
-                      ? isHomeHero
+                      ? useDarkNavChrome
                         ? 'bg-white/10 text-golden-300'
                         : 'bg-golden-50/90 text-golden-600'
-                      : isHomeHero
+                      : useDarkNavChrome
                         ? 'text-white/90 hover:bg-white/10 hover:text-golden-300'
                         : 'text-gray-700 hover:bg-white/60 hover:text-golden-500'
                   }`}
@@ -222,12 +259,12 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 </Link>
               ))}
               
-              <div className={`space-y-3 border-t pt-4 pb-2 ${isHomeHero ? 'border-white/10' : 'border-gray-200/60'}`}>
+              <div className={`space-y-3 border-t pt-4 pb-2 ${useDarkNavChrome ? 'border-white/10' : 'border-gray-200/60'}`}>
                 <Link
                   to="/rooms"
                   className={`block w-full rounded-xl py-3 text-center text-sm font-semibold transition-all duration-300 ${
-                    isHomeHero
-                      ? 'bg-golden-500/90 text-dark-blue-900 hover:bg-golden-400'
+                    useDarkNavChrome
+                      ? 'bg-gradient-to-r from-golden-500 to-golden-600 text-dark-blue-900 hover:from-golden-400 hover:to-golden-500'
                       : 'btn-primary'
                   }`}
                   onClick={() => setIsMobileMenuOpen(false)}
@@ -238,10 +275,17 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             </div>
           </div>
         )}
+
+        {isHomeHero && (
+          <div
+            className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-golden-400/40 to-transparent"
+            aria-hidden
+          />
+        )}
       </nav>
 
-      {/* Main Content */}
-      <main className="pt-20 min-h-screen">
+      {/* Main Content — hero bleeds under navbar on home */}
+      <main className={`min-h-screen ${isHomePage ? 'pt-0' : 'pt-20'}`}>
         {children}
       </main>
 
@@ -271,7 +315,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 </div>
               </div>
               <p className="text-gray-600 mb-4 max-w-md">
-                Experience luxury and comfort in the heart of nature. Our resort offers 
+                Experience luxury and comfort in the heart of nature. Our 4BHK villa offers
                 stunning views, world-class amenities, and unforgettable memories.
               </p>
             </div>
@@ -283,12 +327,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               <ul className="space-y-2 list-disc list-inside">
                 <li>
                   <Link to="/rooms" className="text-gray-600 hover:text-golden-500 transition-colors">
-                    Rooms & Suites
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/attractions" className="text-gray-600 hover:text-golden-500 transition-colors">
-                    Local Attractions
+                    Our Villa
                   </Link>
                 </li>
                 <li>

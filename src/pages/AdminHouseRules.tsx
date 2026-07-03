@@ -2,7 +2,14 @@ import { Bars3Icon, CheckIcon, PencilIcon, PlusIcon, TrashIcon, XMarkIcon } from
 import React, { useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { useAuth } from '../contexts/AuthContext';
-import { supabase } from '../lib/supabase';
+import { useVillaOptional } from '../contexts/VillaContext';
+import { api, supabase } from '../lib/supabase';
+import {
+  DEFAULT_CHECK_IN_TIME,
+  DEFAULT_CHECK_OUT_TIME,
+  formatHouseRuleCheckTimesText,
+  parseCheckTimesFromHouseRules,
+} from '../lib/villa-check-times';
 
 interface HouseRule {
   id: number;
@@ -15,6 +22,7 @@ interface HouseRule {
 
 const AdminHouseRules: React.FC = () => {
   const { user } = useAuth();
+  const villaContext = useVillaOptional();
   const [houseRules, setHouseRules] = useState<HouseRule[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAdding, setIsAdding] = useState(false);
@@ -24,10 +32,70 @@ const AdminHouseRules: React.FC = () => {
   const [formData, setFormData] = useState({
     rule_text: ''
   });
+  const [checkTimes, setCheckTimes] = useState({
+    check_in_time: DEFAULT_CHECK_IN_TIME,
+    check_out_time: DEFAULT_CHECK_OUT_TIME,
+  });
+  const [savingCheckTimes, setSavingCheckTimes] = useState(false);
 
   useEffect(() => {
     fetchHouseRules();
   }, []);
+
+  const loadCheckTimes = async (rules: HouseRule[]) => {
+    try {
+      const times = await api.getVillaCheckTimes();
+      setCheckTimes(times);
+    } catch {
+      const parsed = parseCheckTimesFromHouseRules(rules);
+      setCheckTimes({
+        check_in_time: parsed.check_in_time || DEFAULT_CHECK_IN_TIME,
+        check_out_time: parsed.check_out_time || DEFAULT_CHECK_OUT_TIME,
+      });
+    }
+  };
+
+  const handleSaveCheckTimes = async () => {
+    if (!user || !user.is_admin) {
+      toast.error('You must be logged in as an admin to perform this action');
+      return;
+    }
+
+    const checkIn = checkTimes.check_in_time.trim();
+    const checkOut = checkTimes.check_out_time.trim();
+    if (!checkIn || !checkOut) {
+      toast.error('Please enter both check-in and check-out times');
+      return;
+    }
+
+    try {
+      setSavingCheckTimes(true);
+      await api.updateVillaCheckTimes({ check_in_time: checkIn, check_out_time: checkOut });
+
+      const timeRule = houseRules.find((rule) => /check[-\s]?in/i.test(rule.rule_text));
+      if (timeRule) {
+        const { error } = await supabase
+          .from('house_rules')
+          .update({
+            rule_text: formatHouseRuleCheckTimesText(checkIn, checkOut),
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', timeRule.id);
+
+        if (error) {
+          toast.error('Times saved, but failed to update the matching house rule text');
+        }
+      }
+
+      toast.success('Check-in and check-out times updated');
+      await villaContext?.refreshVillaSettings();
+      await fetchHouseRules();
+    } catch {
+      toast.error('Failed to save check-in and check-out times');
+    } finally {
+      setSavingCheckTimes(false);
+    }
+  };
 
   const fetchHouseRules = async () => {
     try {
@@ -43,6 +111,7 @@ const AdminHouseRules: React.FC = () => {
       }
 
       setHouseRules(data || []);
+      await loadCheckTimes(data || []);
     } catch (error) {
       toast.error('Failed to load house rules');
     } finally {
@@ -303,6 +372,49 @@ const AdminHouseRules: React.FC = () => {
             >
               <PlusIcon className="h-4 w-4 mr-2" />
               Add Rule
+            </button>
+          </div>
+
+          <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <h2 className="text-lg font-semibold text-gray-900 mb-1">Check-in & Check-out Times</h2>
+            <p className="text-sm text-gray-600 mb-4">
+              These times appear on the booking page and across the website.
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label htmlFor="check_in_time" className="block text-sm font-medium text-gray-700 mb-2">
+                  Check-in time
+                </label>
+                <input
+                  id="check_in_time"
+                  type="text"
+                  value={checkTimes.check_in_time}
+                  onChange={(e) => setCheckTimes((prev) => ({ ...prev, check_in_time: e.target.value }))}
+                  placeholder="e.g. 1:00 PM"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-gray-900"
+                />
+              </div>
+              <div>
+                <label htmlFor="check_out_time" className="block text-sm font-medium text-gray-700 mb-2">
+                  Check-out time
+                </label>
+                <input
+                  id="check_out_time"
+                  type="text"
+                  value={checkTimes.check_out_time}
+                  onChange={(e) => setCheckTimes((prev) => ({ ...prev, check_out_time: e.target.value }))}
+                  placeholder="e.g. 10:00 AM"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-gray-900"
+                />
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={handleSaveCheckTimes}
+              disabled={savingCheckTimes}
+              className="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-60 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            >
+              {savingCheckTimes ? 'Saving…' : 'Save Times'}
             </button>
           </div>
 

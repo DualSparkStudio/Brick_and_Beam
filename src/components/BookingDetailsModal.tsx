@@ -181,7 +181,7 @@ const BookingDetailsModal: React.FC<BookingDetailsModalProps> = ({
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="bg-white rounded-lg p-3">
-                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Room</label>
+                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Villa</label>
                   <p className="text-sm font-semibold text-gray-900">
                     {event.extendedProps.roomInfo || 'Not specified'}
                   </p>

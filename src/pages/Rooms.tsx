@@ -26,7 +26,7 @@ function getRoomImages(room: Room): string[] {
 function getRoomLabel(room: Room, index: number): string {
   if (room.room_number?.trim()) return room.room_number
   if (room.name?.trim()) return room.name
-  return `Room ${index + 1}`
+  return `Our Villa`
 }
 
 const Rooms: React.FC = () => {
@@ -110,7 +110,7 @@ const Rooms: React.FC = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <LogoLoader size="lg" text="Loading Rooms..." />
+        <LogoLoader size="lg" text="Loading Villa..." />
       </div>
     )
   }
@@ -118,9 +118,9 @@ const Rooms: React.FC = () => {
   return (
     <>
       <SEO 
-        title="Luxury Rooms & Accommodations - Brick and Beam"
-        description="Explore our luxury rooms and accommodations at Brick and Beam. From deluxe suites to premium rooms, find your perfect stay."
-        keywords="luxury rooms, Brick and Beam rooms, accommodation, premium rooms, resort rooms, booking system"
+        title="Luxury 4BHK Villa - Brick and Beam"
+        description="Book our private 4BHK villa in Panchgani. Whole-villa stays with valley views, modern amenities, and space for families and groups."
+        keywords="4BHK villa, Brick and Beam villa, Panchgani villa, private villa booking, hill station villa"
         url="https://riverbreezehomestay.com/rooms"
       />
       <div className="min-h-screen bg-gray-50">
@@ -137,7 +137,7 @@ const Rooms: React.FC = () => {
                 <div>
                   <h2 className="text-xl font-semibold text-gray-900">Whole Villa Booking</h2>
                   <p className="text-gray-600 mt-1 text-sm sm:text-base">
-                    All rooms are included when you book the villa.
+                    Book the entire 4BHK villa — all bedrooms and living spaces included.
                   </p>
                   {displayedCapacity > 0 && (
                     <p className="text-sm text-blue-700 mt-2 font-medium">
@@ -172,7 +172,7 @@ const Rooms: React.FC = () => {
                   {numGuests && <p>Guests: {numGuests}</p>}
                   {checkInDate && <p>Check-in: {new Date(checkInDate).toLocaleDateString()}</p>}
                   {checkOutDate && <p>Check-out: {new Date(checkOutDate).toLocaleDateString()}</p>}
-                  <p className="mt-1 font-medium">{filteredRooms.length} room(s) shown</p>
+                  <p className="mt-1 font-medium">Villa available for selected dates</p>
                 </div>
                 <Link to="/rooms" className="text-sm text-blue-600 hover:underline shrink-0">
                   Clear filters
@@ -183,7 +183,7 @@ const Rooms: React.FC = () => {
             {filteredRooms.length === 0 ? (
               <div className="text-center py-16">
                 <UsersIcon className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">No rooms to show</h3>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">Villa not available</h3>
                 <p className="text-gray-600">
                   {guestsExceedVillaMax
                     ? `The villa accommodates up to ${villaMaxCapacity} guests. Try fewer guests or contact us.`
@@ -243,7 +243,7 @@ const Rooms: React.FC = () => {
             )}
 
             <div className="mt-14 sm:mt-16">
-              <VillaDetailsSection settings={villaSettings} />
+              <VillaDetailsSection settings={villaSettings} room={roomTypes[0] ?? null} />
             </div>
 
             <div className="mt-10 text-center">

@@ -1,6 +1,8 @@
 import { CalendarIcon, CheckCircleIcon, PhoneIcon, XCircleIcon } from '@heroicons/react/24/outline'
 import React, { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { useVilla } from '../contexts/VillaContext'
+import { formatCheckInOnwards } from '../lib/villa-check-times'
 import { api } from '../lib/supabase'
 
 interface BookingSuccessProps {
@@ -11,13 +13,13 @@ interface BookingSuccessProps {
 const BookingSuccess: React.FC<BookingSuccessProps> = () => {
   const location = useLocation()
   const navigate = useNavigate()
+  const { checkTimes } = useVilla()
   const [booking, setBooking] = useState<any>(null)
   const [room, setRoom] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [paymentId, setPaymentId] = useState<string | null>(null)
   const [adminContactInfo, setAdminContactInfo] = useState<{ email: string; phone?: string; address?: string; name?: string }>({ email: '' })
-  const [globalTimes, setGlobalTimes] = useState({ check_in_time: '', check_out_time: '' })
 
   useEffect(() => {
     const handlePaymentSuccess = async () => {
@@ -90,21 +92,7 @@ const BookingSuccess: React.FC<BookingSuccessProps> = () => {
         // ignore, fall back to defaults below
       }
     })()
-
-    // Load room-specific times from room data (not booking data)
-    if (room) {
-      setGlobalTimes({
-        check_in_time: room.check_in_time || '1:00 PM',
-        check_out_time: room.check_out_time || '10:00 AM'
-      })
-    } else {
-      // Fallback to defaults if room data not available
-      setGlobalTimes({
-        check_in_time: '1:00 PM',
-        check_out_time: '10:00 AM'
-      })
-    }
-  }, [location.search, location.state, room])
+  }, [location.search, location.state])
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
@@ -218,21 +206,21 @@ const BookingSuccess: React.FC<BookingSuccessProps> = () => {
                     </div>
                     
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Room:</span>
-                      <span className="font-semibold">{room?.name ? (room.is_deleted ? `${room.name} (Deleted)` : room.name) : 'Unknown Room'}</span>
+                      <span className="text-gray-600">Villa:</span>
+                      <span className="font-semibold">{room?.name ? (room.is_deleted ? `${room.name} (Deleted)` : room.name) : 'Unknown Villa'}</span>
                     </div>
                     
                     <div className="flex justify-between">
                       <span className="text-gray-600">Check-in:</span>
                       <span className="font-semibold">
-                        {formatDate(booking.check_in_date)} • {globalTimes.check_in_time || '1:00 PM'}
+                        {formatDate(booking.check_in_date)} • {checkTimes.check_in_time}
                       </span>
                     </div>
 
                     <div className="flex justify-between">
                       <span className="text-gray-600">Check-out:</span>
                       <span className="font-semibold">
-                        {formatDate(booking.check_out_date)} • {globalTimes.check_out_time || '11:00'}
+                        {formatDate(booking.check_out_date)} • {checkTimes.check_out_time}
                       </span>
                     </div>
                     
@@ -272,12 +260,12 @@ const BookingSuccess: React.FC<BookingSuccessProps> = () => {
                   <div className="space-y-3">
                     <div className="flex justify-between">
                       <span className="text-gray-600">Check-in Time:</span>
-                      <span className="font-semibold">{globalTimes.check_in_time || '1:00 PM'} onwards</span>
+                      <span className="font-semibold">{formatCheckInOnwards(checkTimes)}</span>
                     </div>
                     
                     <div className="flex justify-between">
                       <span className="text-gray-600">Check-out Time:</span>
-                      <span className="font-semibold">{globalTimes.check_out_time || '10:00 AM'}</span>
+                      <span className="font-semibold">{checkTimes.check_out_time}</span>
                     </div>
                     
                     <div className="mt-2 pt-2 border-t border-yellow-200">

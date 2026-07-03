@@ -198,7 +198,7 @@ const AdminDashboard: React.FC = () => {
           <div className="lg:col-span-2">
             <div className="mb-6">
               <h2 className="text-xl font-bold text-gray-900 mb-2">Quick Actions</h2>
-              <p className="text-gray-600">Manage your resort operations efficiently</p>
+              <p className="text-gray-600">Manage your villa operations efficiently</p>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

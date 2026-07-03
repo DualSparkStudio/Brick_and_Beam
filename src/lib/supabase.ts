@@ -1,10 +1,16 @@
 import { createClient } from '@supabase/supabase-js'
+import { resolveVillaAddress } from '../config/brand'
 import {
   VILLA_SETTING_KEYS,
   defaultVillaSettings,
   mapVillaSettingsFromDb,
   type VillaSettings,
 } from './villa-settings'
+import {
+  VILLA_CHECK_TIME_KEYS,
+  resolveVillaCheckTimes,
+  type VillaCheckTimes,
+} from './villa-check-times'
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
@@ -50,7 +56,9 @@ export interface Room {
   name: string
   slug?: string // Add slug field for SEO-friendly URLs
   description: string
-  price_per_night: number // Base price for couple (2 adults)
+  price_per_night: number // Legacy / fallback nightly rate
+  weekday_price_per_night?: number // Mon–Fri & Sun (whole villa)
+  weekend_price_per_night?: number // Saturday (whole villa)
   max_occupancy?: number // Optional - kept for backward compatibility
   max_capacity: number // Maximum number of guests allowed in this room type
   quantity: number // Number of rooms available for this room type
@@ -537,16 +545,16 @@ export const api = {
             last_name: '',
             email: '',
             phone: '',
-            address: ''
+            address: resolveVillaAddress(),
           }
         }
 
-        return adminUser || {
-          first_name: 'Admin',
-          last_name: '',
-          email: '',
-          phone: '',
-          address: ''
+        return {
+          first_name: adminUser?.first_name || 'Admin',
+          last_name: adminUser?.last_name || '',
+          email: adminUser?.email || '',
+          phone: adminUser?.phone || '',
+          address: resolveVillaAddress(adminUser?.address),
         }
       } catch (error) {
         return {
@@ -554,7 +562,7 @@ export const api = {
           last_name: '',
           email: '',
           phone: '',
-          address: ''
+          address: resolveVillaAddress(),
         }
     }
   },
@@ -1325,6 +1333,59 @@ export const api = {
     }
   },
 
+  async getVillaCheckTimes(room?: {
+    check_in_time?: string
+    check_out_time?: string
+  }): Promise<VillaCheckTimes> {
+    try {
+      const { data: settingsRows, error: settingsError } = await supabase
+        .from('calendar_settings')
+        .select('setting_key, setting_value')
+        .in('setting_key', Object.values(VILLA_CHECK_TIME_KEYS))
+
+      if (settingsError) {
+        console.error('Error loading villa check times:', settingsError)
+      }
+
+      const settingsMap = new Map((settingsRows || []).map((row) => [row.setting_key, row.setting_value]))
+      const settingsCheckIn = settingsMap.get(VILLA_CHECK_TIME_KEYS.check_in_time) || ''
+      const settingsCheckOut = settingsMap.get(VILLA_CHECK_TIME_KEYS.check_out_time) || ''
+
+      let houseRules: Array<{ rule_text: string; is_active?: boolean }> = []
+      if (!settingsCheckIn || !settingsCheckOut) {
+        const { data: rules, error: rulesError } = await supabase
+          .from('house_rules')
+          .select('rule_text, is_active')
+          .eq('is_active', true)
+          .order('order_num', { ascending: true })
+
+        if (rulesError) {
+          console.error('Error loading house rules for check times:', rulesError)
+        } else {
+          houseRules = rules || []
+        }
+      }
+
+      return resolveVillaCheckTimes({
+        settingsCheckIn,
+        settingsCheckOut,
+        houseRules,
+        roomCheckIn: room?.check_in_time,
+        roomCheckOut: room?.check_out_time,
+      })
+    } catch {
+      return resolveVillaCheckTimes({
+        roomCheckIn: room?.check_in_time,
+        roomCheckOut: room?.check_out_time,
+      })
+    }
+  },
+
+  async updateVillaCheckTimes(times: VillaCheckTimes): Promise<void> {
+    await this.updateCalendarSetting(VILLA_CHECK_TIME_KEYS.check_in_time, times.check_in_time.trim())
+    await this.updateCalendarSetting(VILLA_CHECK_TIME_KEYS.check_out_time, times.check_out_time.trim())
+  },
+
   async updateVillaSettings(settings: Partial<VillaSettings>) {
     const entries: [string, string | undefined][] = [
       [VILLA_SETTING_KEYS.villa_name, settings.villa_name],
@@ -1474,10 +1535,27 @@ export const api = {
       .from('attractions')
       .select('*')
       .eq('is_active', true)
+      .order('display_order', { ascending: true })
       .order('created_at', { ascending: false })
 
     if (error) throw error
-    return data
+
+    return (data ?? []).map((row) => ({
+      ...row,
+      images:
+        Array.isArray(row.images) && row.images.length > 0
+          ? row.images.filter((img: string) => img?.trim())
+          : row.image_url?.trim()
+            ? [row.image_url]
+            : [],
+      highlights: Array.isArray(row.highlights) ? row.highlights.filter(Boolean) : [],
+      distance: row.distance ?? '',
+      travel_time: row.travel_time ?? '',
+      type: row.type ?? '',
+      best_time: row.best_time ?? '',
+      category: row.category ?? '',
+      description: row.description ?? '',
+    }))
   },
 
   async getAllTouristAttractions() {

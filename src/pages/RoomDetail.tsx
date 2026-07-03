@@ -15,13 +15,19 @@ import AvailabilityCalendar from '../components/AvailabilityCalendar'
 import HouseRules from '../components/HouseRules'
 import RoomUnavailableModal from '../components/RoomUnavailableModal'
 import { useVilla } from '../contexts/VillaContext'
+import { formatCheckInOnwards } from '../lib/villa-check-times'
 import { resolveVillaGuestLimits } from '../lib/villa-settings'
 import type { Room } from '../lib/supabase'
 import { api } from '../lib/supabase'
+import {
+  calculateVillaBookingPrice,
+  formatRupee,
+  formatVillaPriceBadge,
+} from '../lib/villa-pricing'
 import { normalizeImageUrl } from '../utils/imageUrl'
 
 const RoomDetail: React.FC = () => {
-  const { settings: villaSettings } = useVilla()
+  const { settings: villaSettings, checkTimes } = useVilla()
   const { includedCapacity, maxCapacity: villaMaxCapacity } = resolveVillaGuestLimits(villaSettings)
 
   const { slug } = useParams<{ slug: string }>()
@@ -32,7 +38,6 @@ const RoomDetail: React.FC = () => {
     checkIn: '',
     checkOut: ''
   })
-  const [numGuests, setNumGuests] = useState(1)
   const [availableRooms, setAvailableRooms] = useState<any[]>([])
   const [showCalendar, setShowCalendar] = useState(true)
   const [checkingAvailability, setCheckingAvailability] = useState(false)
@@ -100,12 +105,12 @@ const RoomDetail: React.FC = () => {
         // Show success message in green
         if (availableRooms > 1) {
           setAvailabilityMessage({
-            text: `${availableRooms} rooms available for these dates`,
+            text: `Villa available for these dates`,
             type: 'success'
           })
         } else {
           setAvailabilityMessage({
-            text: 'Room available for selected dates',
+            text: 'Villa available for selected dates',
             type: 'success'
           })
         }
@@ -116,12 +121,12 @@ const RoomDetail: React.FC = () => {
         
         if (availability.availableRooms === 0) {
           setAvailabilityMessage({
-            text: 'All rooms of this type are booked for the selected dates',
+            text: 'The villa is booked for the selected dates',
             type: 'error'
           })
         } else if (availability.availableRooms && availability.availableRooms > 0) {
           setAvailabilityMessage({
-            text: `Only ${availability.availableRooms} room(s) available for these dates`,
+            text: 'Limited availability for these dates',
             type: 'error'
           })
         } else {
@@ -148,34 +153,27 @@ const RoomDetail: React.FC = () => {
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24))
   }
 
-  const calculateTotal = () => {
-    if (!room) return 0
-    const nights = calculateNights()
-    
-    // Determine base price based on occupancy
-    // Convert to number if it's a string (from database)
-    const priceTriple = typeof room.price_triple_occupancy === 'string' ? parseFloat(room.price_triple_occupancy) : (room.price_triple_occupancy || 0)
-    const priceDouble = typeof room.price_double_occupancy === 'string' ? parseFloat(room.price_double_occupancy) : (room.price_double_occupancy || 0)
-    
-    let basePricePerNight = 0
-    
-    if (priceTriple > 0 && numGuests === 3) {
-      basePricePerNight = priceTriple
-    } else if (priceDouble > 0 && numGuests >= 2) {
-      basePricePerNight = priceDouble
-    } else {
-      basePricePerNight = typeof room.price_per_night === 'string' ? parseFloat(room.price_per_night) : (room.price_per_night || 0)
-    }
-    
-    const baseAmount = basePricePerNight * nights
-    
-    return baseAmount
-  }
+  const priceBadge = room
+    ? formatVillaPriceBadge(room, selectedDates)
+    : { primary: '', secondary: undefined }
+
+  const stayPriceEstimate =
+    room &&
+    selectedDates.checkIn &&
+    selectedDates.checkOut &&
+    selectedDates.checkIn !== selectedDates.checkOut
+      ? calculateVillaBookingPrice({
+          checkIn: selectedDates.checkIn,
+          checkOut: selectedDates.checkOut,
+          villaSettings,
+          roomFallback: room,
+        })
+      : null
 
   const handleBooking = () => {
     // Check if room is inactive
     if (room && !room.is_active) {
-      toast.error('This room is currently unavailable for booking. Please contact us for more information.')
+      toast.error('This villa is currently unavailable for booking. Please contact us for more information.')
       return
     }
 
@@ -185,7 +183,7 @@ const RoomDetail: React.FC = () => {
     }
 
     if (availableRooms.length === 0) {
-      toast.error('No rooms available for selected dates')
+      toast.error('The villa is not available for the selected dates')
       return
     }
 
@@ -284,13 +282,13 @@ const RoomDetail: React.FC = () => {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Room Not Found</h2>
-          <p className="text-gray-600 mb-6">The room you're looking for doesn't exist.</p>
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Villa Not Found</h2>
+          <p className="text-gray-600 mb-6">The villa you're looking for doesn't exist.</p>
           <button
             onClick={() => navigate('/rooms')}
             className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
           >
-            Back to Rooms
+            Back to Villa
           </button>
         </div>
       </div>
@@ -308,7 +306,7 @@ const RoomDetail: React.FC = () => {
               className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors"
             >
               <ArrowLeftIcon className="h-5 w-5" />
-              <span>Back to Rooms</span>
+              <span>Back to Villa</span>
             </button>
           </div>
         </div>
@@ -321,6 +319,12 @@ const RoomDetail: React.FC = () => {
             {/* Room Title */}
             <div className="mb-6">
               <h1 className="text-3xl font-bold text-gray-900">{room.name}</h1>
+              <div className="mt-3 inline-flex flex-col rounded-lg bg-golden-50 border border-golden-200 px-4 py-2">
+                <span className="text-base font-semibold text-gray-900">{priceBadge.primary}</span>
+                {priceBadge.secondary && (
+                  <span className="text-sm text-gray-600">{priceBadge.secondary}</span>
+                )}
+              </div>
             </div>
 
             {/* Room Image Gallery */}
@@ -423,7 +427,7 @@ const RoomDetail: React.FC = () => {
             {room.video_url && (
               <div className="bg-white rounded-2xl shadow-lg overflow-hidden mb-8">
                 <div className="p-4 bg-gray-50 border-b">
-                  <h3 className="text-lg font-semibold text-gray-900">Room Video Tour</h3>
+                  <h3 className="text-lg font-semibold text-gray-900">Villa Video Tour</h3>
                 </div>
                 <div className="relative">
                   <video
@@ -466,12 +470,10 @@ const RoomDetail: React.FC = () => {
                 </div>
                 <div className="text-center">
                   <UsersIcon className="h-8 w-8 text-blue-600 mx-auto mb-2" />
-                  <div className="text-sm text-gray-500">Guests</div>
-                  <div className="font-semibold text-gray-900">
-                    {includedCapacity > 0 ? `${includedCapacity} included` : '—'}
-                  </div>
+                  <div className="text-sm text-gray-500">Booking</div>
+                  <div className="font-semibold text-gray-900">Entire villa</div>
                   {villaMaxCapacity > 0 && (
-                    <div className="text-xs text-gray-500 mt-0.5">max {villaMaxCapacity}</div>
+                    <div className="text-xs text-gray-500 mt-0.5">up to {villaMaxCapacity} guests</div>
                   )}
                 </div>
                 <div className="text-center">
@@ -500,7 +502,7 @@ const RoomDetail: React.FC = () => {
                   ))}
                   {!room.amenities || room.amenities.length === 0 && (
                     <div className="col-span-full text-gray-500 text-center py-4">
-                      No amenities listed for this room.
+                      No amenities listed for this villa.
                     </div>
                   )}
                 </div>
@@ -512,14 +514,14 @@ const RoomDetail: React.FC = () => {
               <HouseRules />
             </div>
 
-            {/* Room Description */}
+            {/* Villa Description */}
             <div className="bg-white rounded-2xl shadow-lg p-8">
-              <h3 className="text-xl font-bold text-gray-900 mb-4">About This Room</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-4">About This Villa</h3>
               <p className="text-gray-700 leading-relaxed mb-6">
                 {room.description}
               </p>
               <p className="text-gray-700 leading-relaxed">
-                Experience the perfect blend of luxury and comfort in this beautifully appointed room. 
+                Experience the perfect blend of luxury and comfort in this beautifully appointed 4BHK villa. 
                 Every detail has been carefully curated to ensure your stay is nothing short of exceptional. 
                 From the premium bedding to the state-of-the-art amenities, you'll find everything you need 
                 for a memorable vacation.
@@ -540,8 +542,8 @@ const RoomDetail: React.FC = () => {
                       </svg>
                     </div>
                     <div className="ml-3">
-                      <h4 className="text-sm font-semibold text-red-900 mb-1">Room Currently Unavailable</h4>
-                      <p className="text-sm text-red-800">This room is temporarily unavailable for booking. Please contact us for more information or check back later.</p>
+                      <h4 className="text-sm font-semibold text-red-900 mb-1">Villa Currently Unavailable</h4>
+                      <p className="text-sm text-red-800">This villa is temporarily unavailable for booking. Please contact us for more information or check back later.</p>
                     </div>
                   </div>
                 </div>
@@ -593,7 +595,7 @@ const RoomDetail: React.FC = () => {
                 </div>
               )}
               
-              <h3 className="text-xl font-bold text-gray-900 mb-6">Book This Room</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-6">Book This Villa</h3>
               
               {/* Calendar Button */}
               <div className="mb-4">
@@ -640,6 +642,11 @@ const RoomDetail: React.FC = () => {
                         <p>Check-in: {new Date(selectedDates.checkIn).toLocaleDateString()}</p>
                         <p>Check-out: {new Date(selectedDates.checkOut).toLocaleDateString()}</p>
                         <p className="mt-1 font-medium">{calculateNights()} night{calculateNights() !== 1 ? 's' : ''}</p>
+                        {stayPriceEstimate && (
+                          <p className="mt-2 font-semibold text-blue-900">
+                            Villa rate: {formatRupee(stayPriceEstimate.baseAmount)}
+                          </p>
+                        )}
                       </div>
                     )}
                   </div>
@@ -664,6 +671,13 @@ const RoomDetail: React.FC = () => {
                     <div className="mt-1 font-medium">
                       {calculateNights()} night{calculateNights() !== 1 ? 's' : ''}
                     </div>
+                    {stayPriceEstimate && (
+                      <div className="mt-2 pt-2 border-t border-blue-200">
+                        <p className="font-semibold text-blue-900">
+                          Villa rate: {formatRupee(stayPriceEstimate.baseAmount)}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
@@ -688,7 +702,7 @@ const RoomDetail: React.FC = () => {
                     <span className="font-semibold text-green-800">Available!</span>
                   </div>
                   <p className="text-sm text-green-700">
-                    {availableRooms.length} room{availableRooms.length > 1 ? 's' : ''} available for your selected dates.
+                    The villa is available for your selected dates.
                   </p>
                 </div>
               )}
@@ -702,7 +716,7 @@ const RoomDetail: React.FC = () => {
                     <span className="font-semibold text-red-800">Not Available</span>
                   </div>
                   <p className="text-sm text-red-700">
-                    Sorry, this room is not available for the selected dates. Please try different dates.
+                    Sorry, the villa is not available for the selected dates. Please try different dates.
                   </p>
                 </div>
               )}
@@ -714,7 +728,7 @@ const RoomDetail: React.FC = () => {
                 className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {!room?.is_active
-                  ? 'Room Unavailable'
+                  ? 'Villa Unavailable'
                   : !selectedDates.checkIn || !selectedDates.checkOut 
                     ? 'Select Dates to Book' 
                     : checkingAvailability
@@ -731,11 +745,11 @@ const RoomDetail: React.FC = () => {
                 <div className="space-y-2 text-sm">
                   <div>
                     <span className="font-medium text-blue-900">Check-in:</span>
-                    <span className="text-blue-700 ml-2">12PM onwards</span>
+                    <span className="text-blue-700 ml-2">{formatCheckInOnwards(checkTimes)}</span>
                   </div>
                   <div>
                     <span className="font-medium text-blue-900">Check-out:</span>
-                    <span className="text-blue-700 ml-2">10AM</span>
+                    <span className="text-blue-700 ml-2">{checkTimes.check_out_time}</span>
                   </div>
                 </div>
                 <p className="text-xs text-blue-700 mt-3 italic">

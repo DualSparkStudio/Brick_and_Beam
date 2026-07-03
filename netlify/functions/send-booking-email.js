@@ -67,7 +67,7 @@ export const handler = async (event, context) => {
         <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
           <h3>Booking Details</h3>
           <p><strong>Booking ID:</strong> #${bookingId}</p>
-          <p><strong>Room:</strong> ${roomName}</p>
+          <p><strong>Villa:</strong> ${roomName}</p>
           <p><strong>Check-in Date:</strong> ${new Date(checkInDate).toLocaleDateString()}</p>
           <p><strong>Check-out Date:</strong> ${new Date(checkOutDate).toLocaleDateString()}</p>
           <p><strong>Total Amount:</strong> ₹${totalAmount}</p>
@@ -92,7 +92,7 @@ export const handler = async (event, context) => {
           <p><strong>Booking ID:</strong> #${bookingId}</p>
           <p><strong>Guest Name:</strong> ${guestName}</p>
           <p><strong>Guest Email:</strong> ${guestEmail}</p>
-          <p><strong>Room:</strong> ${roomName}</p>
+          <p><strong>Villa:</strong> ${roomName}</p>
           <p><strong>Check-in Date:</strong> ${new Date(checkInDate).toLocaleDateString()}</p>
           <p><strong>Check-out Date:</strong> ${new Date(checkOutDate).toLocaleDateString()}</p>
           <p><strong>Total Amount:</strong> ₹${totalAmount}</p>

@@ -4,18 +4,18 @@ import { toast } from 'react-hot-toast'
 import { useNavigate, useParams } from 'react-router-dom'
 import BookingPriceBreakdown from '../components/BookingPriceBreakdown'
 import { useVilla } from '../contexts/VillaContext'
-import { getBookingTotalGuests } from '../lib/booking-guests'
 import { resolveBookingPriceBreakdown } from '../lib/booking-pricing'
+import { getDefaultVillaImages, resolveRoomImages } from '../lib/room-images'
 import type { Booking, Room } from '../lib/supabase'
 import { api } from '../lib/supabase'
-import { normalizeImageUrl } from '../utils/imageUrl'
 
 const BookingConfirmation: React.FC = () => {
-  const { displayName, settings: villaSettings } = useVilla()
+  const { displayName, settings: villaSettings, checkTimes: villaCheckTimes } = useVilla()
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const [booking, setBooking] = useState<Booking | null>(null)
   const [room, setRoom] = useState<Room | null>(null)
+  const [villaHeroImage, setVillaHeroImage] = useState('')
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -24,14 +24,43 @@ const BookingConfirmation: React.FC = () => {
     }
   }, [id])
 
+  useEffect(() => {
+    if (!room) {
+      setVillaHeroImage('')
+      return
+    }
+
+    let cancelled = false
+
+    const loadVillaImage = async () => {
+      let roomImageRecords = null
+      try {
+        roomImageRecords = await api.getRoomImages(room.id)
+      } catch {
+        roomImageRecords = null
+      }
+
+      if (!cancelled) {
+        const images = resolveRoomImages(room, roomImageRecords)
+        setVillaHeroImage(images[0] ?? getDefaultVillaImages()[0])
+      }
+    }
+
+    void loadVillaImage()
+    return () => {
+      cancelled = true
+    }
+  }, [room])
+
   const loadBooking = async () => {
     try {
       setLoading(true)
       const bookingData = await api.getBooking(parseInt(id!))
       setBooking(bookingData)
-      
+
+      let roomData: Room | null = null
       if (bookingData.room_id) {
-        const roomData = await api.getRoom(bookingData.room_id)
+        roomData = await api.getRoom(bookingData.room_id)
         setRoom(roomData)
       }
     } catch (error) {
@@ -75,7 +104,7 @@ const BookingConfirmation: React.FC = () => {
             onClick={() => navigate('/rooms')}
             className="btn-primary"
           >
-            Back to Rooms
+            Back to Villa
           </button>
         </div>
       </div>
@@ -84,7 +113,6 @@ const BookingConfirmation: React.FC = () => {
 
   const nights = calculateNights(booking.check_in_date, booking.check_out_date)
   const villaName = displayName || booking.room_name || room?.name || 'Villa'
-  const villaImage = room?.image_url
   const priceBreakdown = resolveBookingPriceBreakdown(booking, { villaSettings, room })
 
   return (
@@ -169,10 +197,6 @@ const BookingConfirmation: React.FC = () => {
                     <span className="text-gray-600">Nights:</span>
                     <span className="font-semibold text-gray-900">{nights} {nights === 1 ? 'Night' : 'Nights'}</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Total Guests:</span>
-                    <span className="font-semibold text-gray-900">{getBookingTotalGuests(booking)}</span>
-                  </div>
                 </div>
               </div>
             </div>
@@ -186,18 +210,18 @@ const BookingConfirmation: React.FC = () => {
                 Villa Details
               </h2>
               <div className="flex items-center space-x-4">
-                {villaImage && (
-                  <img
-                    src={normalizeImageUrl(villaImage)}
-                    alt={villaName}
-                    className="w-24 h-24 object-cover rounded-xl shadow-md"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement
-                      target.src =
-                        'https://images.unsplash.com/photo-1571896349842-33c89424de2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
-                    }}
-                  />
-                )}
+                <img
+                  src={villaHeroImage || getDefaultVillaImages()[0]}
+                  alt={villaName}
+                  className="w-24 h-24 object-cover rounded-xl shadow-md"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement
+                    const fallback = getDefaultVillaImages()[0]
+                    if (target.src !== fallback) {
+                      target.src = fallback
+                    }
+                  }}
+                />
                 <div>
                   <h3 className="text-lg font-bold text-gray-900">{villaName}</h3>
                   <p className="text-gray-600 text-sm">Entire villa booking</p>
@@ -272,11 +296,11 @@ const BookingConfirmation: React.FC = () => {
               <ul className="space-y-2 text-blue-50">
                 <li className="flex items-start">
                   <span className="mr-2">•</span>
-                  <span>Check-in time: 12:00 PM onwards</span>
+                  <span>Check-in time: {villaCheckTimes.check_in_time} onwards</span>
                 </li>
                 <li className="flex items-start">
                   <span className="mr-2">•</span>
-                  <span>Check-out time: 10:00 AM</span>
+                  <span>Check-out time: {villaCheckTimes.check_out_time}</span>
                 </li>
                 <li className="flex items-start">
                   <span className="mr-2">•</span>

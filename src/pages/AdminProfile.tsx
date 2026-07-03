@@ -165,10 +165,9 @@ const AdminProfile: React.FC = () => {
 
   const handleVillaSettingsUpdate = async (e: React.FormEvent) => {
     e.preventDefault()
-    const capacityNum = parseInt(villaForm.capacity, 10)
     const maxNum = parseInt(villaForm.max_capacity, 10)
-    if (capacityNum > 0 && maxNum > 0 && maxNum < capacityNum) {
-      toast.error('Max capacity must be greater than or equal to capacity')
+    if (maxNum <= 0) {
+      toast.error('Max guests must be at least 1')
       return
     }
     try {
@@ -176,11 +175,11 @@ const AdminProfile: React.FC = () => {
       await api.updateVillaSettings({
         villa_name: villaForm.villa_name.trim(),
         price: villaForm.price.trim(),
-        capacity: villaForm.capacity.trim(),
+        capacity: villaForm.max_capacity.trim(),
         max_capacity: villaForm.max_capacity.trim(),
         amenities: villaForm.amenities.trim(),
         games: villaForm.games.trim(),
-        extra_guest_price: (villaForm.extra_guest_price ?? '').trim(),
+        extra_guest_price: '',
       })
       await refreshVillaSettings()
       toast.success('Villa details saved successfully')
@@ -494,10 +493,10 @@ const AdminProfile: React.FC = () => {
 
             {activeTab === 'villa' && (
               <div className="bg-white rounded-xl shadow-sm p-6">
-                <h2 className="text-xl font-bold text-gray-900 mb-2">Villa Details (Rooms Page)</h2>
+                <h2 className="text-xl font-bold text-gray-900 mb-2">Villa Details (Villa Page)</h2>
                 <p className="text-gray-600 text-sm mb-6">
-                  Base price covers guests up to capacity. Extra adult and child rates apply only for guests above
-                  capacity, up to max capacity.
+                  Whole-villa pricing and capacity shown on the public villa page. Guests book the entire
+                  property at a flat nightly rate.
                 </p>
                 {villaLoading ? (
                   <p className="text-gray-500">Loading villa details...</p>
@@ -520,69 +519,23 @@ const AdminProfile: React.FC = () => {
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900"
                             placeholder="e.g., 25000"
                           />
-                          <p className="text-xs text-gray-500 mt-1">Whole-villa nightly rate</p>
+                          <p className="text-xs text-gray-500 mt-1">Whole villa nightly rate</p>
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">Capacity (guests)</label>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Max guests</label>
                           <input
                             type="number"
                             min="1"
-                            value={villaForm.capacity}
-                            onChange={(e) => setVillaForm((prev) => ({ ...prev, capacity: e.target.value }))}
+                            value={villaForm.max_capacity}
+                            onChange={(e) => setVillaForm((prev) => ({ ...prev, max_capacity: e.target.value }))}
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900"
                             placeholder="e.g., 10"
                           />
-                          <p className="text-xs text-gray-500 mt-1">Guests included in the base price</p>
+                          <p className="text-xs text-gray-500 mt-1">Recommended maximum for the property</p>
                         </div>
                       </div>
                     </div>
 
-                    <div>
-                      <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide mb-4">
-                        Guest limit
-                      </h3>
-                      <div className="max-w-md">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Max capacity (guests)</label>
-                        <input
-                          type="number"
-                          min="1"
-                          value={villaForm.max_capacity}
-                          onChange={(e) => setVillaForm((prev) => ({ ...prev, max_capacity: e.target.value }))}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900"
-                          placeholder="e.g., 16"
-                        />
-                        <p className="text-xs text-gray-500 mt-1">
-                          Maximum guests allowed. Must be ≥ capacity. No bookings above this limit.
-                        </p>
-                      </div>
-                    </div>
-
-                    <div>
-                      <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide mb-2">
-                        Extra guest rates
-                      </h3>
-                      <p className="text-xs text-gray-500 mb-4">
-                        Charged per night for each guest above capacity (between capacity and max capacity).
-                      </p>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Extra guest (per night)
-                          </label>
-                          <input
-                            type="number"
-                            min="0"
-                            value={villaForm.extra_guest_price}
-                            onChange={(e) =>
-                              setVillaForm((prev) => ({ ...prev, extra_guest_price: e.target.value }))
-                            }
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900"
-                            placeholder="e.g., 1200"
-                          />
-                          <p className="text-xs text-gray-500 mt-1">Same rate for adults and children above capacity</p>
-                        </div>
-                      </div>
-                    </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">Amenities (one per line)</label>
                       <textarea

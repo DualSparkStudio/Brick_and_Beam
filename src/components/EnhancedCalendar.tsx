@@ -51,7 +51,7 @@ const EnhancedCalendar: React.FC<EnhancedCalendarProps> = ({
     
     return websiteBookings.map(booking => {
       const room = rooms.find(r => r.id === booking.room_id);
-      const roomName = room ? (room.is_deleted ? `${room.name} (Deleted)` : room.name) : 'Unknown Room';
+      const roomName = room ? (room.is_deleted ? `${room.name} (Deleted)` : room.name) : 'Unknown Villa';
         
       let backgroundColor = '#ef4444'; // Red for confirmed bookings
       let borderColor = '#dc2626';
@@ -106,7 +106,7 @@ const EnhancedCalendar: React.FC<EnhancedCalendarProps> = ({
     
     return manualBlockedDates.map(blocked => {
       const room = rooms.find(r => r.id === blocked.room_id);
-      const roomName = room ? (room.is_deleted ? `${room.name} (Deleted)` : room.name) : 'Unknown Room';
+      const roomName = room ? (room.is_deleted ? `${room.name} (Deleted)` : room.name) : 'Unknown Villa';
       
       return {
         id: `blocked-${blocked.id}`,
@@ -165,7 +165,7 @@ const EnhancedCalendar: React.FC<EnhancedCalendarProps> = ({
               
               if (start1 < end2 && end1 > start2) {
                 // Overlapping bookings detected
-                const roomName = rooms.find(r => r.id === roomId)?.name || `Room ${roomId}`;
+                const roomName = rooms.find(r => r.id === roomId)?.name || `Villa ${roomId}`;
                 console.warn(`Double booking detected in ${roomName}!`);
               }
             }
@@ -324,7 +324,7 @@ const EnhancedCalendar: React.FC<EnhancedCalendarProps> = ({
         reason: event.extendedProps?.reason || 'No reason specified',
         notes: event.extendedProps?.notes,
         source: event.extendedProps?.blockedSource || event.extendedProps?.source || 'manual',
-        roomName: event.extendedProps?.roomInfo || 'Unknown Room'
+        roomName: event.extendedProps?.roomInfo || 'Unknown Villa'
       };
       
       
@@ -433,7 +433,7 @@ const EnhancedCalendar: React.FC<EnhancedCalendarProps> = ({
             <h4 className="font-medium text-gray-700">Blocked Dates</h4>
             <div className="flex items-center space-x-2">
               <div className="w-4 h-4 bg-blue-500 rounded"></div>
-              <span className="text-sm text-gray-600">Manual Block - [Room Name]</span>
+              <span className="text-sm text-gray-600">Manual Block - [Villa Name]</span>
             </div>
           </div>
         </div>

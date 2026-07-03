@@ -172,13 +172,13 @@ export const handler = async (event, context) => {
             </div>
             
             <div class="booking-details">
-              <h3>🏠 Room Details</h3>
+              <h3>🏠 Villa Details</h3>
               <div class="detail-row">
-                <span class="detail-label">Room Name:</span>
+                <span class="detail-label">Villa Name:</span>
                 <span class="detail-value">${room.name}</span>
               </div>
               <div class="detail-row">
-                <span class="detail-label">Room Number:</span>
+                <span class="detail-label">Property ID:</span>
                 <span class="detail-value">${room.room_number}</span>
               </div>
               <div class="detail-row">
@@ -417,13 +417,13 @@ export const handler = async (event, context) => {
             ` : ''}
             
             <div class="booking-details">
-              <h3>🏠 Room Information</h3>
+              <h3>🏠 Villa Information</h3>
               <div class="detail-row">
-                <span class="detail-label">Room Name:</span>
+                <span class="detail-label">Villa Name:</span>
                 <span class="detail-value">${room.name}</span>
               </div>
               <div class="detail-row">
-                <span class="detail-label">Room Number:</span>
+                <span class="detail-label">Property ID:</span>
                 <span class="detail-value">${room.room_number}</span>
               </div>
               <div class="detail-row">
@@ -431,7 +431,7 @@ export const handler = async (event, context) => {
                 <span class="detail-value">₹${room.price_per_night.toLocaleString()}</span>
               </div>
               <div class="detail-row">
-                <span class="detail-label">Room Type:</span>
+                <span class="detail-label">Villa Type:</span>
                 <span class="detail-value">${room.room_type || 'Standard'}</span>
               </div>
             </div>

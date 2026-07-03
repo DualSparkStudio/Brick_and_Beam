@@ -105,7 +105,7 @@ const BlockedDateDetailsModal: React.FC<BlockedDateDetailsModalProps> = ({
                 Room
               </label>
               <div className="p-2 bg-gray-50 rounded-md">
-                <span className="text-sm text-gray-900">{blockedDate.roomName || 'Unknown Room'}</span>
+                <span className="text-sm text-gray-900">{blockedDate.roomName || 'Unknown Villa'}</span>
               </div>
             </div>
 

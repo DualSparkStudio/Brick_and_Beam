@@ -8,13 +8,12 @@ import PaymentConfirmationModal from '../components/PaymentConfirmationModal'
 import RoomUnavailableModal from '../components/RoomUnavailableModal'
 import { useVilla } from '../contexts/VillaContext'
 import { snapshotFromPriceBreakdown } from '../lib/booking-pricing'
-import { calculateVillaBookingPrice, formatRupee } from '../lib/villa-pricing'
-import { formatPriceDisplay, normalizeVillaSettings, resolveVillaGuestLimits } from '../lib/villa-settings'
+import { calculateVillaBookingPrice, formatRupee, hasConfiguredVillaRates, resolveVillaNightlyRates } from '../lib/villa-pricing'
+import { normalizeVillaSettings, resolveVillaGuestLimits } from '../lib/villa-settings'
 import { loadRazorpayScript } from '../lib/razorpay'
 import { netlifyFunctionUrl } from '../lib/netlify-functions'
+import { resolveRoomImages, getDefaultVillaImages } from '../lib/room-images'
 import { api } from '../lib/supabase'
-import { normalizeImageUrl } from '../utils/imageUrl'
-
 interface BookingFormData {
   first_name: string
   last_name: string
@@ -26,6 +25,7 @@ interface BookingFormData {
 const BookingForm: React.FC = () => {
   const {
     settings: villaSettings,
+    checkTimes: villaCheckTimes,
     displayName,
     loading: villaLoading,
     refreshVillaSettings,
@@ -34,17 +34,16 @@ const BookingForm: React.FC = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const [room, setRoom] = useState<any>(null)
+  const [villaHeroImage, setVillaHeroImage] = useState('')
 
   const effectiveVillaSettings = useMemo(() => {
     const normalized = normalizeVillaSettings(villaSettings)
+    const roomRates = resolveVillaNightlyRates(room)
     return normalizeVillaSettings({
       ...normalized,
       price:
         normalized.price ||
-        (room?.price_per_night != null ? String(room.price_per_night) : ''),
-      extra_guest_price:
-        normalized.extra_guest_price ||
-        (room?.extra_guest_price != null ? String(room.extra_guest_price) : ''),
+        (roomRates.weekdayPrice > 0 ? String(roomRates.weekdayPrice) : ''),
     })
   }, [villaSettings, room])
 
@@ -53,8 +52,6 @@ const BookingForm: React.FC = () => {
   const [showCalendar, setShowCalendar] = useState(true)
   const [selectedDates, setSelectedDates] = useState({ checkIn: '', checkOut: '' })
   const [dateError, setDateError] = useState('')
-  const [numAdults, setNumAdults] = useState(2)
-  const [numChildren, setNumChildren] = useState(0)
   const [showCancellationModal, setShowCancellationModal] = useState(false)
   const [cancellationType, setCancellationType] = useState<'cancelled' | 'failed'>('cancelled')
   const [showUnavailableModal, setShowUnavailableModal] = useState(false)
@@ -77,29 +74,24 @@ const BookingForm: React.FC = () => {
     return calculateVillaBookingPrice({
       checkIn: selectedDates.checkIn,
       checkOut: selectedDates.checkOut,
-      numAdults,
-      numChildren,
       villaSettings: effectiveVillaSettings,
       roomFallback: room
         ? {
+            weekday_price_per_night: room.weekday_price_per_night,
+            weekend_price_per_night: room.weekend_price_per_night,
             price_per_night: room.price_per_night,
-            extra_guest_price: room.extra_guest_price,
           }
         : undefined,
     })
   }, [
     selectedDates.checkIn,
     selectedDates.checkOut,
-    numAdults,
-    numChildren,
     effectiveVillaSettings,
     room,
   ])
 
-  const hasConfiguredRates = Boolean(
-    (effectiveVillaSettings.price ?? '').trim() ||
-      (room?.price_per_night != null && Number(room.price_per_night) > 0)
-  )
+  const hasConfiguredRates = hasConfiguredVillaRates(effectiveVillaSettings, room)
+  const roomRates = resolveVillaNightlyRates(room)
 
   useEffect(() => {
     void refreshVillaSettings()
@@ -135,11 +127,43 @@ const BookingForm: React.FC = () => {
   const subtotal = priceBreakdown?.subtotal ?? 0
   const totalAmount = priceBreakdown?.total ?? 0
 
-  const { includedCapacity, maxCapacity } = resolveVillaGuestLimits(effectiveVillaSettings, {
+  const { maxCapacity } = resolveVillaGuestLimits(effectiveVillaSettings, {
     roomMaxCapacity: room?.max_capacity,
   })
-  const totalGuests = numAdults + numChildren
-  const extraGuests = Math.max(0, totalGuests - includedCapacity)
+  const displayMaxGuests =
+    room?.max_capacity && room.max_capacity > 0
+      ? room.max_capacity
+      : maxCapacity > 0
+        ? maxCapacity
+        : 0
+
+  useEffect(() => {
+    if (!room) {
+      setVillaHeroImage('')
+      return
+    }
+
+    let cancelled = false
+
+    const loadVillaImage = async () => {
+      let roomImageRecords = null
+      try {
+        roomImageRecords = await api.getRoomImages(room.id)
+      } catch {
+        roomImageRecords = null
+      }
+
+      if (!cancelled) {
+        const images = resolveRoomImages(room, roomImageRecords)
+        setVillaHeroImage(images[0] ?? getDefaultVillaImages()[0])
+      }
+    }
+
+    void loadVillaImage()
+    return () => {
+      cancelled = true
+    }
+  }, [room])
 
   const paymentBlockReason = useMemo(() => {
     if (submitting) return null
@@ -149,9 +173,6 @@ const BookingForm: React.FC = () => {
     }
     if (selectedDates.checkIn === selectedDates.checkOut) {
       return 'Check-out must be at least one day after check-in.'
-    }
-    if (totalGuests > maxCapacity) {
-      return `Your party exceeds the maximum of ${maxCapacity} guests.`
     }
     if (villaLoading && !hasConfiguredRates) return 'Loading villa rates…'
     if (!hasConfiguredRates) {
@@ -174,8 +195,6 @@ const BookingForm: React.FC = () => {
     room?.is_active,
     selectedDates.checkIn,
     selectedDates.checkOut,
-    totalGuests,
-    maxCapacity,
     villaLoading,
     hasConfiguredRates,
     priceBreakdown,
@@ -203,7 +222,7 @@ const BookingForm: React.FC = () => {
       
       setLoading(false)
     } catch (error) {
-      toast.error('Failed to load room details')
+      toast.error('Failed to load villa details')
       setLoading(false)
     }
   }
@@ -237,22 +256,6 @@ const BookingForm: React.FC = () => {
     const checkIn = new Date(selectedDates.checkIn)
     const checkOut = new Date(selectedDates.checkOut)
     return Math.ceil(Math.abs(checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24))
-  }
-
-  const clampGuestCount = (adults: number, children: number) => {
-    const cap = maxCapacity
-    let nextAdults = Math.max(1, adults)
-    let nextChildren = Math.max(0, children)
-    if (nextAdults + nextChildren > cap) {
-      if (nextAdults > cap) {
-        nextAdults = cap
-        nextChildren = 0
-      } else {
-        nextChildren = cap - nextAdults
-      }
-      toast.error(`Maximum ${cap} guests allowed for this villa`, { duration: 4000, icon: '⚠️' })
-    }
-    return { adults: nextAdults, children: nextChildren }
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -391,7 +394,7 @@ const BookingForm: React.FC = () => {
           guest_name: `${formData.first_name} ${formData.last_name}`,
           check_in: selectedDates.checkIn,
           check_out: selectedDates.checkOut,
-          guests: numAdults + numChildren,
+          booking_type: 'entire_villa',
           amount: totalAmount
         },
         theme: {
@@ -491,11 +494,6 @@ const BookingForm: React.FC = () => {
       return
     }
 
-    if (totalGuests > maxCapacity) {
-      toast.error(`Maximum ${maxCapacity} guests allowed for this villa`)
-      return
-    }
-
     if (!priceBreakdown || totalAmount <= 0) {
       toast.error('Unable to calculate price. Check villa rates in admin settings or contact us.')
       return
@@ -513,7 +511,7 @@ const BookingForm: React.FC = () => {
   const processPayment = async () => {
     // Check if room is inactive
     if (room && !room.is_active) {
-      toast.error('This room is currently unavailable for booking. Please contact us for more information.')
+      toast.error('This villa is currently unavailable for booking. Please contact us for more information.')
       return
     }
 
@@ -649,7 +647,7 @@ const BookingForm: React.FC = () => {
           guest_name: `${formData.first_name} ${formData.last_name}`,
           check_in: selectedDates.checkIn,
           check_out: selectedDates.checkOut,
-          guests: numAdults + numChildren,
+          booking_type: 'entire_villa',
           amount: totalAmount
         },
         theme: {
@@ -753,17 +751,14 @@ const BookingForm: React.FC = () => {
     // Set submitting to false to ensure button state is correct
     setSubmitting(false)
     try {
-      const bookingGuestTotal = numAdults + numChildren
-
-      // Create booking only after successful payment
       const bookingData = {
         room_id: room.id,
         room_name: displayName || room.name,
         check_in_date: selectedDates.checkIn,
         check_out_date: selectedDates.checkOut,
-        num_guests: bookingGuestTotal,
-        num_extra_adults: numAdults,
-        num_children_above_5: numChildren,
+        num_guests: 1,
+        num_extra_adults: 0,
+        num_children_above_5: 0,
         first_name: formData.first_name,
         last_name: formData.last_name,
         email: formData.email,
@@ -856,8 +851,8 @@ const BookingForm: React.FC = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Room Not Found</h2>
-          <p className="text-gray-600">The requested room could not be found.</p>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Villa Not Found</h2>
+          <p className="text-gray-600">The requested villa could not be found.</p>
         </div>
       </div>
     )
@@ -869,15 +864,22 @@ const BookingForm: React.FC = () => {
         <div className="bg-white rounded-lg shadow-lg overflow-hidden">
           <div className="px-4 sm:px-6 py-6 sm:py-8">
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 sm:mb-6">Book Entire Villa</h1>
-            {/* Room Details - Compact Horizontal Layout */}
+            {/* Villa Details - Compact Horizontal Layout */}
             <div className="mb-6">
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200">
                 {/* Room Image */}
                 <div className="lg:col-span-4">
                   <img 
-                    src={normalizeImageUrl(room.image_url)}
+                    src={villaHeroImage || getDefaultVillaImages()[0]}
                     alt={displayName || room.name}
-                    className="w-full h-48 lg:h-full object-cover rounded-lg shadow-md"
+                    className="w-full h-48 lg:h-full min-h-[12rem] object-cover rounded-lg shadow-md"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement
+                      const fallback = getDefaultVillaImages()[0]
+                      if (target.src !== fallback) {
+                        target.src = fallback
+                      }
+                    }}
                   />
                 </div>
                 
@@ -887,20 +889,26 @@ const BookingForm: React.FC = () => {
                     <h2 className="text-2xl font-bold text-gray-900 mb-2">{displayName}</h2>
                     <p className="text-sm text-gray-600 mb-3 line-clamp-2">{room.description}</p>
                     
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
                       <div className="bg-white rounded-lg p-3 border border-gray-200">
                         <p className="text-xs text-gray-500 mb-1">Check-in & Check-out</p>
-                        <p className="text-xs font-medium text-gray-700">In: {room?.check_in_time || '1:00 PM'}</p>
-                        <p className="text-xs font-medium text-gray-700">Out: {room?.check_out_time || '10:00 AM'}</p>
+                        <p className="text-xs font-medium text-gray-700">In: {villaCheckTimes.check_in_time}</p>
+                        <p className="text-xs font-medium text-gray-700">Out: {villaCheckTimes.check_out_time}</p>
                       </div>
                       
                       <div className="bg-white rounded-lg p-3 border border-gray-200">
-                        <p className="text-xs text-gray-500 mb-1">Guests</p>
-                        <p className="text-sm font-bold text-gray-900">
-                          {includedCapacity} included · {maxCapacity} max
-                        </p>
-                        <p className="text-xs text-gray-500 mt-0.5">Base price covers up to {includedCapacity}</p>
+                        <p className="text-xs text-gray-500 mb-1">Booking type</p>
+                        <p className="text-sm font-bold text-gray-900">Entire villa</p>
+                        <p className="text-xs text-gray-500 mt-0.5">Flat rate for the full property</p>
                       </div>
+
+                      {displayMaxGuests > 0 && (
+                        <div className="bg-white rounded-lg p-3 border border-gray-200">
+                          <p className="text-xs text-gray-500 mb-1">Guest capacity</p>
+                          <p className="text-sm font-bold text-gray-900">Up to {displayMaxGuests} guests</p>
+                          <p className="text-xs text-gray-500 mt-0.5">Maximum for this villa</p>
+                        </div>
+                      )}
                     </div>
                   </div>
                   
@@ -990,103 +998,40 @@ const BookingForm: React.FC = () => {
                     )}
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                      <p className="text-xs font-medium text-blue-800 uppercase tracking-wide">Included</p>
-                      <p className="text-lg font-bold text-blue-900 mt-0.5">{includedCapacity}</p>
-                      <p className="text-xs text-blue-700">in base price</p>
-                    </div>
-                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-                      <p className="text-xs font-medium text-gray-600 uppercase tracking-wide">Max</p>
-                      <p className="text-lg font-bold text-gray-900 mt-0.5">{maxCapacity}</p>
-                      <p className="text-xs text-gray-500">guests</p>
-                    </div>
-                    <div
-                      className={`border rounded-lg p-3 ${
-                        totalGuests > maxCapacity ? 'bg-red-50 border-red-300' : 'bg-green-50 border-green-300'
-                      }`}
-                    >
-                      <p className="text-xs font-medium text-gray-600 uppercase tracking-wide">Your party</p>
-                      <p
-                        className={`text-lg font-bold mt-0.5 ${
-                          totalGuests > maxCapacity ? 'text-red-800' : 'text-green-800'
-                        }`}
-                      >
-                        {totalGuests}
-                      </p>
-                      {extraGuests > 0 && totalGuests <= maxCapacity && (
-                        <p className="text-xs text-amber-700 mt-1">{extraGuests} extra (charged)</p>
-                      )}
-                      {totalGuests > maxCapacity && (
-                        <p className="text-xs text-red-600 font-semibold mt-1">Over max limit</p>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Adults</label>
-                      <input
-                        type="number"
-                        value={numAdults}
-                        min={1}
-                        max={maxCapacity}
-                        disabled={!room?.is_active}
-                        onChange={(e) => {
-                          const value = Math.max(1, parseInt(e.target.value, 10) || 1)
-                          const next = clampGuestCount(value, numChildren)
-                          setNumAdults(next.adults)
-                          setNumChildren(next.children)
-                        }}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-100 text-gray-900"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Children (5+)
-                      </label>
-                      <input
-                        type="number"
-                        value={numChildren}
-                        min={0}
-                        max={Math.max(0, maxCapacity - 1)}
-                        disabled={!room?.is_active}
-                        onChange={(e) => {
-                          const value = Math.max(0, parseInt(e.target.value, 10) || 0)
-                          const next = clampGuestCount(numAdults, value)
-                          setNumAdults(next.adults)
-                          setNumChildren(next.children)
-                        }}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-100 text-gray-900"
-                        placeholder="0"
-                      />
-                      <p className="mt-1 text-xs text-gray-500">Under 5 free</p>
-                    </div>
-                  </div>
-
                   <div className="lg:mt-auto flex flex-col gap-4">
                     {priceBreakdown ? (
                       <div className="bg-blue-50 rounded-lg p-4 border border-blue-100">
                         <h3 className="text-base font-semibold text-gray-900 mb-3">Price Estimate</h3>
                         <dl className="space-y-2 text-sm">
-                          <div className="flex justify-between gap-3">
-                            <dt className="text-gray-600">
-                              Villa · {priceBreakdown.nights} night{priceBreakdown.nights !== 1 ? 's' : ''} (up to{' '}
-                              {priceBreakdown.capacity} guests)
-                            </dt>
-                            <dd className="font-medium text-gray-900 tabular-nums">
-                              {formatRupee(priceBreakdown.baseAmount)}
-                            </dd>
-                          </div>
-                          {priceBreakdown.extraGuestsAmount > 0 && (
+                          {priceBreakdown.weekdayNights > 0 && (
                             <div className="flex justify-between gap-3">
                               <dt className="text-gray-600">
-                                Extra guests ({priceBreakdown.extraGuests} ×{' '}
-                                {formatRupee(priceBreakdown.extraGuestPricePerNight)} × {priceBreakdown.nights}{' '}
-                                night{priceBreakdown.nights !== 1 ? 's' : ''})
+                                Weekday nights ({priceBreakdown.weekdayNights} ×{' '}
+                                {formatRupee(priceBreakdown.weekdayPrice)})
                               </dt>
                               <dd className="font-medium text-gray-900 tabular-nums">
-                                {formatRupee(priceBreakdown.extraGuestsAmount)}
+                                {formatRupee(priceBreakdown.weekdayNights * priceBreakdown.weekdayPrice)}
+                              </dd>
+                            </div>
+                          )}
+                          {priceBreakdown.weekendNights > 0 && (
+                            <div className="flex justify-between gap-3">
+                              <dt className="text-gray-600">
+                                Saturday nights ({priceBreakdown.weekendNights} ×{' '}
+                                {formatRupee(priceBreakdown.weekendPrice)})
+                              </dt>
+                              <dd className="font-medium text-gray-900 tabular-nums">
+                                {formatRupee(priceBreakdown.weekendNights * priceBreakdown.weekendPrice)}
+                              </dd>
+                            </div>
+                          )}
+                          {priceBreakdown.weekdayNights === 0 && priceBreakdown.weekendNights === 0 && (
+                            <div className="flex justify-between gap-3">
+                              <dt className="text-gray-600">
+                                Entire villa · {priceBreakdown.nights} night{priceBreakdown.nights !== 1 ? 's' : ''}
+                              </dt>
+                              <dd className="font-medium text-gray-900 tabular-nums">
+                                {formatRupee(priceBreakdown.baseAmount)}
                               </dd>
                             </div>
                           )}
@@ -1098,7 +1043,7 @@ const BookingForm: React.FC = () => {
                           </div>
                         </dl>
                         <p className="text-xs text-blue-700 mt-3">
-                          Estimate for selected dates and guests. Contact us to confirm.
+                          Flat rate for the entire villa on your selected dates.
                         </p>
                       </div>
                     ) : villaLoading ? (
@@ -1116,38 +1061,10 @@ const BookingForm: React.FC = () => {
                       )
                     )}
 
-                    {(!selectedDates.checkIn || !selectedDates.checkOut) &&
-                      !priceBreakdown &&
-                      (effectiveVillaSettings.price ?? '').trim() && (
-                      <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                        <h3 className="text-sm font-semibold text-gray-900 mb-2">Villa rates</h3>
-                        <ul className="text-sm text-gray-600 space-y-1.5">
-                          <li className="flex justify-between gap-2">
-                            <span>Per night (up to {includedCapacity} guests)</span>
-                            <span className="font-medium text-gray-900">
-                              {formatPriceDisplay(effectiveVillaSettings.price)}
-                            </span>
-                          </li>
-                          <li className="flex justify-between gap-2">
-                            <span>Max guests</span>
-                            <span className="font-medium text-gray-900">{maxCapacity}</span>
-                          </li>
-                          {(effectiveVillaSettings.extra_guest_price ?? '').trim() && (
-                            <li className="flex justify-between gap-2">
-                              <span>Extra guest / night</span>
-                              <span className="font-medium text-gray-900">
-                                {formatPriceDisplay(effectiveVillaSettings.extra_guest_price)}
-                              </span>
-                            </li>
-                          )}
-                        </ul>
-                        <p className="text-xs text-gray-500 mt-2">Select dates to see your total.</p>
-                      </div>
-                    )}
                   </div>
                 </div>
 
-                {/* Right Column - Contact info & terms */}
+                {/* Right Column - Contact info */}
                 <div className="flex flex-col gap-6">
 
               {/* Guest Information */}
@@ -1240,16 +1157,38 @@ const BookingForm: React.FC = () => {
                     />
                   </div>
 
-                  <div className="lg:mt-auto bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                    <h3 className="text-base font-semibold text-gray-900 mb-2">Booking Terms</h3>
-                    <ul className="text-sm text-gray-700 space-y-2 list-disc list-inside">
-                      <li>
-                        If the guest agrees with the house rules, the stay can be booked by paying the full amount at
-                        the time of booking.
-                      </li>
-                      <li>Changes or modifications are allowed when feasible.</li>
-                    </ul>
-                  </div>
+                  {(!selectedDates.checkIn || !selectedDates.checkOut) &&
+                    !priceBreakdown &&
+                    hasConfiguredRates && (
+                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                      <h3 className="text-sm font-semibold text-gray-900 mb-2">Villa rates</h3>
+                      <ul className="text-sm text-gray-600 space-y-1.5">
+                        <li className="flex justify-between gap-2">
+                          <span>Weekday (Mon–Fri, Sun)</span>
+                          <span className="font-medium text-gray-900">
+                            {formatRupee(roomRates.weekdayPrice)}/night
+                          </span>
+                        </li>
+                        <li className="flex justify-between gap-2">
+                          <span>Weekend (Saturday)</span>
+                          <span className="font-medium text-gray-900">
+                            {formatRupee(roomRates.weekendPrice)}/night
+                          </span>
+                        </li>
+                        <li className="flex justify-between gap-2">
+                          <span>Booking</span>
+                          <span className="font-medium text-gray-900">Entire villa</span>
+                        </li>
+                        {displayMaxGuests > 0 && (
+                          <li className="flex justify-between gap-2">
+                            <span>Max guests</span>
+                            <span className="font-medium text-gray-900">{displayMaxGuests} guests</span>
+                          </li>
+                        )}
+                      </ul>
+                      <p className="text-xs text-gray-500 mt-2">Select dates to see your total.</p>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -1264,8 +1203,8 @@ const BookingForm: React.FC = () => {
                         </svg>
                       </div>
                       <div className="ml-3">
-                        <h4 className="text-sm font-semibold text-red-900 mb-1">Room Currently Unavailable</h4>
-                        <p className="text-sm text-red-800">This room is temporarily unavailable for booking. Please contact us for more information or check back later.</p>
+                        <h4 className="text-sm font-semibold text-red-900 mb-1">Villa Currently Unavailable</h4>
+                        <p className="text-sm text-red-800">This villa is temporarily unavailable for booking. Please contact us for more information or check back later.</p>
                       </div>
                     </div>
                   </div>
@@ -1305,7 +1244,6 @@ const BookingForm: React.FC = () => {
           onProceed={processPayment}
           roomName={displayName}
           guestName={`${formData.first_name} ${formData.last_name}`}
-          guestCount={numAdults + numChildren}
           checkIn={selectedDates.checkIn}
           checkOut={selectedDates.checkOut}
           totalAmount={totalAmount}
