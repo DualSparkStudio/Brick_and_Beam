@@ -12,7 +12,7 @@ import FAQ from '../components/FAQ'
 import PageHero from '../components/PageHero'
 import SEO from '../components/SEO'
 import { useVilla } from '../contexts/VillaContext'
-import { GOOGLE_MAPS_EMBED_URL, DEFAULT_VILLA_ADDRESS, resolveVillaAddress } from '../config/brand'
+import { GOOGLE_MAPS_EMBED_URL, resolveVillaAddress, PUBLIC_BOOK_CTA_HREF } from '../config/brand'
 import { PAGE_HERO_IMAGES } from '../config/galleryImages'
 import { formatCheckInOutPipe } from '../lib/villa-check-times'
 import { netlifyFunctionUrl } from '../lib/netlify-functions'
@@ -30,12 +30,10 @@ const Contact: React.FC = () => {
 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [adminContactInfo, setAdminContactInfo] = useState({
-    email: 'info@resortbooking.com',
-    phone: '+91 98765 43210',
+    email: '',
+    phone: '',
     name: 'Brick and Beam',
-    address: DEFAULT_VILLA_ADDRESS,
-    phone2: '+91 98765 43211',
-    phone3: '+91 98765 43212'
+    address: '',
   })
 
   // Load admin contact info on component mount
@@ -44,12 +42,10 @@ const Contact: React.FC = () => {
       try {
         const adminInfo = await api.getAdminInfo()
         setAdminContactInfo({
-          email: adminInfo.email || 'info@resortbooking.com',
-          phone: adminInfo.phone || '+91 98765 43210',
+          email: adminInfo.email || '',
+          phone: adminInfo.phone || '',
           name: `${adminInfo.first_name} ${adminInfo.last_name}`.trim() || 'Brick and Beam',
           address: resolveVillaAddress(adminInfo.address),
-          phone2: '+91 98765 43211',
-          phone3: '+91 98765 43212'
         })
       } catch (error) {
         // Keep default values if loading fails
@@ -128,9 +124,9 @@ const Contact: React.FC = () => {
     },
     {
       title: 'Phone',
-      content: `${adminContactInfo.phone}${adminContactInfo.phone2 ? `, ${adminContactInfo.phone2}` : ''}${adminContactInfo.phone3 ? `, ${adminContactInfo.phone3}` : ''}`,
+      content: adminContactInfo.phone || 'Not available',
       icon: PhoneIcon,
-      link: `tel:${adminContactInfo.phone}`
+      link: adminContactInfo.phone ? `tel:${adminContactInfo.phone}` : null
     },
     {
       title: 'Email',
@@ -442,7 +438,7 @@ const Contact: React.FC = () => {
               Book your stay today and let us create the perfect Mahabaleshwar experience for you.
             </p>
             <a
-              href="/rooms"
+              href={PUBLIC_BOOK_CTA_HREF}
               className="inline-block bg-white text-dark-blue-800 font-bold py-4 px-8 rounded-lg hover:bg-gray-100 transition-colors duration-300"
             >
               Book Your Stay

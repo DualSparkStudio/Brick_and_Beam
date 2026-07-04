@@ -271,7 +271,7 @@ const RoomDetail: React.FC = () => {
         isOpen={showUnavailableModal}
         onClose={() => {
           setShowUnavailableModal(false)
-          navigate('/rooms')
+          navigate('/')
         }}
         roomName={undefined}
       />
@@ -285,10 +285,10 @@ const RoomDetail: React.FC = () => {
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Villa Not Found</h2>
           <p className="text-gray-600 mb-6">The villa you're looking for doesn't exist.</p>
           <button
-            onClick={() => navigate('/rooms')}
+            onClick={() => navigate('/')}
             className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
           >
-            Back to Villa
+            Back to Home
           </button>
         </div>
       </div>
@@ -302,11 +302,11 @@ const RoomDetail: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center space-x-4">
             <button
-              onClick={() => navigate('/rooms')}
+              onClick={() => navigate('/')}
               className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors"
             >
               <ArrowLeftIcon className="h-5 w-5" />
-              <span>Back to Villa</span>
+              <span>Back to Home</span>
             </button>
           </div>
         </div>

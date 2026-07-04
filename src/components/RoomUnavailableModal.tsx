@@ -18,7 +18,7 @@ const RoomUnavailableModal: React.FC<RoomUnavailableModalProps> = ({
   if (!isOpen) return null
 
   const handleGoToRooms = () => {
-    navigate('/rooms')
+    navigate('/')
     onClose()
   }
 
@@ -52,7 +52,7 @@ const RoomUnavailableModal: React.FC<RoomUnavailableModalProps> = ({
             onClick={handleGoToRooms}
             className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors font-semibold flex items-center justify-center"
           >
-            View Villa Details
+            View Home
           </button>
 
           <button

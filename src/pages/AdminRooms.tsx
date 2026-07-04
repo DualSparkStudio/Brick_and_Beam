@@ -2,9 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
 import type { Room } from '../lib/supabase';
 import { api } from '../lib/supabase';
+import { getDefaultVillaImages, resolveRoomImages } from '../lib/room-images';
 import { normalizeImageUrl, validateImageUrl } from '../utils/imageUrl';
 
 const MAX_VILLAS = 1;
+const DEFAULT_VILLA_IMAGE = getDefaultVillaImages()[0];
 
 const defaultVillaForm = () => ({
   name: '',
@@ -13,7 +15,7 @@ const defaultVillaForm = () => ({
   weekend_price_per_night: '',
   max_capacity: '4',
   amenities: '',
-  images: [''],
+  images: getDefaultVillaImages(),
   video_url: '',
   is_active: true,
   gst_percentage: '12',
@@ -367,6 +369,8 @@ const AdminRooms: React.FC = () => {
           return '';
         };
         
+        const resolvedImages = resolveRoomImages(roomType);
+
         setRoomTypeForm({
           name: roomType.name || '',
           description: roomType.description || '',
@@ -374,7 +378,7 @@ const AdminRooms: React.FC = () => {
           weekend_price_per_night: safeToString(roomType.weekend_price_per_night ?? roomType.price_per_night),
           max_capacity: safeToString(roomType.max_capacity || roomType.max_occupancy || 4),
           amenities: Array.isArray(roomType.amenities) ? roomType.amenities.join('\n') : '',
-          images: Array.isArray(roomType.images) && roomType.images.length > 0 ? roomType.images : [''],
+          images: resolvedImages.length > 0 ? resolvedImages : getDefaultVillaImages(),
           video_url: roomType.video_url || '',
           is_active: roomType.is_active ?? true,
           gst_percentage: safeToString(roomType.gst_percentage ?? 12),
@@ -467,10 +471,10 @@ const AdminRooms: React.FC = () => {
                           <div className="flex-shrink-0 h-12 w-12">
                             <img
                               className="h-12 w-12 rounded-lg object-cover"
-                              src={normalizeImageUrl(room.image_url || 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300&q=80')}
+                              src={normalizeImageUrl(resolveRoomImages(room)[0] || DEFAULT_VILLA_IMAGE)}
                               alt={room.name}
                               onError={(e) => {
-                                e.currentTarget.src = 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300&q=80';
+                                e.currentTarget.src = DEFAULT_VILLA_IMAGE;
                               }}
                             />
                           </div>
@@ -553,10 +557,10 @@ const AdminRooms: React.FC = () => {
                   <div className="flex items-start space-x-3 mb-3">
                     <img
                       className="h-16 w-16 rounded-lg object-cover flex-shrink-0"
-                      src={normalizeImageUrl(room.image_url || 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300&q=80')}
+                      src={normalizeImageUrl(resolveRoomImages(room)[0] || DEFAULT_VILLA_IMAGE)}
                       alt={room.name}
                       onError={(e) => {
-                        e.currentTarget.src = 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300&q=80';
+                        e.currentTarget.src = DEFAULT_VILLA_IMAGE;
                       }}
                     />
                     <div className="flex-1 min-w-0">
@@ -991,7 +995,7 @@ const AdminRooms: React.FC = () => {
                           className="w-full h-auto max-h-64 object-contain cursor-pointer hover:opacity-95 transition-opacity"
                           onClick={() => window.open(imagePreview, '_blank')}
                           onError={(e) => {
-                            e.currentTarget.src = 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300&q=80';
+                            e.currentTarget.src = DEFAULT_VILLA_IMAGE;
                           }}
                         />
                         <div className="text-center py-1 text-xs text-gray-500 bg-gray-100">
@@ -1014,10 +1018,10 @@ const AdminRooms: React.FC = () => {
                               className="w-full h-full object-cover cursor-pointer hover:opacity-95 transition-opacity"
                               onClick={() => window.open(normalizeImageUrl(image), '_blank')}
                               onError={(e) => {
-                                e.currentTarget.src = 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300&q=80';
+                                e.currentTarget.src = DEFAULT_VILLA_IMAGE;
                               }}
                             />
-                                                       <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all flex items-center justify-center pointer-events-none">
+                            <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all flex items-center justify-center pointer-events-none">
                              <span className="text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity">
                                Click to view
                              </span>

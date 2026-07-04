@@ -515,11 +515,13 @@ INSERT INTO rooms (
   12,
   1,
   ARRAY['Wi-Fi', 'Air Conditioning', 'Valley View', 'Parking', 'Bonfire Area', 'Indoor Games'],
-  'https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=1200&q=80',
+  '/images/hero/cover-dusk.png',
   ARRAY[
-    'https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=1200&q=80',
-    'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1200&q=80',
-    'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80'
+    '/images/hero/cover-dusk.png',
+    '/images/hero/pool-facade-day.png',
+    '/images/hero/facade-dusk.png',
+    '/images/hero/facade-day.png',
+    '/images/gallery/pool-area.png'
   ],
   TRUE,
   TRUE,

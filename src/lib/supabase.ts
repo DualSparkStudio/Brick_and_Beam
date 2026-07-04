@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { resolveVillaAddress } from '../config/brand'
+import { netlifyFunctionUrl } from './netlify-functions'
 import {
   VILLA_SETTING_KEYS,
   defaultVillaSettings,
@@ -524,7 +525,7 @@ export const api = {
     }
   },
 
-    // Get admin information for footer
+    // Get admin information for footer and public contact pages
     async getAdminInfo(): Promise<{
       first_name: string
       last_name: string
@@ -532,40 +533,60 @@ export const api = {
       phone?: string
       address?: string
     }> {
+      const fallback = {
+        first_name: 'Admin',
+        last_name: '',
+        email: '',
+        phone: '',
+        address: resolveVillaAddress(),
+      }
+
+      try {
+        const response = await fetch(netlifyFunctionUrl('simple-login'), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'getAdminContactInfo' }),
+        })
+
+        const result = await response.json()
+
+        if (response.ok && result.contactInfo) {
+          const contact = result.contactInfo
+          return {
+            first_name: contact.first_name || contact.name?.split(' ')[0] || 'Admin',
+            last_name: contact.last_name || contact.name?.split(' ').slice(1).join(' ') || '',
+            email: contact.email || '',
+            phone: contact.phone || '',
+            address: resolveVillaAddress(contact.address),
+          }
+        }
+      } catch {
+        // Fall back to direct Supabase read below
+      }
+
       try {
         const { data: adminUser, error } = await supabase
           .from('users')
           .select('first_name, last_name, email, phone, address')
           .eq('is_admin', true)
-          .single()
+          .limit(1)
+          .maybeSingle()
 
-        if (error) {
-          return {
-            first_name: 'Admin',
-            last_name: '',
-            email: '',
-            phone: '',
-            address: resolveVillaAddress(),
-          }
+        if (error || !adminUser) {
+          return fallback
         }
 
         return {
-          first_name: adminUser?.first_name || 'Admin',
-          last_name: adminUser?.last_name || '',
-          email: adminUser?.email || '',
-          phone: adminUser?.phone || '',
-          address: resolveVillaAddress(adminUser?.address),
+          first_name: adminUser.first_name || 'Admin',
+          last_name: adminUser.last_name || '',
+          email: adminUser.email || '',
+          phone: adminUser.phone || '',
+          address: resolveVillaAddress(adminUser.address),
         }
-      } catch (error) {
-        return {
-          first_name: 'Admin',
-          last_name: '',
-          email: '',
-          phone: '',
-          address: resolveVillaAddress(),
-        }
-    }
-  },
+      } catch {
+        return fallback
+      }
+    },
 
   async getAvailabilityForMonth(roomId: number, year: number, month: number) {
     const startDate = `${year}-${month.toString().padStart(2, '0')}-01`

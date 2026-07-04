@@ -1,7 +1,7 @@
 import React from 'react';
 import { HelmetProvider } from 'react-helmet-async';
 import { Toaster } from 'react-hot-toast';
-import { Outlet, Route, BrowserRouter as Router, Routes, useLocation } from 'react-router-dom';
+import { Outlet, Route, BrowserRouter as Router, Routes, useLocation, Navigate } from 'react-router-dom';
 import './App.css';
 import AdminLayout from './components/AdminLayout';
 import Layout from './components/Layout';
@@ -11,7 +11,6 @@ import SmoothScroll from './components/SmoothScroll';
 import { AuthProvider } from './contexts/AuthContext';
 import { VillaProvider } from './contexts/VillaContext';
 import { MaintenanceProvider, useMaintenance } from './contexts/MaintenanceContext';
-import About from './pages/About';
 import AdminBookings from './pages/AdminBookings';
 import AdminCalendar from './pages/AdminCalendar';
 import AdminDashboard from './pages/AdminDashboard';
@@ -35,7 +34,6 @@ import Policy from './pages/Policy';
 import Profile from './pages/Profile';
 import Register from './pages/Register';
 import RoomDetail from './pages/RoomDetail';
-import Rooms from './pages/Rooms';
 import Gallery from './pages/Gallery';
 
 // Component to handle pathname logging
@@ -75,10 +73,10 @@ const AppContent: React.FC = () => {
       {/* Public Routes */}
       <Route path="/" element={<Layout><Outlet /></Layout>}>
         <Route index element={<Home />} />
-        <Route path="rooms" element={<Rooms />} />
+        <Route path="rooms" element={<Navigate to="/#book" replace />} />
         <Route path="room/:slug" element={<RoomDetail />} />
         <Route path="features" element={<Features />} />
-        <Route path="about" element={<About />} />
+        <Route path="about" element={<Navigate to="/" replace />} />
         <Route path="gallery" element={<Gallery />} />
         <Route path="contact" element={<Contact />} />
         <Route path="login" element={<Login />} />

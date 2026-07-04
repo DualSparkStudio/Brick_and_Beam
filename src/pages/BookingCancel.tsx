@@ -78,7 +78,7 @@ const BookingCancel: React.FC = () => {
         
         <div className="space-y-3">
           <button
-            onClick={() => navigate('/rooms')}
+            onClick={() => navigate('/')}
             className="btn-primary w-full"
           >
             Try Again

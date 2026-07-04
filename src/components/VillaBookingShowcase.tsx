@@ -10,6 +10,7 @@ import {
 import { motion } from 'framer-motion'
 import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { BRAND_LOCATION, PUBLIC_BOOK_CTA_HREF } from '../config/brand'
 import { useVilla } from '../contexts/VillaContext'
 import { getDefaultVillaImages, resolveRoomImages } from '../lib/room-images'
 import { formatCheckInFromLabel } from '../lib/villa-check-times'
@@ -97,15 +98,16 @@ const VillaBookingShowcase: React.FC<VillaBookingShowcaseProps> = ({ room, loadi
   const heroImage = images[activeImageIndex] ?? images[0] ?? getDefaultVillaImages()[0]
   const thumbnailImages = images.filter((_, index) => index !== activeImageIndex).slice(0, 3)
   const { weekdayPrice, weekendPrice } = resolveVillaNightlyRates(room)
-  const bookUrl = room.slug ? `/book/${room.slug}` : '/rooms'
-  const detailsUrl = room.slug ? `/room/${room.slug}` : '/rooms'
+  const bookUrl = room.slug ? `/book/${room.slug}` : PUBLIC_BOOK_CTA_HREF
+  const detailsUrl = room.slug ? `/room/${room.slug}` : null
   const amenities = room.amenities?.slice(0, 5) ?? []
   const guestCapacity = room.max_capacity || room.max_occupancy || 12
 
+  const [locationArea, locationRegion] = BRAND_LOCATION.split(',').map((part) => part.trim())
   const highlights = [
     { icon: HomeModernIcon, label: '4 BHK Villa', sub: 'Entire property' },
     { icon: UsersIcon, label: `Up to ${guestCapacity}`, sub: 'Guests' },
-    { icon: MapPinIcon, label: 'Panchgani', sub: 'Hill station' },
+    { icon: MapPinIcon, label: locationArea || 'Bhilar', sub: locationRegion || 'Mahabaleshwar' },
   ]
 
   const staySteps = [
@@ -115,7 +117,7 @@ const VillaBookingShowcase: React.FC<VillaBookingShowcaseProps> = ({ room, loadi
   ]
 
   return (
-    <section className="relative overflow-hidden bg-dark-blue-900">
+    <section id="book" className="relative overflow-hidden bg-dark-blue-900">
       <div className="pointer-events-none absolute -left-32 top-0 h-96 w-96 rounded-full bg-golden-500/10 blur-3xl" />
       <div className="pointer-events-none absolute -right-24 bottom-0 h-80 w-80 rounded-full bg-dark-blue-500/30 blur-3xl" />
 
@@ -211,15 +213,19 @@ const VillaBookingShowcase: React.FC<VillaBookingShowcaseProps> = ({ room, loadi
                   : 'A spacious hill-station villa with modern comforts, perfect for families and groups seeking a private getaway.'}
               </p>
 
-              <div className="mb-8 grid grid-cols-3 gap-3">
+              <div className="mb-8 grid grid-cols-3 gap-2 sm:gap-3">
                 {highlights.map(({ icon: Icon, label, sub }) => (
                   <div
                     key={label}
-                    className="rounded-2xl border border-white/10 bg-white/5 px-3 py-4 text-center"
+                    className="min-w-0 rounded-2xl border border-white/10 bg-white/5 px-2 py-4 text-center sm:px-3"
                   >
-                    <Icon className="mx-auto mb-2 h-5 w-5 text-golden-400" />
-                    <p className="text-xs font-semibold text-white sm:text-sm">{label}</p>
-                    <p className="mt-0.5 text-[10px] text-white/50 sm:text-xs">{sub}</p>
+                    <Icon className="mx-auto mb-2 h-5 w-5 shrink-0 text-golden-400" />
+                    <p className="break-words text-[11px] font-semibold leading-tight text-white sm:text-xs">
+                      {label}
+                    </p>
+                    <p className="mt-0.5 break-words text-[10px] leading-snug text-white/50 sm:text-xs">
+                      {sub}
+                    </p>
                   </div>
                 ))}
               </div>
@@ -267,12 +273,14 @@ const VillaBookingShowcase: React.FC<VillaBookingShowcaseProps> = ({ room, loadi
                   Check Availability &amp; Book
                   <ArrowRightIcon className="h-5 w-5 transition-transform group-hover:translate-x-1" />
                 </Link>
+                {detailsUrl && (
                 <Link
                   to={detailsUrl}
                   className="flex w-full items-center justify-center gap-2 rounded-xl border border-white/15 px-6 py-3.5 text-sm font-medium text-white/90 transition-colors hover:border-white/30 hover:bg-white/5"
                 >
                   View villa gallery &amp; details
                 </Link>
+                )}
               </div>
 
               <div className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs text-white/50">

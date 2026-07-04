@@ -101,10 +101,10 @@ const BookingConfirmation: React.FC = () => {
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Booking Not Found</h2>
           <p className="text-gray-600 mb-4">The booking you're looking for doesn't exist.</p>
           <button
-            onClick={() => navigate('/rooms')}
+            onClick={() => navigate('/')}
             className="btn-primary"
           >
-            Back to Villa
+            Back to Home
           </button>
         </div>
       </div>

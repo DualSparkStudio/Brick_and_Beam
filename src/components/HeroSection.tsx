@@ -7,6 +7,7 @@ import {
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { HERO_IMAGES } from '../config/galleryImages'
+import { PUBLIC_BOOK_CTA_HREF } from '../config/brand'
 
 const fadeUp = (delay = 0) => ({
   initial: { opacity: 0, y: 32 },
@@ -86,7 +87,7 @@ const HeroSection = () => {
               className="mt-8 flex flex-col gap-3 sm:mt-10 sm:flex-row sm:items-center sm:gap-4"
             >
               <Link
-                to="/rooms"
+                to={PUBLIC_BOOK_CTA_HREF}
                 className="group inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-golden-500 to-golden-600 px-8 py-4 text-sm font-semibold text-dark-blue-900 shadow-lg shadow-golden-500/25 transition-all duration-300 hover:-translate-y-0.5 hover:from-golden-400 hover:to-golden-500 hover:shadow-xl hover:shadow-golden-500/30 sm:text-base"
               >
                 Book Your Stay

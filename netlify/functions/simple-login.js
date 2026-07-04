@@ -667,8 +667,8 @@ async function handleUpdateProfile(data, headers, supabase) {
     if (userData.first_name) updateData.first_name = sanitizeString(userData.first_name)
     if (userData.last_name) updateData.last_name = sanitizeString(userData.last_name)
     if (userData.email) updateData.email = userData.email.trim()
-    if (userData.phone) updateData.phone = sanitizeString(userData.phone)
-    if (userData.address) updateData.address = sanitizeString(userData.address)
+    if (userData.phone !== undefined) updateData.phone = sanitizeString(userData.phone)
+    if (userData.address !== undefined) updateData.address = sanitizeString(userData.address)
 
     console.log('Update data:', updateData)
 
@@ -1198,9 +1198,10 @@ async function handleGetAdminContactInfo(data, headers, supabase) {
     // Get admin contact info from database
     const { data: adminUser, error } = await supabase
       .from('users')
-      .select('email, phone, first_name, last_name')
+      .select('email, phone, first_name, last_name, address')
       .eq('is_admin', true)
-      .single()
+      .limit(1)
+      .maybeSingle()
 
     if (error || !adminUser) {
       return {
@@ -1219,6 +1220,9 @@ async function handleGetAdminContactInfo(data, headers, supabase) {
         contactInfo: {
           email: adminUser.email,
           phone: adminUser.phone,
+          first_name: adminUser.first_name || '',
+          last_name: adminUser.last_name || '',
+          address: adminUser.address || '',
           name: `${adminUser.first_name || ''} ${adminUser.last_name || ''}`.trim()
         },
         message: 'Admin contact info retrieved successfully'

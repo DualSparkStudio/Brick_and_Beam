@@ -832,7 +832,7 @@ const BookingForm: React.FC = () => {
         isOpen={showUnavailableModal}
         onClose={() => {
           setShowUnavailableModal(false)
-          navigate('/rooms')
+          navigate('/')
         }}
         roomName={undefined}
       />

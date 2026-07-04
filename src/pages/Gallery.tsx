@@ -7,6 +7,7 @@ import PageHero from '../components/PageHero'
 import { PAGE_HERO_IMAGES } from '../config/galleryImages'
 import AppImage from '../components/AppImage'
 import { GALLERY_CATEGORIES, GALLERY_IMAGES } from '../config/galleryImages'
+import { PUBLIC_BOOK_CTA_HREF } from '../config/brand'
 
 interface GalleryImage {
   id: number
@@ -204,7 +205,7 @@ const Gallery: React.FC = () => {
               Book your stay and create your own beautiful memories at Brick and Beam
             </p>
             <Link
-              to="/rooms"
+              to={PUBLIC_BOOK_CTA_HREF}
               className="inline-block bg-white text-dark-blue-800 font-bold py-3 px-8 rounded-lg hover:bg-gray-100 transition-colors duration-300 shadow-lg"
             >
               Book Your Stay

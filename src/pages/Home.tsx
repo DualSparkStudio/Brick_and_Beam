@@ -8,12 +8,11 @@ import {
 } from '@heroicons/react/24/outline'
 import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import FAQ from '../components/FAQ'
 import HeroSection from '../components/HeroSection'
 import SEO from '../components/SEO'
 import VillaBookingShowcase from '../components/VillaBookingShowcase'
 import { useVilla } from '../contexts/VillaContext'
-import { GOOGLE_MAPS_EMBED_URL } from '../config/brand'
+import { GOOGLE_MAPS_EMBED_URL, resolveVillaAddress } from '../config/brand'
 import { ABOUT_IMAGES } from '../config/galleryImages'
 import { formatCheckInOutLine } from '../lib/villa-check-times'
 import type { Room } from '../lib/supabase'
@@ -40,7 +39,8 @@ const Home: React.FC = () => {
   const [featuresLoading, setFeaturesLoading] = useState(true)
   const [adminContactInfo, setAdminContactInfo] = useState({
     email: '',
-    phone: ''
+    phone: '',
+    address: '',
   })
 
   // Load rooms from API
@@ -84,7 +84,8 @@ const Home: React.FC = () => {
         const contactInfo = await api.getAdminInfo()
         setAdminContactInfo({
           email: contactInfo.email,
-          phone: contactInfo.phone
+          phone: contactInfo.phone || '',
+          address: resolveVillaAddress(contactInfo.address),
         })
       } catch (error) {
         // Keep default values if loading fails
@@ -163,13 +164,13 @@ const Home: React.FC = () => {
 
                 {/* Description */}
                 <p className="text-gray-600 text-base sm:text-lg leading-relaxed">
-                  Brick and Beam is described as a destination where comfort meets nature, blending a relaxed, natural environment with good basic amenities. It's surrounded by greenery — ideal if you want a quieter, more scenic retreat.
+                  Nestled in the heart of the Mahabaleshwar, our opulent villa offers guests an unforgettable experience of refined luxury and impeccable service.
                 </p>
 
                 {/* Explore More Button */}
                 <div className="flex items-center gap-4">
                   <Link
-                    to="/about"
+                    to="/contact"
                     className="inline-flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white font-medium px-6 sm:px-8 py-3 sm:py-4 rounded-lg transition-all duration-300 hover:shadow-lg transform hover:-translate-y-1"
                   >
                     <span>Explore More</span>
@@ -270,34 +271,6 @@ const Home: React.FC = () => {
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
-        </div>
-
-        {/* FAQ Section */}
-        <FAQ />
-
-        {/* CTA Section */}
-        <div className="py-12 sm:py-16 lg:py-20 bg-white">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-forest mb-4">Ready to Experience Brick and Beam?</h2>
-            <p className="text-lg sm:text-xl text-sage mb-6 sm:mb-8 max-w-3xl mx-auto">
-              Book your stay today and create memories that will last a lifetime
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center max-w-md sm:max-w-none mx-auto">
-              <Link
-                to="/rooms"
-                className="btn-luxury inline-flex items-center justify-center px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg w-full sm:w-auto"
-              >
-                Start Your Journey
-                <ArrowRightIcon className="ml-2 h-5 w-5 sm:h-6 sm:w-6" />
-              </Link>
-              <Link
-                to="/contact"
-                className="btn-secondary inline-flex items-center justify-center px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg w-full sm:w-auto"
-              >
-                Contact Us
-              </Link>
             </div>
           </div>
         </div>

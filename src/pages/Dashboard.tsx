@@ -8,6 +8,7 @@ import {
 } from '@heroicons/react/24/outline'
 import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { PUBLIC_BOOK_CTA_HREF } from '../config/brand'
 import { useAuth } from '../contexts/AuthContext'
 import type { Booking } from '../lib/supabase'
 import { api } from '../lib/supabase'
@@ -182,7 +183,7 @@ const Dashboard: React.FC = () => {
               <p className="text-gray-600 mt-1">Welcome back, {user?.first_name}!</p>
             </div>
             <Link
-              to="/rooms"
+              to={PUBLIC_BOOK_CTA_HREF}
               className="btn-primary"
             >
               Book Villa
@@ -261,7 +262,7 @@ const Dashboard: React.FC = () => {
               <h3 className="text-lg font-medium text-gray-900 mb-2">No bookings yet</h3>
               <p className="text-gray-600 mb-6">Start your journey by booking the villa.</p>
               <Link
-                to="/rooms"
+                to={PUBLIC_BOOK_CTA_HREF}
                 className="btn-primary"
               >
                 View Villa
@@ -375,7 +376,7 @@ const Dashboard: React.FC = () => {
             <h3 className="text-lg font-bold text-gray-900 mb-4">Quick Actions</h3>
             <div className="space-y-3">
               <Link
-                to="/rooms"
+                to={PUBLIC_BOOK_CTA_HREF}
                 className="flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors"
               >
                 <CalendarIcon className="h-5 w-5 text-blue-800 mr-3" />
