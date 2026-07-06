@@ -8,12 +8,12 @@ import PaymentConfirmationModal from '../components/PaymentConfirmationModal'
 import RoomUnavailableModal from '../components/RoomUnavailableModal'
 import { useVilla } from '../contexts/VillaContext'
 import { snapshotFromPriceBreakdown } from '../lib/booking-pricing'
+import { netlifyFunctionUrl } from '../lib/netlify-functions'
+import { loadRazorpayScript } from '../lib/razorpay'
+import { getDefaultVillaImages, resolveRoomImages } from '../lib/room-images'
+import { api } from '../lib/supabase'
 import { calculateVillaBookingPrice, formatRupee, hasConfiguredVillaRates, resolveVillaNightlyRates } from '../lib/villa-pricing'
 import { normalizeVillaSettings, resolveVillaGuestLimits, roomIncludedCapacity } from '../lib/villa-settings'
-import { loadRazorpayScript } from '../lib/razorpay'
-import { netlifyFunctionUrl } from '../lib/netlify-functions'
-import { resolveRoomImages, getDefaultVillaImages } from '../lib/room-images'
-import { api } from '../lib/supabase'
 interface BookingFormData {
   first_name: string
   last_name: string

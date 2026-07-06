@@ -24,6 +24,8 @@ const handlers = {
   'create-razorpay-order': () => require(join(rootDir, 'netlify/functions/create-razorpay-order.js')).handler,
   'calendar-feed': () => require(join(rootDir, 'netlify/functions/calendar-feed.js')).handler,
   'get-google-reviews': () => require(join(rootDir, 'netlify/functions/get-google-reviews.js')).handler,
+  'send-contact-email': () => require(join(rootDir, 'netlify/functions/send-contact-email.js')).handler,
+  'test': () => require(join(rootDir, 'netlify/functions/test.js')).handler,
 }
 
 const corsHeaders = {
@@ -70,8 +72,9 @@ const server = http.createServer(async (req, res) => {
       res.writeHead(result.statusCode || 200, headers)
       res.end(result.body || '')
     } catch (error) {
+      console.error(`[functions] ${functionName} failed:`, error)
       res.writeHead(500, { ...corsHeaders, 'Content-Type': 'application/json' })
-      res.end(JSON.stringify({ error: error.message || 'Function execution failed' }))
+      res.end(JSON.stringify({ error: error.message || 'Function execution failed', success: false }))
     }
   })
 })
