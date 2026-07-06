@@ -117,10 +117,18 @@ export interface ResolvedVillaGuestLimits {
 /** Single source of truth for included vs max guest limits (whole-villa booking). */
 export function resolveVillaGuestLimits(
   settings: VillaSettings,
-  options?: { roomMaxCapacity?: number }
+  options?: { roomMaxCapacity?: number; roomIncludedCapacity?: number }
 ): ResolvedVillaGuestLimits {
-  const { capacity, maxCapacity } = parseVillaGuestLimits(settings)
+  const roomIncluded = options?.roomIncludedCapacity ?? 0
   const roomMax = options?.roomMaxCapacity ?? 0
+
+  if (roomIncluded > 0 || roomMax > 0) {
+    const includedCapacity = roomIncluded > 0 ? roomIncluded : roomMax
+    const maxCapacity = roomMax > 0 ? Math.max(roomMax, includedCapacity) : includedCapacity
+    return { includedCapacity, maxCapacity }
+  }
+
+  const { capacity, maxCapacity } = parseVillaGuestLimits(settings)
 
   const includedCapacity =
     capacity > 0 ? capacity : maxCapacity > 0 ? maxCapacity : roomMax > 0 ? roomMax : DEFAULT_GUEST_LIMIT
@@ -132,6 +140,17 @@ export function resolveVillaGuestLimits(
     includedCapacity,
     maxCapacity: Math.max(resolvedMax, includedCapacity),
   }
+}
+
+/** Included guests in base price from a room row (supports legacy max_occupancy column). */
+export function roomIncludedCapacity(room?: {
+  included_capacity?: number
+  max_occupancy?: number
+} | null): number | undefined {
+  if (!room) return undefined
+  if (room.included_capacity != null && room.included_capacity > 0) return room.included_capacity
+  if (room.max_occupancy != null && room.max_occupancy > 0) return room.max_occupancy
+  return undefined
 }
 
 export function parseListField(value: string): string[] {

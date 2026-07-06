@@ -61,6 +61,8 @@ export interface Room {
   weekday_price_per_night?: number // Mon–Fri & Sun (whole villa)
   weekend_price_per_night?: number // Saturday (whole villa)
   max_occupancy?: number // Optional - kept for backward compatibility
+  /** Guests included in the base nightly price */
+  included_capacity?: number
   max_capacity: number // Maximum number of guests allowed in this room type
   quantity: number // Number of rooms available for this room type
   amenities?: string[]
@@ -348,9 +350,13 @@ export const api = {
   },
 
   async createRoom(roomData: Partial<Room>) {
+    const payload = Object.fromEntries(
+      Object.entries(roomData).filter(([, value]) => value !== undefined)
+    ) as Partial<Room>
+
     const { data, error } = await supabase
       .from('rooms')
-      .insert([roomData])
+      .insert([payload])
       .select()
       .single()
 
@@ -359,9 +365,13 @@ export const api = {
   },
 
   async updateRoom(id: number, updates: Partial<Room>) {
+    const payload = Object.fromEntries(
+      Object.entries(updates).filter(([, value]) => value !== undefined)
+    ) as Partial<Room>
+
     const { data, error } = await supabase
       .from('rooms')
-      .update(updates)
+      .update(payload)
       .eq('id', id)
       .select()
       .single()

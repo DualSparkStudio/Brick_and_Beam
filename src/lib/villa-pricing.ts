@@ -1,5 +1,5 @@
 import type { VillaSettings } from './villa-settings'
-import { parseVillaGuestLimits } from './villa-settings'
+import { parseVillaGuestLimits, resolveVillaGuestLimits } from './villa-settings'
 
 export interface VillaNightlyRates {
   weekdayPrice: number
@@ -190,23 +190,33 @@ export function allocateExtraGuests(
 
 /**
  * Whole-villa nightly rates: weekday (Mon–Fri, Sun) vs weekend (Saturday).
- * The entire villa is booked at a flat rate regardless of guest count.
+ * Base rate covers guests up to included capacity; extra guests charged per night.
  */
 export function calculateVillaBookingPrice(params: {
   checkIn: string
   checkOut: string
+  numGuests?: number
   villaSettings: VillaSettings
   roomFallback?: {
     weekday_price_per_night?: number | string | null
     weekend_price_per_night?: number | string | null
     price_per_night?: number | string
+    included_capacity?: number
+    max_capacity?: number
+    extra_guest_price?: number | string | null
+    extra_mattress_price?: number | string | null
   }
 }): VillaPriceBreakdown | null {
-  const { checkIn, checkOut, villaSettings, roomFallback } = params
+  const { checkIn, checkOut, numGuests = 1, villaSettings, roomFallback } = params
 
   if (!checkIn || !checkOut || checkIn === checkOut) return null
 
-  const { capacity, maxCapacity } = parseVillaGuestLimits(villaSettings)
+  const { includedCapacity: capacity, maxCapacity } = resolveVillaGuestLimits(villaSettings, {
+    roomIncludedCapacity: roomFallback?.included_capacity,
+    roomMaxCapacity: roomFallback?.max_capacity,
+  })
+
+  if (maxCapacity > 0 && numGuests > maxCapacity) return null
 
   let { weekdayPrice, weekendPrice } = resolveVillaNightlyRates({
     price: villaSettings.price,
@@ -221,8 +231,15 @@ export function calculateVillaBookingPrice(params: {
   if (stayRates.nights <= 0) return null
 
   const effectiveCapacity = capacity > 0 ? capacity : maxCapacity
+  const extraGuestPricePerNight =
+    parseAmount(villaSettings.extra_guest_price) ||
+    parseAmount(roomFallback?.extra_guest_price) ||
+    parseAmount(roomFallback?.extra_mattress_price)
+
+  const extraGuests = effectiveCapacity > 0 ? Math.max(0, numGuests - effectiveCapacity) : 0
+  const extraGuestsAmount = extraGuestPricePerNight * extraGuests * stayRates.nights
   const baseAmount = stayRates.baseAmount
-  const subtotal = baseAmount
+  const subtotal = baseAmount + extraGuestsAmount
   const total = subtotal
 
   return {
@@ -235,11 +252,11 @@ export function calculateVillaBookingPrice(params: {
     weekendNights: stayRates.weekendNights,
     basePricePerNight: stayRates.nights > 0 ? baseAmount / stayRates.nights : 0,
     baseAmount,
-    extraAdults: 0,
+    extraAdults: extraGuests,
     extraChildren: 0,
-    extraGuests: 0,
-    extraGuestPricePerNight: 0,
-    extraGuestsAmount: 0,
+    extraGuests,
+    extraGuestPricePerNight,
+    extraGuestsAmount,
     numChildren: 0,
     subtotal,
     total,

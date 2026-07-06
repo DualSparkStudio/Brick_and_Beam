@@ -1,4 +1,4 @@
-import { CalendarIcon, EnvelopeIcon, PhoneIcon, UserIcon } from '@heroicons/react/24/outline'
+import { CalendarIcon, EnvelopeIcon, PhoneIcon, UserIcon, UsersIcon } from '@heroicons/react/24/outline'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { toast } from 'react-hot-toast'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
@@ -9,7 +9,7 @@ import RoomUnavailableModal from '../components/RoomUnavailableModal'
 import { useVilla } from '../contexts/VillaContext'
 import { snapshotFromPriceBreakdown } from '../lib/booking-pricing'
 import { calculateVillaBookingPrice, formatRupee, hasConfiguredVillaRates, resolveVillaNightlyRates } from '../lib/villa-pricing'
-import { normalizeVillaSettings, resolveVillaGuestLimits } from '../lib/villa-settings'
+import { normalizeVillaSettings, resolveVillaGuestLimits, roomIncludedCapacity } from '../lib/villa-settings'
 import { loadRazorpayScript } from '../lib/razorpay'
 import { netlifyFunctionUrl } from '../lib/netlify-functions'
 import { resolveRoomImages, getDefaultVillaImages } from '../lib/room-images'
@@ -52,6 +52,8 @@ const BookingForm: React.FC = () => {
   const [showCalendar, setShowCalendar] = useState(true)
   const [selectedDates, setSelectedDates] = useState({ checkIn: '', checkOut: '' })
   const [dateError, setDateError] = useState('')
+  const [numGuests, setNumGuests] = useState(1)
+  const guestsDefaultSetRef = useRef(false)
   const [showCancellationModal, setShowCancellationModal] = useState(false)
   const [cancellationType, setCancellationType] = useState<'cancelled' | 'failed'>('cancelled')
   const [showUnavailableModal, setShowUnavailableModal] = useState(false)
@@ -74,18 +76,24 @@ const BookingForm: React.FC = () => {
     return calculateVillaBookingPrice({
       checkIn: selectedDates.checkIn,
       checkOut: selectedDates.checkOut,
+      numGuests,
       villaSettings: effectiveVillaSettings,
       roomFallback: room
         ? {
             weekday_price_per_night: room.weekday_price_per_night,
             weekend_price_per_night: room.weekend_price_per_night,
             price_per_night: room.price_per_night,
+            included_capacity: roomIncludedCapacity(room),
+            max_capacity: room.max_capacity,
+            extra_guest_price: room.extra_guest_price,
+            extra_mattress_price: room.extra_mattress_price,
           }
         : undefined,
     })
   }, [
     selectedDates.checkIn,
     selectedDates.checkOut,
+    numGuests,
     effectiveVillaSettings,
     room,
   ])
@@ -127,15 +135,21 @@ const BookingForm: React.FC = () => {
   const subtotal = priceBreakdown?.subtotal ?? 0
   const totalAmount = priceBreakdown?.total ?? 0
 
-  const { maxCapacity } = resolveVillaGuestLimits(effectiveVillaSettings, {
+  const { includedCapacity, maxCapacity } = resolveVillaGuestLimits(effectiveVillaSettings, {
+    roomIncludedCapacity: roomIncludedCapacity(room),
     roomMaxCapacity: room?.max_capacity,
   })
-  const displayMaxGuests =
-    room?.max_capacity && room.max_capacity > 0
-      ? room.max_capacity
-      : maxCapacity > 0
-        ? maxCapacity
-        : 0
+  const extraGuests = Math.max(0, numGuests - includedCapacity)
+
+  useEffect(() => {
+    guestsDefaultSetRef.current = false
+  }, [slug])
+
+  useEffect(() => {
+    if (guestsDefaultSetRef.current || includedCapacity <= 0) return
+    setNumGuests(includedCapacity)
+    guestsDefaultSetRef.current = true
+  }, [includedCapacity, slug])
 
   useEffect(() => {
     if (!room) {
@@ -174,6 +188,12 @@ const BookingForm: React.FC = () => {
     if (selectedDates.checkIn === selectedDates.checkOut) {
       return 'Check-out must be at least one day after check-in.'
     }
+    if (maxCapacity > 0 && numGuests > maxCapacity) {
+      return `Your party exceeds the maximum of ${maxCapacity} guests.`
+    }
+    if (numGuests < 1) {
+      return 'Enter at least 1 guest.'
+    }
     if (villaLoading && !hasConfiguredRates) return 'Loading villa rates…'
     if (!hasConfiguredRates) {
       return 'Villa nightly rate is not set up yet. Contact us to book.'
@@ -195,6 +215,8 @@ const BookingForm: React.FC = () => {
     room?.is_active,
     selectedDates.checkIn,
     selectedDates.checkOut,
+    numGuests,
+    maxCapacity,
     villaLoading,
     hasConfiguredRates,
     priceBreakdown,
@@ -256,6 +278,15 @@ const BookingForm: React.FC = () => {
     const checkIn = new Date(selectedDates.checkIn)
     const checkOut = new Date(selectedDates.checkOut)
     return Math.ceil(Math.abs(checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24))
+  }
+
+  const clampGuestCount = (value: number) => {
+    const cap = maxCapacity > 0 ? maxCapacity : value
+    const next = Math.max(1, Math.min(value, cap))
+    if (maxCapacity > 0 && value > maxCapacity) {
+      toast.error(`Maximum ${maxCapacity} guests allowed for this villa`, { duration: 4000, icon: '⚠️' })
+    }
+    return next
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -496,6 +527,11 @@ const BookingForm: React.FC = () => {
 
     if (!priceBreakdown || totalAmount <= 0) {
       toast.error('Unable to calculate price. Check villa rates in admin settings or contact us.')
+      return
+    }
+
+    if (maxCapacity > 0 && numGuests > maxCapacity) {
+      toast.error(`Maximum ${maxCapacity} guests allowed for this villa`)
       return
     }
 
@@ -756,7 +792,7 @@ const BookingForm: React.FC = () => {
         room_name: displayName || room.name,
         check_in_date: selectedDates.checkIn,
         check_out_date: selectedDates.checkOut,
-        num_guests: 1,
+        num_guests: numGuests,
         num_extra_adults: 0,
         num_children_above_5: 0,
         first_name: formData.first_name,
@@ -902,11 +938,14 @@ const BookingForm: React.FC = () => {
                         <p className="text-xs text-gray-500 mt-0.5">Flat rate for the full property</p>
                       </div>
 
-                      {displayMaxGuests > 0 && (
+                      {includedCapacity > 0 && (
                         <div className="bg-white rounded-lg p-3 border border-gray-200">
                           <p className="text-xs text-gray-500 mb-1">Guest capacity</p>
-                          <p className="text-sm font-bold text-gray-900">Up to {displayMaxGuests} guests</p>
-                          <p className="text-xs text-gray-500 mt-0.5">Maximum for this villa</p>
+                          <p className="text-sm font-bold text-gray-900">
+                            {includedCapacity} included
+                            {maxCapacity > includedCapacity ? ` · max ${maxCapacity}` : ''}
+                          </p>
+                          <p className="text-xs text-gray-500 mt-0.5">Base price covers up to {includedCapacity}</p>
                         </div>
                       )}
                     </div>
@@ -998,6 +1037,36 @@ const BookingForm: React.FC = () => {
                     )}
                   </div>
 
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Number of guests *
+                    </label>
+                    <div className="relative">
+                      <UsersIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                      <input
+                        type="number"
+                        value={numGuests}
+                        min={1}
+                        max={maxCapacity > 0 ? maxCapacity : undefined}
+                        disabled={!room?.is_active}
+                        onChange={(e) => {
+                          const value = parseInt(e.target.value, 10) || 1
+                          setNumGuests(clampGuestCount(value))
+                        }}
+                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-gray-900"
+                      />
+                    </div>
+                    <p className="mt-1 text-xs text-gray-500">
+                      {includedCapacity > 0
+                        ? `${includedCapacity} guests included in base price`
+                        : 'Enter total guests for your stay'}
+                      {maxCapacity > 0 ? ` · maximum ${maxCapacity}` : ''}
+                      {extraGuests > 0 && (
+                        <span className="text-amber-700"> · {extraGuests} extra guest{extraGuests !== 1 ? 's' : ''} charged</span>
+                      )}
+                    </p>
+                  </div>
+
                   <div className="lg:mt-auto flex flex-col gap-4">
                     {priceBreakdown ? (
                       <div className="bg-blue-50 rounded-lg p-4 border border-blue-100">
@@ -1035,6 +1104,18 @@ const BookingForm: React.FC = () => {
                               </dd>
                             </div>
                           )}
+                          {priceBreakdown.extraGuestsAmount > 0 && (
+                            <div className="flex justify-between gap-3">
+                              <dt className="text-gray-600">
+                                Extra guests ({priceBreakdown.extraGuests} ×{' '}
+                                {formatRupee(priceBreakdown.extraGuestPricePerNight)} ×{' '}
+                                {priceBreakdown.nights} night{priceBreakdown.nights !== 1 ? 's' : ''})
+                              </dt>
+                              <dd className="font-medium text-gray-900 tabular-nums">
+                                {formatRupee(priceBreakdown.extraGuestsAmount)}
+                              </dd>
+                            </div>
+                          )}
                           <div className="border-t-2 border-blue-300 pt-2 flex justify-between items-center gap-3">
                             <dt className="text-base font-semibold text-gray-900">Total</dt>
                             <dd className="text-xl font-bold text-blue-600 tabular-nums">
@@ -1043,7 +1124,7 @@ const BookingForm: React.FC = () => {
                           </div>
                         </dl>
                         <p className="text-xs text-blue-700 mt-3">
-                          Flat rate for the entire villa on your selected dates.
+                          Base rate covers up to {includedCapacity} guests. Extra guests charged per night above that.
                         </p>
                       </div>
                     ) : villaLoading ? (
@@ -1179,10 +1260,16 @@ const BookingForm: React.FC = () => {
                           <span>Booking</span>
                           <span className="font-medium text-gray-900">Entire villa</span>
                         </li>
-                        {displayMaxGuests > 0 && (
+                        {includedCapacity > 0 && (
+                          <li className="flex justify-between gap-2">
+                            <span>Included guests</span>
+                            <span className="font-medium text-gray-900">{includedCapacity}</span>
+                          </li>
+                        )}
+                        {maxCapacity > 0 && (
                           <li className="flex justify-between gap-2">
                             <span>Max guests</span>
-                            <span className="font-medium text-gray-900">{displayMaxGuests} guests</span>
+                            <span className="font-medium text-gray-900">{maxCapacity}</span>
                           </li>
                         )}
                       </ul>

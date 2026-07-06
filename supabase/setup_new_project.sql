@@ -88,6 +88,7 @@ CREATE TABLE IF NOT EXISTS rooms (
   weekday_price_per_night NUMERIC(10, 2),
   weekend_price_per_night NUMERIC(10, 2),
   max_occupancy INTEGER DEFAULT 2,
+  included_capacity INTEGER DEFAULT 4,
   max_capacity INTEGER DEFAULT 4,
   quantity INTEGER DEFAULT 1 CHECK (quantity > 0),
   amenities TEXT[],

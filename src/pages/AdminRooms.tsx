@@ -13,15 +13,15 @@ const defaultVillaForm = () => ({
   description: '',
   weekday_price_per_night: '',
   weekend_price_per_night: '',
-  max_capacity: '4',
+  included_capacity: '4',
+  max_capacity: '12',
   amenities: '',
   images: getDefaultVillaImages(),
   video_url: '',
   is_active: true,
-  gst_percentage: '12',
   accommodation_details: '',
   floor: '',
-  extra_mattress_price: '200',
+  extra_guest_price: '200',
 });
 
 const AdminRooms: React.FC = () => {
@@ -191,6 +191,21 @@ const AdminRooms: React.FC = () => {
         newFieldErrors.weekend_price_per_night = true;
       }
 
+      const includedCapacityNum = parseInt(roomTypeForm.included_capacity, 10)
+      const maxCapacityNum = parseInt(roomTypeForm.max_capacity, 10)
+      if (!roomTypeForm.included_capacity.trim() || includedCapacityNum <= 0) {
+        errors.push('Included capacity is required')
+        newFieldErrors.included_capacity = true
+      }
+      if (!roomTypeForm.max_capacity.trim() || maxCapacityNum <= 0) {
+        errors.push('Max capacity is required')
+        newFieldErrors.max_capacity = true
+      }
+      if (includedCapacityNum > 0 && maxCapacityNum > 0 && maxCapacityNum < includedCapacityNum) {
+        errors.push('Max capacity must be greater than or equal to included capacity')
+        newFieldErrors.max_capacity = true
+      }
+
       // Quantity is always 1 for this single-villa website
 
       // Filter out empty image URLs and validate
@@ -219,24 +234,30 @@ const AdminRooms: React.FC = () => {
       const villaName = roomTypeForm.name.trim();
       const weekdayPrice = parseFloat(roomTypeForm.weekday_price_per_night);
       const weekendPrice = parseFloat(roomTypeForm.weekend_price_per_night);
+      const includedCapacity = parseInt(roomTypeForm.included_capacity, 10) || 4;
+      const maxCapacity = parseInt(roomTypeForm.max_capacity, 10) || includedCapacity;
+      const extraGuestPrice = roomTypeForm.extra_guest_price
+        ? parseFloat(roomTypeForm.extra_guest_price)
+        : 0;
       const roomData = {
         name: villaName,
         description: roomTypeForm.description.trim(),
         weekday_price_per_night: weekdayPrice,
         weekend_price_per_night: weekendPrice,
         price_per_night: weekdayPrice,
-        max_capacity: parseInt(roomTypeForm.max_capacity) || 4,
+        max_occupancy: includedCapacity,
+        max_capacity: maxCapacity,
         quantity: 1,
         amenities: roomTypeForm.amenities.split('\n').filter(item => item.trim()),
-        image_url: validImages[0], // Use first image as main image
-        images: validImages, // Store all images
-        video_url: roomTypeForm.video_url.trim() || undefined, // Add video URL
+        image_url: validImages[0],
+        images: validImages,
+        video_url: roomTypeForm.video_url.trim() || undefined,
         is_active: roomTypeForm.is_active,
-        is_available: true, // Set room as available when creating
-        gst_percentage: roomTypeForm.gst_percentage ? parseFloat(roomTypeForm.gst_percentage) : 12,
+        is_available: true,
         accommodation_details: roomTypeForm.accommodation_details.trim(),
         floor: roomTypeForm.floor ? parseInt(roomTypeForm.floor) : undefined,
-        extra_mattress_price: roomTypeForm.extra_mattress_price ? parseFloat(roomTypeForm.extra_mattress_price) : 200,
+        extra_guest_price: extraGuestPrice,
+        extra_mattress_price: extraGuestPrice,
         check_in_time: selectedRoomType?.check_in_time || '12:00 PM',
         check_out_time: selectedRoomType?.check_out_time || '10:00 AM',
         room_number: (selectedRoomType?.room_number || villaName).replace(/\s+/g, '-').toUpperCase(),
@@ -246,20 +267,29 @@ const AdminRooms: React.FC = () => {
         await api.updateRoom(selectedRoomType.id, roomData);
         toast.success('Villa updated successfully!');
       } else {
-        const result = await api.createRoom(roomData);
+        await api.createRoom(roomData);
         toast.success('Villa added successfully!');
+      }
+
+      try {
+        await api.updateVillaSettings({
+          capacity: String(includedCapacity),
+          max_capacity: String(maxCapacity),
+          extra_guest_price: String(extraGuestPrice),
+        })
+      } catch {
+        // Villa settings sync is optional if columns are missing on live DB
       }
 
       closeModal();
       await loadData();
     } catch (error) {
       console.error('Error saving room type:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      toast.error(`Failed to save villa: ${errorMessage}`);
-      // Show more detailed error in console for debugging
-      if (error && typeof error === 'object' && 'details' in error) {
-        console.error('Error details:', error);
-      }
+      const supabaseError = error as { message?: string; details?: string; hint?: string; code?: string };
+      const detail = [supabaseError.message, supabaseError.details, supabaseError.hint]
+        .filter(Boolean)
+        .join(' — ');
+      toast.error(detail ? `Failed to save villa: ${detail}` : 'Failed to save villa. Please try again.');
     }
   };
 
@@ -376,15 +406,19 @@ const AdminRooms: React.FC = () => {
           description: roomType.description || '',
           weekday_price_per_night: safeToString(roomType.weekday_price_per_night ?? roomType.price_per_night),
           weekend_price_per_night: safeToString(roomType.weekend_price_per_night ?? roomType.price_per_night),
-          max_capacity: safeToString(roomType.max_capacity || roomType.max_occupancy || 4),
+          included_capacity: safeToString(
+            roomType.included_capacity ?? roomType.max_occupancy ?? roomType.max_capacity ?? 4
+          ),
+          max_capacity: safeToString(roomType.max_capacity || roomType.max_occupancy || 12),
           amenities: Array.isArray(roomType.amenities) ? roomType.amenities.join('\n') : '',
           images: resolvedImages.length > 0 ? resolvedImages : getDefaultVillaImages(),
           video_url: roomType.video_url || '',
           is_active: roomType.is_active ?? true,
-          gst_percentage: safeToString(roomType.gst_percentage ?? 12),
           accommodation_details: roomType.accommodation_details || '',
           floor: safeToString(roomType.floor),
-          extra_mattress_price: safeToString(roomType.extra_mattress_price ?? 200),
+          extra_guest_price: safeToString(
+            roomType.extra_guest_price ?? roomType.extra_mattress_price ?? 200
+          ),
         });
       } else {
         setSelectedRoomType(null);
@@ -768,19 +802,19 @@ const AdminRooms: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Max Capacity *
+                        Capacity (included in base price) *
                       </label>
                       <input
                         type="number"
-                        name="max_capacity"
-                        value={roomTypeForm.max_capacity}
+                        name="included_capacity"
+                        value={roomTypeForm.included_capacity}
                         onChange={handleRoomTypeFormChange}
                         className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 text-gray-900 ${
-                          fieldErrors.max_capacity 
-                            ? 'border-red-300 focus:ring-red-500' 
+                          fieldErrors.included_capacity
+                            ? 'border-red-300 focus:ring-red-500'
                             : 'border-gray-300 focus:ring-blue-500'
                         }`}
                         placeholder="4"
@@ -788,10 +822,36 @@ const AdminRooms: React.FC = () => {
                         required
                         min="1"
                       />
+                      {fieldErrors.included_capacity && (
+                        <p className="mt-1 text-xs text-red-600">Included capacity is required</p>
+                      )}
+                      <p className="mt-1 text-xs text-gray-500">Guests covered by the base nightly rate</p>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Max capacity *
+                      </label>
+                      <input
+                        type="number"
+                        name="max_capacity"
+                        value={roomTypeForm.max_capacity}
+                        onChange={handleRoomTypeFormChange}
+                        className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 text-gray-900 ${
+                          fieldErrors.max_capacity
+                            ? 'border-red-300 focus:ring-red-500'
+                            : 'border-gray-300 focus:ring-blue-500'
+                        }`}
+                        placeholder="12"
+                        disabled={roomTypeModalMode === 'view'}
+                        required
+                        min="1"
+                      />
                       {fieldErrors.max_capacity && (
                         <p className="mt-1 text-xs text-red-600">Max capacity is required</p>
                       )}
-                      <p className="mt-1 text-xs text-gray-500">Maximum guests allowed</p>
+                      <p className="mt-1 text-xs text-gray-500">
+                        Maximum guests allowed (extra guest charges apply above included capacity)
+                      </p>
                     </div>
                   </div>
 
@@ -803,37 +863,19 @@ const AdminRooms: React.FC = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                          GST %
+                          Extra guest price
                         </label>
                         <input
                           type="number"
-                          name="gst_percentage"
-                          value={roomTypeForm.gst_percentage}
-                          onChange={handleRoomTypeFormChange}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
-                          placeholder="12"
-                          disabled={roomTypeModalMode === 'view'}
-                          min="0"
-                          max="100"
-                          step="0.01"
-                        />
-                        <p className="mt-1 text-xs text-gray-500">GST percentage (default: 12%)</p>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Extra Mattress Price
-                        </label>
-                        <input
-                          type="number"
-                          name="extra_mattress_price"
-                          value={roomTypeForm.extra_mattress_price}
+                          name="extra_guest_price"
+                          value={roomTypeForm.extra_guest_price}
                           onChange={handleRoomTypeFormChange}
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
                           placeholder="200"
                           disabled={roomTypeModalMode === 'view'}
                           min="0"
                         />
-                        <p className="mt-1 text-xs text-gray-500">Per mattress per night (default: ₹200)</p>
+                        <p className="mt-1 text-xs text-gray-500">Per extra guest per night (above included capacity)</p>
                       </div>
                     </div>
                   </div>
@@ -849,7 +891,7 @@ const AdminRooms: React.FC = () => {
                         onChange={handleRoomTypeFormChange}
                         rows={3}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
-                        placeholder="e.g., Accommodation: Extra Mattress for ₹200"
+                        placeholder="e.g., Extra guests above included capacity charged per night"
                         disabled={roomTypeModalMode === 'view'}
                       />
                     </div>
@@ -921,7 +963,7 @@ const AdminRooms: React.FC = () => {
                   {/* Image URL Fields */}
                   <div className="space-y-3">
                     <div className="text-sm text-gray-600 mb-2">
-                      Paste a direct image URL or a Google Drive share link. Drive files must be shared as &quot;Anyone with the link&quot;.
+                      Use site paths (e.g. /images/hero/photo.png), full https URLs, or Google Drive share links.
                     </div>
                     <div className="text-sm text-gray-600 mb-2">
                       {roomTypeForm.images.filter(img => img.trim()).length} valid image(s) ready to save
@@ -954,7 +996,7 @@ const AdminRooms: React.FC = () => {
                             )}
                           </div>
                           <input
-                            type="url"
+                            type="text"
                             value={image}
                             onChange={(e) => updateImage(index, e.target.value)}
                             className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 ${
@@ -964,7 +1006,7 @@ const AdminRooms: React.FC = () => {
                                 ? 'border-green-300 focus:ring-green-500'
                                 : 'border-gray-300'
                             }`}
-                            placeholder="https://example.com/image.jpg or Google Drive share link"
+                            placeholder="/images/hero/photo.png, https://…, or Google Drive link"
                             disabled={roomTypeModalMode === 'view'}
                           />
                           {image.trim() && !validateImageUrl(image) && (

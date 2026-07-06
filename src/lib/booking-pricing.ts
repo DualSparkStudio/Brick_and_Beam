@@ -5,7 +5,7 @@ import {
   type VillaPriceBreakdown,
 } from './villa-pricing'
 import type { VillaSettings } from './villa-settings'
-import { defaultVillaSettings, resolveVillaGuestLimits } from './villa-settings'
+import { defaultVillaSettings, resolveVillaGuestLimits, roomIncludedCapacity } from './villa-settings'
 
 export type BookingPriceBreakdown = VillaPriceBreakdown
 
@@ -39,6 +39,7 @@ export function resolveBookingPriceBreakdown(
     const nights = bookingNights(booking.check_in_date, booking.check_out_date)
     const capacity = booking.included_capacity ?? 0
     const villaLimits = resolveVillaGuestLimits(options?.villaSettings ?? defaultVillaSettings(), {
+      roomIncludedCapacity: roomIncludedCapacity(options?.room),
       roomMaxCapacity: options?.room?.max_capacity,
     })
     const extraGuests = booking.extra_guests ?? 0
@@ -71,12 +72,17 @@ export function resolveBookingPriceBreakdown(
   return calculateVillaBookingPrice({
     checkIn: booking.check_in_date,
     checkOut: booking.check_out_date,
+    numGuests: booking.num_guests,
     villaSettings,
     roomFallback: room
       ? {
           weekday_price_per_night: room.weekday_price_per_night,
           weekend_price_per_night: room.weekend_price_per_night,
           price_per_night: room.price_per_night,
+          included_capacity: roomIncludedCapacity(room),
+          max_capacity: room.max_capacity,
+          extra_guest_price: room.extra_guest_price,
+          extra_mattress_price: room.extra_mattress_price,
         }
       : undefined,
   })
