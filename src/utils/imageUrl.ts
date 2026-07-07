@@ -58,9 +58,7 @@ export function validateImageUrl(url: string): boolean {
   }
 }
 
-export function canUseWebpVariant(url: string): boolean {
-  return (
-    (url.startsWith('/') || url.startsWith('./')) &&
-    /\.(jpg|jpeg|png)$/i.test(url.split('?')[0])
-  )
+export function canUseWebpVariant(_url: string): boolean {
+  // Local gallery ships PNG/JPG only — skip .webp probes to avoid 404 noise in devtools.
+  return false
 }

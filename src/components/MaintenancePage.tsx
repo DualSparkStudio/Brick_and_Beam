@@ -1,4 +1,5 @@
 import React from 'react';
+import { INSTAGRAM_URL } from '../config/brand';
 import SEO from './SEO';
 
 const MaintenancePage: React.FC = () => {
@@ -77,7 +78,9 @@ const MaintenancePage: React.FC = () => {
               <span className="text-2xl">📘</span>
             </a>
             <a 
-              href="#" 
+              href={INSTAGRAM_URL}
+              target="_blank"
+              rel="noopener noreferrer"
               className="bg-white/20 hover:bg-white/30 rounded-full p-3 transition-all duration-300 transform hover:scale-110"
               aria-label="Instagram"
             >

@@ -8,7 +8,7 @@ import {
 } from '@heroicons/react/24/outline'
 import React, { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { PUBLIC_BOOK_CTA_HREF } from '../config/brand'
+import { INSTAGRAM_URL, PUBLIC_BOOK_CTA_HREF } from '../config/brand'
 import { useVilla } from '../contexts/VillaContext'
 import { api } from '../lib/supabase'
 import { LOGO_IMAGE } from '../config/galleryImages'
@@ -367,7 +367,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 <h5 className="text-sm font-semibold mb-3 text-golden-400">Follow Us</h5>
                 <div className="flex space-x-3">
                   <a
-                    href="https://www.instagram.com/river_breeze_homestay?igsh=M2dnbW0wZ2I3MnE3"
+                    href={INSTAGRAM_URL}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-9 h-9 border border-white/15 bg-white/10 hover:bg-pink-600 hover:border-pink-500 hover:text-white rounded-full flex items-center justify-center transition-colors duration-200 text-white/80"

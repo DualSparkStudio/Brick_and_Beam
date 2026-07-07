@@ -139,7 +139,7 @@ const Home: React.FC = () => {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
               {/* Left Side - Image */}
               <div className="relative">
-                <div className="relative h-[400px] sm:h-[500px] lg:h-[600px] rounded-2xl overflow-hidden">
+                <div className="relative h-[220px] sm:h-[380px] md:h-[500px] lg:h-[600px] rounded-2xl overflow-hidden">
                   <img
                     src={ABOUT_IMAGES.main}
                     alt="Brick and Beam villa exterior with pool"

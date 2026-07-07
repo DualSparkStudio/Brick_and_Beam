@@ -121,59 +121,84 @@ const VillaBookingShowcase: React.FC<VillaBookingShowcaseProps> = ({ room, loadi
       <div className="pointer-events-none absolute -left-32 top-0 h-96 w-96 rounded-full bg-golden-500/10 blur-3xl" />
       <div className="pointer-events-none absolute -right-24 bottom-0 h-80 w-80 rounded-full bg-dark-blue-500/30 blur-3xl" />
 
-      <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-24">
+      <div className="relative mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-16 lg:px-8 lg:py-24">
         <div className="grid items-start gap-10 lg:grid-cols-12 lg:gap-14">
           {/* Visual column */}
-          <motion.div {...fadeUp(0)} className="relative space-y-4 lg:col-span-6 xl:col-span-7">
-            <div className="relative overflow-hidden rounded-3xl shadow-2xl shadow-black/40">
-              <div className="aspect-[4/5] sm:aspect-[5/4] lg:aspect-[4/5] xl:aspect-[16/11]">
-                <img
-                  src={heroImage}
-                  alt={room.name}
-                  className="h-full w-full object-cover"
-                  loading="lazy"
-                  onError={() => {
-                    const fallback = getDefaultVillaImages()
-                    const next = images[activeImageIndex + 1] ?? fallback[0]
-                    if (next && next !== heroImage) {
-                      setActiveImageIndex((prev) => prev + 1)
-                    }
-                  }}
-                />
-              </div>
-              <div className="absolute inset-0 bg-gradient-to-t from-dark-blue-900/90 via-dark-blue-900/20 to-transparent" />
+          <motion.div {...fadeUp(0)} className="relative space-y-3 sm:space-y-4 lg:col-span-6 xl:col-span-7">
+            <div className="relative overflow-hidden rounded-2xl shadow-2xl shadow-black/40 sm:rounded-3xl">
+              <div className="relative">
+                <div className="aspect-[3/2] sm:aspect-[5/4] lg:aspect-[4/5] xl:aspect-[16/11]">
+                  <img
+                    src={heroImage}
+                    alt={room.name}
+                    className="h-full w-full object-cover"
+                    loading="lazy"
+                    onError={() => {
+                      const fallback = getDefaultVillaImages()
+                      const next = images[activeImageIndex + 1] ?? fallback[0]
+                      if (next && next !== heroImage) {
+                        setActiveImageIndex((prev) => prev + 1)
+                      }
+                    }}
+                  />
+                </div>
+                <div className="absolute inset-0 bg-gradient-to-t from-dark-blue-900/90 via-dark-blue-900/20 to-transparent" />
 
-              <div className="absolute left-4 top-4 flex flex-wrap gap-2 sm:left-6 sm:top-6">
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-md sm:text-sm">
-                  <SparklesIcon className="h-4 w-4 text-golden-400" />
-                  Private 4BHK
-                </span>
-                <span className="rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-md sm:text-sm">
-                  Valley views
-                </span>
+                <div className="absolute left-3 top-3 flex flex-wrap gap-1.5 sm:left-6 sm:top-6 sm:gap-2">
+                  <span className="inline-flex items-center gap-1 rounded-full border border-white/20 bg-white/10 px-2 py-1 text-[10px] font-medium text-white backdrop-blur-md sm:gap-1.5 sm:px-3 sm:py-1.5 sm:text-sm">
+                    <SparklesIcon className="h-3.5 w-3.5 text-golden-400 sm:h-4 sm:w-4" />
+                    Private 4BHK
+                  </span>
+                  <span className="rounded-full border border-white/20 bg-white/10 px-2 py-1 text-[10px] font-medium text-white backdrop-blur-md sm:px-3 sm:py-1.5 sm:text-sm">
+                    Valley views
+                  </span>
+                </div>
+
+                {/* Desktop/tablet thumbnails — overlaid */}
+                {thumbnailImages.length > 0 && (
+                  <div className="absolute bottom-5 right-5 hidden gap-2 sm:flex sm:bottom-6 sm:right-6">
+                    {thumbnailImages.map((img) => (
+                      <button
+                        key={img}
+                        type="button"
+                        onClick={() => setActiveImageIndex(images.indexOf(img))}
+                        className="h-14 w-14 overflow-hidden rounded-xl border-2 border-white/30 shadow-lg transition-transform hover:scale-105 sm:h-16 sm:w-16"
+                      >
+                        <img src={img} alt="" className="h-full w-full object-cover" loading="lazy" />
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                <div
+                  className={`absolute bottom-0 left-0 right-0 p-4 sm:p-7 ${
+                    thumbnailImages.length > 0 ? 'sm:pr-56' : ''
+                  }`}
+                >
+                  <p className="mb-0.5 text-[10px] font-medium uppercase tracking-[0.2em] text-golden-400 sm:mb-1 sm:text-xs sm:tracking-[0.25em]">
+                    Brick &amp; Beam
+                  </p>
+                  <h3 className="font-serif text-lg font-bold leading-tight text-white sm:text-2xl md:text-3xl">
+                    {room.name}
+                  </h3>
+                </div>
               </div>
 
+              {/* Mobile thumbnails — below image to avoid overlap */}
               {thumbnailImages.length > 0 && (
-                <div className="absolute bottom-4 right-4 flex gap-2 sm:bottom-6 sm:right-6">
+                <div className="flex gap-2 border-t border-white/10 bg-dark-blue-900/70 p-2.5 backdrop-blur-sm sm:hidden">
                   {thumbnailImages.map((img) => (
                     <button
                       key={img}
                       type="button"
                       onClick={() => setActiveImageIndex(images.indexOf(img))}
-                      className="h-14 w-14 overflow-hidden rounded-xl border-2 border-white/30 shadow-lg transition-transform hover:scale-105 sm:h-16 sm:w-16"
+                      className="h-12 w-12 flex-1 overflow-hidden rounded-lg border border-white/30 shadow-md"
                     >
                       <img src={img} alt="" className="h-full w-full object-cover" loading="lazy" />
                     </button>
                   ))}
                 </div>
               )}
-
-              <div className="absolute bottom-0 left-0 right-0 p-5 sm:p-7">
-                <p className="mb-1 text-xs font-medium uppercase tracking-[0.25em] text-golden-400">
-                  Brick &amp; Beam
-                </p>
-                <h3 className="font-serif text-2xl font-bold text-white sm:text-3xl">{room.name}</h3>
-              </div>
             </div>
 
             {/* Booking journey — directly below image */}

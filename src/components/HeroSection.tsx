@@ -15,9 +15,54 @@ const fadeUp = (delay = 0) => ({
   transition: { duration: 0.8, delay, ease: [0.22, 1, 0.36, 1] },
 })
 
+const HeroImageCollage = ({ className = '' }: { className?: string }) => (
+  <div className={`relative w-full ${className}`}>
+    <motion.div
+      initial={{ opacity: 0, x: 40, y: 20 }}
+      animate={{ opacity: 1, x: 0, y: 0 }}
+      transition={{ duration: 0.9, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
+      className="absolute right-0 top-0 h-[68%] w-[58%] overflow-hidden rounded-2xl border border-white/20 shadow-2xl shadow-black/40 sm:rounded-3xl"
+    >
+      <img
+        src={HERO_IMAGES.main}
+        alt="Resort front view"
+        className="h-full w-full object-cover transition-transform duration-700 hover:scale-105"
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-dark-blue-900/40 to-transparent" />
+    </motion.div>
+
+    <motion.div
+      initial={{ opacity: 0, x: -30, y: 30 }}
+      animate={{ opacity: 1, x: 0, y: 0 }}
+      transition={{ duration: 0.9, delay: 0.55, ease: [0.22, 1, 0.36, 1] }}
+      className="absolute bottom-6 left-0 h-[48%] w-[52%] overflow-hidden rounded-2xl border-2 border-white/30 shadow-2xl shadow-black/40 sm:bottom-8 sm:rounded-3xl"
+    >
+      <img
+        src={HERO_IMAGES.pool}
+        alt="Resort pool area"
+        className="h-full w-full object-cover transition-transform duration-700 hover:scale-105"
+      />
+    </motion.div>
+
+    <motion.div
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.8, delay: 0.7, ease: [0.22, 1, 0.36, 1] }}
+      className="absolute bottom-0 right-[8%] h-[38%] w-[42%] overflow-hidden rounded-xl border border-golden-500/40 shadow-xl shadow-golden-500/10 sm:rounded-2xl"
+    >
+      <img
+        src={HERO_IMAGES.night}
+        alt="Resort at night"
+        className="h-full w-full object-cover transition-transform duration-700 hover:scale-105"
+      />
+      <div className="absolute inset-0 bg-gradient-to-br from-golden-500/10 to-transparent" />
+    </motion.div>
+  </div>
+)
+
 const HeroSection = () => {
   return (
-    <section className="relative min-h-[92vh] sm:min-h-screen overflow-hidden bg-dark-blue-900">
+    <section className="relative overflow-hidden bg-dark-blue-900 lg:min-h-screen">
       {/* Cinematic background */}
       <div className="absolute inset-0">
         <motion.img
@@ -37,45 +82,45 @@ const HeroSection = () => {
       <div className="pointer-events-none absolute -right-24 top-1/4 h-72 w-72 rounded-full bg-golden-500/10 blur-3xl" />
       <div className="pointer-events-none absolute -left-16 bottom-1/4 h-56 w-56 rounded-full bg-dark-blue-500/20 blur-3xl" />
 
-      <div className="relative z-10 mx-auto flex min-h-[92vh] sm:min-h-screen max-w-7xl flex-col px-4 pb-8 pt-28 sm:px-6 sm:pb-12 sm:pt-32 lg:px-8">
-        <div className="grid flex-1 items-center gap-10 lg:grid-cols-12 lg:gap-8">
+      <div className="relative z-10 mx-auto max-w-7xl px-3 pb-5 pt-[5.25rem] sm:px-6 sm:pb-8 sm:pt-28 lg:flex lg:min-h-screen lg:flex-col lg:px-8 lg:pb-12 lg:pt-32">
+        <div className="grid grid-cols-12 items-start gap-2 sm:items-center sm:gap-5 md:gap-6 lg:flex-1 lg:gap-8">
           {/* Copy */}
-          <div className="lg:col-span-7 xl:col-span-6">
+          <div className="col-span-7 min-w-0 xl:col-span-6">
             <motion.div
               {...fadeUp(0.1)}
-              className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-sm text-white/90 backdrop-blur-md"
+              className="mb-2 inline-flex max-w-full flex-wrap items-center gap-1 rounded-full border border-white/15 bg-white/10 px-2 py-1 text-[9px] text-white/90 backdrop-blur-md sm:mb-5 sm:gap-2 sm:px-4 sm:py-2 sm:text-sm"
             >
-              <MapPinIcon className="h-4 w-4 text-golden-400" />
+              <MapPinIcon className="h-3 w-3 shrink-0 text-golden-400 sm:h-4 sm:w-4" />
               <span>Bhilar, Mahabaleshwar</span>
-              <span className="h-1 w-1 rounded-full bg-golden-400/80" />
-              <span className="text-golden-300">Hill Station Retreat</span>
+              <span className="hidden h-1 w-1 rounded-full bg-golden-400/80 sm:inline-block" />
+              <span className="hidden text-golden-300 sm:inline">Hill Station Retreat</span>
             </motion.div>
 
             <motion.p
               {...fadeUp(0.2)}
-              className="mb-4 text-xs font-medium uppercase tracking-[0.35em] text-golden-400 sm:text-sm"
+              className="mb-1.5 text-[9px] font-medium uppercase tracking-[0.2em] text-golden-400 sm:mb-3 sm:text-xs sm:tracking-[0.35em] md:text-sm"
             >
               Welcome to paradise
             </motion.p>
 
             <motion.h1
               {...fadeUp(0.3)}
-              className="font-serif text-4xl font-bold leading-[1.05] tracking-tight text-white sm:text-5xl md:text-6xl xl:text-7xl"
+              className="font-serif text-[1.45rem] font-bold leading-[1.05] tracking-tight text-white sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl"
             >
               Escape to
-              <span className="mt-2 block bg-gradient-to-r from-golden-200 via-golden-400 to-golden-600 bg-clip-text text-transparent">
+              <span className="mt-0.5 block bg-gradient-to-r from-golden-200 via-golden-400 to-golden-600 bg-clip-text text-transparent sm:mt-2">
                 timeless luxury
               </span>
             </motion.h1>
 
             <motion.div
               {...fadeUp(0.35)}
-              className="my-6 h-px w-16 bg-gradient-to-r from-golden-400 to-transparent sm:my-8 sm:w-24"
+              className="my-2 h-px w-8 bg-gradient-to-r from-golden-400 to-transparent sm:my-5 sm:w-16 md:my-8 md:w-24"
             />
 
             <motion.p
               {...fadeUp(0.45)}
-              className="max-w-xl text-base leading-relaxed text-white/75 sm:text-lg"
+              className="hidden max-w-xl text-sm leading-relaxed text-white/75 sm:block md:text-base lg:text-lg"
             >
               Nestled in the Western Ghats, our 4BHK villa blends serene nature with
               refined comfort — private spaces, warm hospitality, and views that
@@ -84,27 +129,29 @@ const HeroSection = () => {
 
             <motion.div
               {...fadeUp(0.55)}
-              className="mt-8 flex flex-col gap-3 sm:mt-10 sm:flex-row sm:items-center sm:gap-4"
+              className="mt-3 flex flex-nowrap items-center gap-1 sm:mt-6 sm:gap-3 md:mt-8 lg:mt-10"
             >
               <Link
                 to={PUBLIC_BOOK_CTA_HREF}
-                className="group inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-golden-500 to-golden-600 px-8 py-4 text-sm font-semibold text-dark-blue-900 shadow-lg shadow-golden-500/25 transition-all duration-300 hover:-translate-y-0.5 hover:from-golden-400 hover:to-golden-500 hover:shadow-xl hover:shadow-golden-500/30 sm:text-base"
+                className="group flex min-w-0 flex-1 items-center justify-center gap-0.5 rounded-full bg-gradient-to-r from-golden-500 to-golden-600 px-1.5 py-1 text-[9px] font-semibold leading-none text-dark-blue-900 shadow-md shadow-golden-500/20 transition-all duration-300 hover:-translate-y-0.5 hover:from-golden-400 hover:to-golden-500 sm:flex-none sm:gap-2 sm:px-6 sm:py-3.5 sm:text-sm sm:leading-tight sm:shadow-lg md:px-8 md:py-4 md:text-base"
               >
-                Book Your Stay
-                <ArrowRightIcon className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+                <span className="truncate sm:hidden">Book Now</span>
+                <span className="hidden sm:inline">Book Your Stay</span>
+                <ArrowRightIcon className="hidden h-4 w-4 shrink-0 transition-transform group-hover:translate-x-1 sm:block md:h-5 md:w-5" />
               </Link>
               <Link
                 to="/gallery"
-                className="inline-flex items-center justify-center gap-2 rounded-full border border-white/25 bg-white/10 px-8 py-4 text-sm font-semibold text-white backdrop-blur-md transition-all duration-300 hover:border-white/40 hover:bg-white/15 sm:text-base"
+                className="flex min-w-0 flex-1 items-center justify-center rounded-full border border-white/25 bg-white/10 px-1.5 py-1 text-[9px] font-semibold leading-none text-white backdrop-blur-md transition-all duration-300 hover:border-white/40 hover:bg-white/15 sm:flex-none sm:px-6 sm:py-3.5 sm:text-sm sm:leading-tight md:px-8 md:py-4 md:text-base"
               >
-                View Gallery
+                <span className="truncate sm:hidden">Gallery</span>
+                <span className="hidden sm:inline">View Gallery</span>
               </Link>
             </motion.div>
 
-            {/* Trust stats */}
+            {/* Trust stats — desktop/tablet only to keep mobile compact */}
             <motion.div
               {...fadeUp(0.65)}
-              className="mt-10 grid grid-cols-2 gap-3 sm:mt-12 sm:gap-4"
+              className="mt-8 hidden grid-cols-2 gap-3 sm:mt-10 sm:grid md:gap-4 lg:mt-12"
             >
               {[
                 { icon: SparklesIcon, label: 'Premium Villas', value: 'Curated Stay' },
@@ -112,89 +159,28 @@ const HeroSection = () => {
               ].map(({ icon: Icon, label, value }) => (
                 <div
                   key={label}
-                  className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-sm transition-colors hover:border-golden-500/30 hover:bg-white/10"
+                  className="rounded-2xl border border-white/10 bg-white/5 p-3 backdrop-blur-sm transition-colors hover:border-golden-500/30 hover:bg-white/10 md:p-4"
                 >
                   <Icon className="mb-2 h-5 w-5 text-golden-400" />
                   <p className="text-xs uppercase tracking-wider text-white/50">{label}</p>
-                  <p className="mt-1 text-sm font-semibold text-white sm:text-base">{value}</p>
+                  <p className="mt-1 text-sm font-semibold text-white md:text-base">{value}</p>
                 </div>
               ))}
             </motion.div>
           </div>
 
-          {/* Bento image collage — desktop */}
-          <div className="hidden lg:col-span-5 lg:col-start-8 xl:col-span-6 xl:col-start-7 lg:block">
-            <div className="relative h-[520px] xl:h-[580px]">
-              <motion.div
-                initial={{ opacity: 0, x: 40, y: 20 }}
-                animate={{ opacity: 1, x: 0, y: 0 }}
-                transition={{ duration: 0.9, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                className="absolute right-0 top-0 h-[68%] w-[58%] overflow-hidden rounded-3xl border border-white/20 shadow-2xl shadow-black/40"
-              >
-                <img
-                  src={HERO_IMAGES.main}
-                  alt="Resort front view"
-                  className="h-full w-full object-cover transition-transform duration-700 hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-dark-blue-900/40 to-transparent" />
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, x: -30, y: 30 }}
-                animate={{ opacity: 1, x: 0, y: 0 }}
-                transition={{ duration: 0.9, delay: 0.55, ease: [0.22, 1, 0.36, 1] }}
-                className="absolute bottom-8 left-0 h-[48%] w-[52%] overflow-hidden rounded-3xl border-2 border-white/30 shadow-2xl shadow-black/40"
-              >
-                <img
-                  src={HERO_IMAGES.pool}
-                  alt="Resort pool area"
-                  className="h-full w-full object-cover transition-transform duration-700 hover:scale-105"
-                />
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.8, delay: 0.7, ease: [0.22, 1, 0.36, 1] }}
-                className="absolute bottom-0 right-[8%] h-[38%] w-[42%] overflow-hidden rounded-2xl border border-golden-500/40 shadow-xl shadow-golden-500/10"
-              >
-                <img
-                  src={HERO_IMAGES.night}
-                  alt="Resort at night"
-                  className="h-full w-full object-cover transition-transform duration-700 hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-br from-golden-500/10 to-transparent" />
-              </motion.div>
-            </div>
+          {/* Bento collage — height tracks the hero row on mobile */}
+          <div className="col-span-5 min-w-0 xl:col-span-6 xl:col-start-7">
+            <HeroImageCollage className="h-[11.5rem] sm:h-[300px] md:h-[400px] lg:h-[520px] xl:h-[580px]" />
           </div>
         </div>
 
-        {/* Mobile image strip */}
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.6 }}
-          className="mt-8 flex gap-3 overflow-x-auto pb-2 scrollbar-hide lg:hidden"
-          data-lenis-prevent
-        >
-          {[HERO_IMAGES.main, HERO_IMAGES.pool, HERO_IMAGES.night].map((src, i) => (
-            <div
-              key={src}
-              className={`relative flex-shrink-0 overflow-hidden rounded-2xl border border-white/15 shadow-lg ${
-                i === 1 ? 'h-28 w-36' : 'h-24 w-28'
-              }`}
-            >
-              <img src={src} alt="" className="h-full w-full object-cover" />
-            </div>
-          ))}
-        </motion.div>
-
-        {/* Scroll hint */}
+        {/* Scroll hint — desktop only */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1.2, duration: 0.8 }}
-          className="mt-auto flex justify-center pt-6 sm:pt-8"
+          className="mt-4 hidden justify-center lg:mt-auto lg:flex lg:pt-8"
         >
           <motion.div
             animate={{ y: [0, 8, 0] }}
