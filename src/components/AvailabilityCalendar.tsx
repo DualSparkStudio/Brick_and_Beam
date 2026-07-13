@@ -489,59 +489,70 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
     return `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
   }
 
+  // Parse YYYY-MM-DD as local midnight (avoid UTC shift from Date('YYYY-MM-DD'))
+  const parseLocalDate = (dateStr: string) => {
+    const [year, month, day] = dateStr.split('-').map(Number)
+    return new Date(year, month - 1, day)
+  }
+
   // Helper function to check if date is blocked
+  // Blocked ranges are half-open [start, end) — end day is free (same as booking checkout)
   const isDateBlocked = (dateStr: string) => {
-    const result = calendarData.some(event => {
-      if (event.extendedProps?.type === 'blocked') {
-        const startDate = new Date(event.start)
-        const endDate = new Date(event.end)
-        const checkDate = new Date(dateStr)
-        
-        // For blocked dates, include the end date
-        const isBlocked = checkDate >= startDate && checkDate < endDate
-        if (isBlocked) {
-        }
-        return isBlocked
-      }
-      return false
+    const checkDate = parseLocalDate(dateStr)
+    return calendarData.some(event => {
+      if (event.extendedProps?.type !== 'blocked') return false
+      const startDate = parseLocalDate(event.start)
+      const endDate = parseLocalDate(event.end)
+      return checkDate >= startDate && checkDate < endDate
     })
-    return result
   }
 
   // Helper function to check if date is fully booked (all rooms booked)
+  // Booking ranges are half-open [check-in, check-out) — checkout day is free for next stay
   const isDateBooked = (dateStr: string) => {
-    // If roomQuantity not loaded yet, default to 1
     const quantity = roomQuantity || 1
-    
-    // Count how many bookings overlap with this date
+    const checkDate = parseLocalDate(dateStr)
+
     const bookingsOnDate = calendarData.filter(event => {
-      if (event.extendedProps?.type === 'booking') {
-        const startDate = new Date(event.start)
-        const endDate = new Date(event.end)
-        const checkDate = new Date(dateStr)
-        
-        // For bookings, exclude the checkout date
-        const isBooked = checkDate >= startDate && checkDate < endDate
-        return isBooked
-      }
-      return false
+      if (event.extendedProps?.type !== 'booking') return false
+      const startDate = parseLocalDate(event.start)
+      const endDate = parseLocalDate(event.end)
+      return checkDate >= startDate && checkDate < endDate
     })
-    
-    // Date is only "booked" (blocked) if number of bookings >= room quantity
-    const isFullyBooked = bookingsOnDate.length >= quantity
-    
-    return isFullyBooked
+
+    return bookingsOnDate.length >= quantity
+  }
+
+  const isNightUnavailable = (dateStr: string) =>
+    isDateBlocked(dateStr) || isDateBooked(dateStr)
+
+  // Stay nights are [checkIn, checkOut). Checkout day itself may be booked/blocked
+  // (same-day turnover: previous guest leaves morning, next arrives afternoon).
+  const hasUnavailableNightsInStay = (checkIn: string, checkOut: string) => {
+    const current = parseLocalDate(checkIn)
+    const end = parseLocalDate(checkOut)
+
+    while (current < end) {
+      const dateStr = formatDate(
+        current.getFullYear(),
+        current.getMonth(),
+        current.getDate()
+      )
+      if (isNightUnavailable(dateStr)) return true
+      current.setDate(current.getDate() + 1)
+    }
+    return false
   }
 
   // Helper function to check if date is selected
   const isDateSelected = (dateStr: string) => {
     if (!selectedStartDate) return false
     if (!selectedEndDate) return dateStr === selectedStartDate
-    
-    const startDate = new Date(selectedStartDate)
-    const endDate = new Date(selectedEndDate)
-    const checkDate = new Date(dateStr)
-    
+
+    const startDate = parseLocalDate(selectedStartDate)
+    const endDate = parseLocalDate(selectedEndDate)
+    const checkDate = parseLocalDate(dateStr)
+
     return checkDate >= startDate && checkDate <= endDate
   }
 
@@ -549,37 +560,51 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
   const isDateInPast = (dateStr: string) => {
     const today = new Date()
     today.setHours(0, 0, 0, 0)
-    const checkDate = new Date(dateStr)
+    const checkDate = parseLocalDate(dateStr)
     return checkDate < today
   }
+
+  // Selecting check-out: allow booked/blocked days (boundary overlap / same-day turnover)
+  const isSelectingCheckout = Boolean(selectedStartDate && !selectedEndDate)
 
   // Handle date click
   const handleDateClick = (day: number) => {
     const dateStr = formatDate(currentYear, currentMonth, day)
-    
-    if (isDateInPast(dateStr) || isDateBlocked(dateStr) || isDateBooked(dateStr)) {
-      return // Don't allow selection of past, blocked, or booked dates
+
+    if (isDateInPast(dateStr)) return
+
+    // New check-in (or reset): night must be free
+    if (!selectedStartDate || selectedEndDate) {
+      if (isNightUnavailable(dateStr)) return
+      onDateSelect?.(dateStr, '')
+      return
     }
 
-    if (!selectedStartDate) {
-      // First date selection
-      onDateSelect?.(dateStr, '')
-    } else if (!selectedEndDate) {
-      // Second date selection
-              const startDate = new Date(selectedStartDate)
-      const endDate = new Date(dateStr)
-      
-      if (endDate < startDate) {
-        // If end date is before start date, make it the new start date
-        onDateSelect?.(dateStr, '')
-      } else {
-        // Set the end date
-        onDateSelect?.(selectedStartDate, dateStr)
-      }
-    } else {
-      // Reset selection
-      onDateSelect?.(dateStr, '')
+    // Selecting check-out
+    const startDate = parseLocalDate(selectedStartDate)
+    const endDate = parseLocalDate(dateStr)
+
+    if (endDate.getTime() === startDate.getTime()) {
+      onDateSelect?.('', '')
+      return
     }
+
+    if (endDate < startDate) {
+      // Clicked before check-in — treat as new check-in
+      if (isNightUnavailable(dateStr)) return
+      onDateSelect?.(dateStr, '')
+      return
+    }
+
+    // Checkout day may be booked/blocked; nights between must be free
+    if (hasUnavailableNightsInStay(selectedStartDate, dateStr)) {
+      toast.error(
+        'Cannot book this range because some nights in between are booked or blocked. Please choose different dates.'
+      )
+      return
+    }
+
+    onDateSelect?.(selectedStartDate, dateStr)
   }
 
   // Navigation functions - Atomic updates
@@ -605,7 +630,7 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
   const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
   return (
-    <div className="calendar">
+    <div className={`calendar${isSelectingCheckout ? ' selecting-checkout' : ''}`}>
       <style>{`
         .calendar {
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -708,6 +733,12 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
           color: #9ca3af;
           cursor: not-allowed;
         }
+
+        /* While picking check-out, booked/blocked days are allowed (same-day turnover) */
+        .calendar.selecting-checkout .calendar-day.blocked:not(.past),
+        .calendar.selecting-checkout .calendar-day.booked:not(.past) {
+          cursor: pointer;
+        }
         
         .calendar-day.selected {
           background: #222;
@@ -733,6 +764,11 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
         
         .calendar-day:hover:not(.past):not(.blocked):not(.booked):not(.empty) {
           background: #f3f4f6;
+        }
+
+        .calendar.selecting-checkout .calendar-day.blocked:not(.past):hover,
+        .calendar.selecting-checkout .calendar-day.booked:not(.past):hover {
+          background: #e5e7eb;
         }
         
         .calendar-day.today {
@@ -872,7 +908,7 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
               onMouseEnter={() => setHoveredDate(dateStr)}
               onMouseLeave={() => setHoveredDate(null)}
             >
-              {isBlocked || isBooked ? (
+              {((isBlocked || isBooked) && !isSelected) ? (
                 <div className="blocked-date">
                   <div className="number">{day}</div>
                   <div className="dash">—</div>

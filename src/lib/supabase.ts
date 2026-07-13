@@ -465,19 +465,12 @@ export const api = {
 
 
     // Manually check for conflicts with more precise logic
+    // Stay nights are half-open [checkIn, checkOut): checkout may fall on another booking's check-in
     const conflictingBookings = websiteBookings?.filter(booking => {
       const bookingStart = normalizeDate(booking.check_in_date)
       const bookingEnd = normalizeDate(booking.check_out_date)
 
-      // Check for overlap: if the booking overlaps with the requested dates
-      const hasOverlap = (
-        (bookingStart <= checkInDate && bookingEnd > checkInDate) || // Booking starts before check-in and ends after check-in
-        (bookingStart < checkOutDate && bookingEnd >= checkOutDate) || // Booking starts before check-out and ends after check-out
-        (bookingStart >= checkInDate && bookingEnd <= checkOutDate) || // Booking is completely within requested dates
-        (checkInDate >= bookingStart && checkOutDate <= bookingEnd)   // Requested dates are completely within booking
-      )
-
-      return hasOverlap
+      return bookingStart < checkOutDate && checkInDate < bookingEnd
     }) || []
 
 
@@ -500,22 +493,12 @@ export const api = {
       throw blockedError
     }
 
-    // Check if any blocked date overlaps with the requested dates
-    // IMPORTANT: We need to check if ANY day in the check-in to check-out range is blocked
+    // Half-open [start, end): checkout on a blocked start day is allowed (same-day turnover)
     const conflictingBlockedDates = blockedDates?.filter(blocked => {
       const blockedStart = normalizeDate(blocked.start_date)
       const blockedEnd = normalizeDate(blocked.end_date)
 
-      // Check for overlap: if ANY day in the requested range falls within a blocked period
-      // A date is blocked if: checkInDate <= blockedDate < blockedEnd
-      const hasOverlap = (
-        (blockedStart <= checkInDate && blockedEnd > checkInDate) || // Blocked period includes check-in date
-        (blockedStart < checkOutDate && blockedEnd >= checkOutDate) || // Blocked period includes check-out date
-        (blockedStart >= checkInDate && blockedStart < checkOutDate) || // Blocked period starts within requested dates
-        (checkInDate >= blockedStart && checkInDate < blockedEnd)   // Check-in date falls within blocked period
-      )
-
-      return hasOverlap
+      return blockedStart < checkOutDate && checkInDate < blockedEnd
     }) || []
 
     // If there are conflicting blocked dates, return unavailable
@@ -819,19 +802,16 @@ export const api = {
       }
 
       // Count how many bookings overlap with the requested dates
-      const checkInDate = new Date(checkIn)
-      const checkOutDate = new Date(checkOut)
+      // Stay nights are half-open [checkIn, checkOut): checkout may equal another booking's check-in
+      const normalizeDate = (dateStr: string) => new Date(dateStr + 'T00:00:00')
+      const checkInDate = normalizeDate(checkIn)
+      const checkOutDate = normalizeDate(checkOut)
       
       const overlappingBookings = bookings?.filter(booking => {
-        const bookingStart = new Date(booking.check_in_date)
-        const bookingEnd = new Date(booking.check_out_date)
+        const bookingStart = normalizeDate(booking.check_in_date)
+        const bookingEnd = normalizeDate(booking.check_out_date)
         
-        // Check for overlap
-        return (
-          (bookingStart <= checkInDate && bookingEnd > checkInDate) ||
-          (bookingStart < checkOutDate && bookingEnd >= checkOutDate) ||
-          (bookingStart >= checkInDate && bookingEnd <= checkOutDate)
-        )
+        return bookingStart < checkOutDate && checkInDate < bookingEnd
       }) || []
 
       // Get blocked dates
@@ -845,14 +825,10 @@ export const api = {
       }
 
       const overlappingBlockedDates = blockedDates?.filter(blocked => {
-        const blockedStart = new Date(blocked.start_date)
-        const blockedEnd = new Date(blocked.end_date)
+        const blockedStart = normalizeDate(blocked.start_date)
+        const blockedEnd = normalizeDate(blocked.end_date)
         
-        return (
-          (blockedStart <= checkInDate && blockedEnd > checkInDate) ||
-          (blockedStart < checkOutDate && blockedEnd >= checkOutDate) ||
-          (blockedStart >= checkInDate && blockedEnd <= checkOutDate)
-        )
+        return blockedStart < checkOutDate && checkInDate < blockedEnd
       }) || []
 
       // Calculate available rooms
