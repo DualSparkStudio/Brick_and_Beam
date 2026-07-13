@@ -82,13 +82,13 @@ const HeroSection = () => {
       <div className="pointer-events-none absolute -right-24 top-1/4 h-72 w-72 rounded-full bg-golden-500/10 blur-3xl" />
       <div className="pointer-events-none absolute -left-16 bottom-1/4 h-56 w-56 rounded-full bg-dark-blue-500/20 blur-3xl" />
 
-      <div className="relative z-10 mx-auto max-w-7xl px-3 pb-5 pt-[5.25rem] sm:px-6 sm:pb-8 sm:pt-28 lg:flex lg:min-h-screen lg:flex-col lg:px-8 lg:pb-12 lg:pt-32">
-        <div className="grid grid-cols-12 items-start gap-2 sm:items-center sm:gap-5 md:gap-6 lg:flex-1 lg:gap-8">
+      <div className="relative z-10 mx-auto max-w-7xl px-3 pb-7 pt-[5.25rem] sm:px-6 sm:pb-8 sm:pt-28 lg:flex lg:min-h-screen lg:flex-col lg:px-8 lg:pb-12 lg:pt-32">
+        <div className="grid grid-cols-12 items-center gap-2.5 sm:gap-5 md:gap-6 lg:flex-1 lg:gap-8">
           {/* Copy */}
           <div className="col-span-7 min-w-0 xl:col-span-6">
             <motion.div
               {...fadeUp(0.1)}
-              className="mb-2 inline-flex max-w-full flex-wrap items-center gap-1 rounded-full border border-white/15 bg-white/10 px-2 py-1 text-[9px] text-white/90 backdrop-blur-md sm:mb-5 sm:gap-2 sm:px-4 sm:py-2 sm:text-sm"
+              className="mb-2.5 inline-flex max-w-full flex-wrap items-center gap-1 rounded-full border border-white/15 bg-white/10 px-2 py-1 text-[9px] text-white/90 backdrop-blur-md sm:mb-5 sm:gap-2 sm:px-4 sm:py-2 sm:text-sm"
             >
               <MapPinIcon className="h-3 w-3 shrink-0 text-golden-400 sm:h-4 sm:w-4" />
               <span>Bhilar, Mahabaleshwar</span>
@@ -105,7 +105,7 @@ const HeroSection = () => {
 
             <motion.h1
               {...fadeUp(0.3)}
-              className="font-serif text-[1.45rem] font-bold leading-[1.05] tracking-tight text-white sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl"
+              className="font-serif text-[1.55rem] font-bold leading-[1.06] tracking-tight text-white sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl"
             >
               Escape to
               <span className="mt-0.5 block bg-gradient-to-r from-golden-200 via-golden-400 to-golden-600 bg-clip-text text-transparent sm:mt-2">
@@ -115,7 +115,7 @@ const HeroSection = () => {
 
             <motion.div
               {...fadeUp(0.35)}
-              className="my-2 h-px w-8 bg-gradient-to-r from-golden-400 to-transparent sm:my-5 sm:w-16 md:my-8 md:w-24"
+              className="my-2.5 h-px w-9 bg-gradient-to-r from-golden-400 to-transparent sm:my-5 sm:w-16 md:my-8 md:w-24"
             />
 
             <motion.p
@@ -129,11 +129,11 @@ const HeroSection = () => {
 
             <motion.div
               {...fadeUp(0.55)}
-              className="mt-3 flex flex-nowrap items-center gap-1 sm:mt-6 sm:gap-3 md:mt-8 lg:mt-10"
+              className="mt-3.5 flex flex-nowrap items-center gap-1.5 sm:mt-6 sm:gap-3 md:mt-8 lg:mt-10"
             >
               <Link
                 to={PUBLIC_BOOK_CTA_HREF}
-                className="group flex min-w-0 flex-1 items-center justify-center gap-0.5 rounded-full bg-gradient-to-r from-golden-500 to-golden-600 px-1.5 py-1 text-[9px] font-semibold leading-none text-dark-blue-900 shadow-md shadow-golden-500/20 transition-all duration-300 hover:-translate-y-0.5 hover:from-golden-400 hover:to-golden-500 sm:flex-none sm:gap-2 sm:px-6 sm:py-3.5 sm:text-sm sm:leading-tight sm:shadow-lg md:px-8 md:py-4 md:text-base"
+                className="group flex min-w-0 flex-1 items-center justify-center gap-0.5 rounded-full bg-gradient-to-r from-golden-500 to-golden-600 px-2 py-1.5 text-[10px] font-semibold leading-none text-dark-blue-900 shadow-md shadow-golden-500/20 transition-all duration-300 hover:-translate-y-0.5 hover:from-golden-400 hover:to-golden-500 sm:flex-none sm:gap-2 sm:px-6 sm:py-3.5 sm:text-sm sm:leading-tight sm:shadow-lg md:px-8 md:py-4 md:text-base"
               >
                 <span className="truncate sm:hidden">Book Now</span>
                 <span className="hidden sm:inline">Book Your Stay</span>
@@ -141,7 +141,7 @@ const HeroSection = () => {
               </Link>
               <Link
                 to="/gallery"
-                className="flex min-w-0 flex-1 items-center justify-center rounded-full border border-white/25 bg-white/10 px-1.5 py-1 text-[9px] font-semibold leading-none text-white backdrop-blur-md transition-all duration-300 hover:border-white/40 hover:bg-white/15 sm:flex-none sm:px-6 sm:py-3.5 sm:text-sm sm:leading-tight md:px-8 md:py-4 md:text-base"
+                className="flex min-w-0 flex-1 items-center justify-center rounded-full border border-white/25 bg-white/10 px-2 py-1.5 text-[10px] font-semibold leading-none text-white backdrop-blur-md transition-all duration-300 hover:border-white/40 hover:bg-white/15 sm:flex-none sm:px-6 sm:py-3.5 sm:text-sm sm:leading-tight md:px-8 md:py-4 md:text-base"
               >
                 <span className="truncate sm:hidden">Gallery</span>
                 <span className="hidden sm:inline">View Gallery</span>
@@ -169,9 +169,9 @@ const HeroSection = () => {
             </motion.div>
           </div>
 
-          {/* Bento collage — height tracks the hero row on mobile */}
+          {/* Bento collage — slight bump on mobile only */}
           <div className="col-span-5 min-w-0 xl:col-span-6 xl:col-start-7">
-            <HeroImageCollage className="h-[11.5rem] sm:h-[300px] md:h-[400px] lg:h-[520px] xl:h-[580px]" />
+            <HeroImageCollage className="h-[13.5rem] sm:h-[300px] md:h-[400px] lg:h-[520px] xl:h-[580px]" />
           </div>
         </div>
 
