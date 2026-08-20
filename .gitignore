@@ -10,7 +10,15 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
+.vite
 *.local
+*.tsbuildinfo
+
+# Secrets / local env
+.env
+.env.*
+!.env.example
+netlify/functions/.env
 
 # Editor directories and files
 .vscode/*

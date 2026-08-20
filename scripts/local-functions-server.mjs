@@ -14,18 +14,10 @@ const PORT = Number(process.env.FUNCTIONS_PORT || 8888)
 
 const handlers = {
   'simple-login': () => require(join(rootDir, 'netlify/functions/simple-login.js')).handler,
-  'simple-auth': () => require(join(rootDir, 'netlify/functions/simple-auth.js')).handler,
-  'simple-admin-auth': () => require(join(rootDir, 'netlify/functions/simple-admin-auth.js')).handler,
-  'hybrid-auth': () => require(join(rootDir, 'netlify/functions/hybrid-auth.js')).handler,
-  'auth': () => require(join(rootDir, 'netlify/functions/auth.js')).handler,
-  'send-booking-email': () => require(join(rootDir, 'netlify/functions/send-booking-email.js')).handler,
-  'send-booking-notifications': () => require(join(rootDir, 'netlify/functions/send-booking-notifications.js')).handler,
   'send-booking-confirmation': () => require(join(rootDir, 'netlify/functions/send-booking-confirmation.js')).handler,
   'create-razorpay-order': () => require(join(rootDir, 'netlify/functions/create-razorpay-order.js')).handler,
   'calendar-feed': () => require(join(rootDir, 'netlify/functions/calendar-feed.js')).handler,
-  'get-google-reviews': () => require(join(rootDir, 'netlify/functions/get-google-reviews.js')).handler,
   'send-contact-email': () => require(join(rootDir, 'netlify/functions/send-contact-email.js')).handler,
-  'test': () => require(join(rootDir, 'netlify/functions/test.js')).handler,
 }
 
 const corsHeaders = {
