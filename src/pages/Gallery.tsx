@@ -1,4 +1,5 @@
-import { XMarkIcon, ChevronLeftIcon, ChevronRightIcon, PhotoIcon } from '@heroicons/react/24/outline'
+import { XMarkIcon, ChevronLeftIcon, ChevronRightIcon, PhotoIcon, VideoCameraIcon } from '@heroicons/react/24/outline'
+import { PlayIcon } from '@heroicons/react/24/solid'
 import { motion, AnimatePresence } from 'framer-motion'
 import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
@@ -14,6 +15,8 @@ interface GalleryImage {
   src: string
   title: string
   category: string
+  type?: 'image' | 'video'
+  videoUrl?: string
 }
 
 const Gallery: React.FC = () => {
@@ -97,16 +100,16 @@ const Gallery: React.FC = () => {
   return (
     <>
       <SEO 
-        title="Photo Gallery - Brick and Beam"
-        description="Explore stunning photos of Brick and Beam - luxury rooms, beautiful exterior views, and our restaurant."
-        keywords="Brick and Beam gallery, resort photos, luxury resort gallery"
+        title="Photo & Video Gallery - Brick and Beam"
+        description="Explore stunning photos and videos of Brick and Beam - luxury rooms, beautiful exterior views, and our resort."
+        keywords="Brick and Beam gallery, resort photos, resort video tour, luxury resort gallery"
         url="https://resortbooking.com/gallery"
       />
       
       <div className="min-h-screen bg-gray-50">
         <PageHero
-          title="Photo Gallery"
-          subtitle="Explore the beauty and elegance of Brick and Beam through our curated collection of photographs"
+          title="Photo & Video Gallery"
+          subtitle="Explore the beauty and elegance of Brick and Beam through our curated collection of photographs and video tours"
           image={PAGE_HERO_IMAGES.gallery}
         >
           <PhotoIcon className="mx-auto mb-4 h-12 w-12 text-golden-300 sm:h-14 sm:w-14" />
@@ -162,21 +165,42 @@ const Gallery: React.FC = () => {
                         fallback="https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800"
                       />
                       
+                      {/* Video indicator badge top right */}
+                      {image.type === 'video' && (
+                        <div className="absolute top-3 right-3 z-10 bg-black/70 backdrop-blur-md text-white text-xs px-2.5 py-1 rounded-full flex items-center gap-1.5 shadow-md border border-white/20">
+                          <VideoCameraIcon className="w-3.5 h-3.5 text-golden-400" />
+                          <span className="font-semibold tracking-wide uppercase text-[10px]">Video</span>
+                        </div>
+                      )}
+
                       {/* Overlay */}
                       <div className="absolute inset-0 bg-gradient-to-t from-dark-blue-800/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                       
                       {/* Content */}
                       <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">
                         <h3 className="text-white font-semibold text-sm sm:text-base lg:text-lg">{image.title}</h3>
-                        <span className="inline-block mt-1 px-2 py-0.5 bg-golden-500/80 text-white text-xs rounded-full capitalize">
-                          {image.category}
-                        </span>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className="inline-block px-2 py-0.5 bg-golden-500/80 text-white text-xs rounded-full capitalize">
+                            {image.category}
+                          </span>
+                          {image.type === 'video' && (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-red-600/90 text-white text-xs rounded-full font-medium">
+                              <PlayIcon className="w-2.5 h-2.5" /> Watch Video
+                            </span>
+                          )}
+                        </div>
                       </div>
                       
-                      {/* View Icon */}
-                      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        <div className="w-12 h-12 sm:w-14 sm:h-14 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg">
-                          <PhotoIcon className="h-6 w-6 sm:h-7 sm:w-7 text-dark-blue-800" />
+                      {/* View / Play Icon Center */}
+                      <div className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 transition-opacity duration-300 ${
+                        image.type === 'video' ? 'opacity-90 group-hover:opacity-100' : 'opacity-0 group-hover:opacity-100'
+                      }`}>
+                        <div className="w-12 h-12 sm:w-14 sm:h-14 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                          {image.type === 'video' ? (
+                            <PlayIcon className="h-6 w-6 sm:h-7 sm:w-7 text-golden-600 ml-0.5" />
+                          ) : (
+                            <PhotoIcon className="h-6 w-6 sm:h-7 sm:w-7 text-dark-blue-800" />
+                          )}
                         </div>
                       </div>
                     </div>
@@ -188,8 +212,8 @@ const Gallery: React.FC = () => {
             {filteredImages.length === 0 && (
               <div className="text-center py-16">
                 <PhotoIcon className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                <p className="text-gray-600 text-lg mb-2">Gallery photos are being updated</p>
-                <p className="text-gray-500 text-sm">New resort images will be added here soon.</p>
+                <p className="text-gray-600 text-lg mb-2">Gallery media is being updated</p>
+                <p className="text-gray-500 text-sm">New resort items will be added here soon.</p>
               </div>
             )}
           </div>
@@ -245,7 +269,7 @@ const Gallery: React.FC = () => {
                 <ChevronRightIcon className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
               </button>
 
-              {/* Image */}
+              {/* Image / Video Content */}
               <motion.div
                 key={selectedImage.id}
                 initial={{ opacity: 0, scale: 0.9 }}
@@ -255,18 +279,37 @@ const Gallery: React.FC = () => {
                 className="relative max-w-5xl max-h-[85vh] w-full"
                 onClick={(e) => e.stopPropagation()}
               >
-                <AppImage
-                  src={selectedImage.src}
-                  alt={selectedImage.title}
-                  className="w-full h-full max-h-[75vh] object-contain rounded-lg"
-                />
+                {selectedImage.type === 'video' && selectedImage.videoUrl ? (
+                  <div className="w-full max-h-[75vh] flex justify-center items-center overflow-hidden rounded-lg bg-black">
+                    <video
+                      src={selectedImage.videoUrl}
+                      controls
+                      autoPlay
+                      playsInline
+                      className="w-full max-h-[75vh] object-contain rounded-lg shadow-2xl"
+                    />
+                  </div>
+                ) : (
+                  <AppImage
+                    src={selectedImage.src}
+                    alt={selectedImage.title}
+                    className="w-full h-full max-h-[75vh] object-contain rounded-lg"
+                  />
+                )}
                 
                 {/* Image Info */}
-                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 sm:p-6 rounded-b-lg">
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-4 sm:p-6 rounded-b-lg">
                   <h3 className="text-white font-bold text-lg sm:text-xl">{selectedImage.title}</h3>
-                  <span className="inline-block mt-2 px-3 py-1 bg-golden-500/80 text-white text-sm rounded-full capitalize">
-                    {selectedImage.category}
-                  </span>
+                  <div className="flex items-center gap-2 mt-2">
+                    <span className="inline-block px-3 py-1 bg-golden-500/80 text-white text-sm rounded-full capitalize">
+                      {selectedImage.category}
+                    </span>
+                    {selectedImage.type === 'video' && (
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-red-600/90 text-white text-sm rounded-full font-semibold">
+                        <VideoCameraIcon className="w-4 h-4" /> Video Tour
+                      </span>
+                    )}
+                  </div>
                 </div>
               </motion.div>
 
@@ -285,3 +328,4 @@ const Gallery: React.FC = () => {
 }
 
 export default Gallery
+

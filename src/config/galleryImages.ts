@@ -4,12 +4,15 @@ export type GalleryCategory =
   | 'living'
   | 'dining'
   | 'amenities'
+  | 'videos'
 
 export interface GalleryImage {
   id: number
   src: string
   title: string
   category: GalleryCategory
+  type?: 'image' | 'video'
+  videoUrl?: string
 }
 
 export const HERO_IMAGES = {
@@ -38,6 +41,7 @@ export const ABOUT_IMAGES = {
 } as const
 
 export const GALLERY_IMAGES: GalleryImage[] = [
+  { id: 35, src: '/images/hero/cover-dusk.png', videoUrl: '/videos/video.mp4', title: 'Resort Video Tour', category: 'videos', type: 'video' },
   { id: 1, src: '/images/hero/cover-dusk.png', title: 'Villa at Dusk', category: 'exterior' },
   { id: 2, src: '/images/hero/facade-day.png', title: 'Exterior — Day View', category: 'exterior' },
   { id: 3, src: '/images/hero/facade-dusk.png', title: 'Exterior — Evening', category: 'exterior' },
@@ -76,6 +80,7 @@ export const GALLERY_IMAGES: GalleryImage[] = [
 
 export const GALLERY_CATEGORIES: { id: GalleryCategory | 'all'; name: string }[] = [
   { id: 'all', name: 'All' },
+  { id: 'videos', name: 'Videos' },
   { id: 'exterior', name: 'Exterior' },
   { id: 'rooms', name: 'Bedrooms' },
   { id: 'living', name: 'Living' },
