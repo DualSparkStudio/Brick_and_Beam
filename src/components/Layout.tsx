@@ -8,7 +8,13 @@ import {
 } from '@heroicons/react/24/outline'
 import React, { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { INSTAGRAM_URL, PUBLIC_BOOK_CTA_HREF } from '../config/brand'
+import {
+  DEFAULT_VILLA_PHONE,
+  INSTAGRAM_URL,
+  PUBLIC_BOOK_CTA_HREF,
+  resolveVillaPhone,
+  resolveVillaPhoneRaw,
+} from '../config/brand'
 import { useVilla } from '../contexts/VillaContext'
 import { api } from '../lib/supabase'
 import { LOGO_IMAGE } from '../config/galleryImages'
@@ -34,7 +40,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     first_name: 'Admin',
     last_name: '',
     email: '',
-    phone: '',
+    phone: DEFAULT_VILLA_PHONE,
     address: ''
   })
 
@@ -353,12 +359,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                     <li>India</li>
                   </>
                 )}
-                {adminInfo.phone && (
-                  <li>Phone: {adminInfo.phone}</li>
-                )}
-                {!adminInfo.phone && (
-                  <li>Phone: +91 123 456 7890</li>
-                )}
+                <li>Phone: {resolveVillaPhone(adminInfo.phone)}</li>
                 <li>Email: {adminInfo.email}</li>
               </ul>
               
@@ -377,13 +378,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                     </svg>
                   </a>
                   <a
-                    href={`https://wa.me/${adminInfo.phone && adminInfo.phone.trim() ? (() => {
-                      let phoneNumber = adminInfo.phone.replace(/\D/g, '')
-                      if (!phoneNumber.startsWith('91')) {
-                        phoneNumber = '91' + phoneNumber
-                      }
-                      return phoneNumber
-                    })() : '919876543210'}`}
+                    href={`https://wa.me/${resolveVillaPhoneRaw(adminInfo.phone)}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-9 h-9 border border-white/15 bg-white/10 hover:bg-green-600 hover:border-green-500 hover:text-white rounded-full flex items-center justify-center transition-colors duration-200 text-white/80"

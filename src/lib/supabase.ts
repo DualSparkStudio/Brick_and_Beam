@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
-import { resolveVillaAddress } from '../config/brand'
+import { resolveVillaAddress, resolveVillaPhone } from '../config/brand'
 import { netlifyFunctionUrl } from './netlify-functions'
 import {
   VILLA_SETTING_KEYS,
@@ -530,7 +530,7 @@ export const api = {
         first_name: 'Admin',
         last_name: '',
         email: '',
-        phone: '',
+        phone: resolveVillaPhone(),
         address: resolveVillaAddress(),
       }
 
@@ -549,7 +549,7 @@ export const api = {
             first_name: contact.first_name || contact.name?.split(' ')[0] || 'Admin',
             last_name: contact.last_name || contact.name?.split(' ').slice(1).join(' ') || '',
             email: contact.email || '',
-            phone: contact.phone || '',
+            phone: resolveVillaPhone(contact.phone),
             address: resolveVillaAddress(contact.address),
           }
         }
@@ -573,7 +573,7 @@ export const api = {
           first_name: adminUser.first_name || 'Admin',
           last_name: adminUser.last_name || '',
           email: adminUser.email || '',
-          phone: adminUser.phone || '',
+          phone: resolveVillaPhone(adminUser.phone),
           address: resolveVillaAddress(adminUser.address),
         }
       } catch {

@@ -1,6 +1,7 @@
 import { netlifyFunctionUrl } from './netlify-functions'
 import type { Booking, Room } from './supabase'
 import { api } from './supabase'
+import { DEFAULT_VILLA_PHONE, resolveVillaPhone } from '../config/brand'
 
 export interface EmailNotificationResult {
   success: boolean
@@ -23,9 +24,9 @@ export class EmailService {
   private static async getAdminPhone(): Promise<string> {
     try {
       const adminInfo = await api.getAdminInfo()
-      return adminInfo.phone || ''
+      return resolveVillaPhone(adminInfo.phone)
     } catch (error) {
-      return ''
+      return DEFAULT_VILLA_PHONE
     }
   }
 

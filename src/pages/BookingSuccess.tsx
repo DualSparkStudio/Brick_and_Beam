@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { useVilla } from '../contexts/VillaContext'
 import { formatCheckInOnwards } from '../lib/villa-check-times'
 import { api } from '../lib/supabase'
+import { DEFAULT_VILLA_PHONE, resolveVillaPhone } from '../config/brand'
 
 interface BookingSuccessProps {
   bookingId?: string
@@ -19,7 +20,7 @@ const BookingSuccess: React.FC<BookingSuccessProps> = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [paymentId, setPaymentId] = useState<string | null>(null)
-  const [adminContactInfo, setAdminContactInfo] = useState<{ email: string; phone?: string; address?: string; name?: string }>({ email: '' })
+  const [adminContactInfo, setAdminContactInfo] = useState<{ email: string; phone?: string; address?: string; name?: string }>({ email: '', phone: DEFAULT_VILLA_PHONE })
 
   useEffect(() => {
     const handlePaymentSuccess = async () => {
@@ -84,7 +85,7 @@ const BookingSuccess: React.FC<BookingSuccessProps> = () => {
         const info = await api.getAdminInfo()
         setAdminContactInfo({
           email: info.email,
-          phone: info.phone,
+          phone: resolveVillaPhone(info.phone),
           address: info.address,
           name: `${info.first_name || ''} ${info.last_name || ''}`.trim()
         })
@@ -290,7 +291,7 @@ const BookingSuccess: React.FC<BookingSuccessProps> = () => {
                   <div className="space-y-3">
                     <div className="flex justify-between">
                       <span className="text-gray-600">Phone:</span>
-                      <span className="font-semibold">{adminContactInfo.phone || '—'}</span>
+                      <span className="font-semibold">{resolveVillaPhone(adminContactInfo.phone)}</span>
                     </div>
                     
                     <div className="flex justify-between">
@@ -298,12 +299,10 @@ const BookingSuccess: React.FC<BookingSuccessProps> = () => {
                       <span className="font-semibold">{adminContactInfo.email || '—'}</span>
                     </div>
                     
-                    {adminContactInfo.phone && (
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">WhatsApp:</span>
-                        <span className="font-semibold">{adminContactInfo.phone}</span>
-                      </div>
-                    )}
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">WhatsApp:</span>
+                      <span className="font-semibold">{resolveVillaPhone(adminContactInfo.phone)}</span>
+                    </div>
                   </div>
                 </div>
               </div>

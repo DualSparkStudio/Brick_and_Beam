@@ -12,7 +12,7 @@ import HeroSection from '../components/HeroSection'
 import SEO from '../components/SEO'
 import VillaBookingShowcase from '../components/VillaBookingShowcase'
 import { useVilla } from '../contexts/VillaContext'
-import { GOOGLE_MAPS_EMBED_URL, resolveVillaAddress } from '../config/brand'
+import { DEFAULT_VILLA_PHONE, GOOGLE_MAPS_EMBED_URL, resolveVillaAddress, resolveVillaPhone } from '../config/brand'
 import { ABOUT_IMAGES } from '../config/galleryImages'
 import { formatCheckInOutLine } from '../lib/villa-check-times'
 import type { Room } from '../lib/supabase'
@@ -39,7 +39,7 @@ const Home: React.FC = () => {
   const [featuresLoading, setFeaturesLoading] = useState(true)
   const [adminContactInfo, setAdminContactInfo] = useState({
     email: '',
-    phone: '',
+    phone: DEFAULT_VILLA_PHONE,
     address: '',
   })
 
@@ -84,7 +84,7 @@ const Home: React.FC = () => {
         const contactInfo = await api.getAdminInfo()
         setAdminContactInfo({
           email: contactInfo.email,
-          phone: contactInfo.phone || '',
+          phone: resolveVillaPhone(contactInfo.phone),
           address: resolveVillaAddress(contactInfo.address),
         })
       } catch (error) {
@@ -265,7 +265,7 @@ const Home: React.FC = () => {
                       </svg>
                       <div>
                         <h4 className="font-semibold text-forest text-sm">Contact</h4>
-                        <p className="text-sage text-sm">{adminContactInfo.phone}<br />{adminContactInfo.email}</p>
+                        <p className="text-sage text-sm">{resolveVillaPhone(adminContactInfo.phone)}<br />{adminContactInfo.email}</p>
                       </div>
                     </div>
                   </div>

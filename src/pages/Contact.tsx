@@ -12,7 +12,14 @@ import FAQ from '../components/FAQ'
 import PageHero from '../components/PageHero'
 import SEO from '../components/SEO'
 import { useVilla } from '../contexts/VillaContext'
-import { GOOGLE_MAPS_EMBED_URL, resolveVillaAddress, PUBLIC_BOOK_CTA_HREF } from '../config/brand'
+import {
+  DEFAULT_VILLA_PHONE,
+  GOOGLE_MAPS_EMBED_URL,
+  PUBLIC_BOOK_CTA_HREF,
+  resolveVillaAddress,
+  resolveVillaPhone,
+  resolveVillaPhoneRaw,
+} from '../config/brand'
 import { PAGE_HERO_IMAGES } from '../config/galleryImages'
 import { formatCheckInOutPipe } from '../lib/villa-check-times'
 import { netlifyFunctionUrl } from '../lib/netlify-functions'
@@ -31,7 +38,7 @@ const Contact: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [adminContactInfo, setAdminContactInfo] = useState({
     email: '',
-    phone: '',
+    phone: DEFAULT_VILLA_PHONE,
     name: 'Brick and Beam',
     address: '',
   })
@@ -43,7 +50,7 @@ const Contact: React.FC = () => {
         const adminInfo = await api.getAdminInfo()
         setAdminContactInfo({
           email: adminInfo.email || '',
-          phone: adminInfo.phone || '',
+          phone: resolveVillaPhone(adminInfo.phone),
           name: `${adminInfo.first_name} ${adminInfo.last_name}`.trim() || 'Brick and Beam',
           address: resolveVillaAddress(adminInfo.address),
         })
@@ -124,9 +131,9 @@ const Contact: React.FC = () => {
     },
     {
       title: 'Phone',
-      content: adminContactInfo.phone || 'Not available',
+      content: resolveVillaPhone(adminContactInfo.phone),
       icon: PhoneIcon,
-      link: adminContactInfo.phone ? `tel:${adminContactInfo.phone}` : null
+      link: `tel:${resolveVillaPhoneRaw(adminContactInfo.phone)}`
     },
     {
       title: 'Email',
@@ -361,8 +368,8 @@ const Contact: React.FC = () => {
                 <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-golden-50 rounded-lg">
                   <p className="text-sm text-gray-700 text-center">
                     <span className="font-semibold">Prefer to talk?</span> Call us at{' '}
-                    <a href={`tel:${adminContactInfo.phone}`} className="text-dark-blue-800 font-semibold hover:underline">
-                      {adminContactInfo.phone}
+                    <a href={`tel:${resolveVillaPhoneRaw(adminContactInfo.phone)}`} className="text-dark-blue-800 font-semibold hover:underline">
+                      {resolveVillaPhone(adminContactInfo.phone)}
                     </a>
                   </p>
                 </div>
@@ -394,7 +401,7 @@ const Contact: React.FC = () => {
                       <PhoneIcon className="h-6 w-6 text-forest-800 mr-3" />
                       <div>
                         <p className="font-medium text-gray-900">Reservations</p>
-                        <p className="text-gray-600">{adminContactInfo.phone}</p>
+                        <p className="text-gray-600">{resolveVillaPhone(adminContactInfo.phone)}</p>
                       </div>
                     </div>
                     <div className="flex items-center">

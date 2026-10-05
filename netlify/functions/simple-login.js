@@ -1203,14 +1203,32 @@ async function handleGetAdminContactInfo(data, headers, supabase) {
       .limit(1)
       .maybeSingle()
 
+    const DEFAULT_PHONE = '+91 98204 66567'
+    const PLACEHOLDER_PHONE_PATTERN = /^(?:\+?91)?(?:9876543210|1234567890)$/
+
     if (error || !adminUser) {
       return {
-        statusCode: 404,
+        statusCode: 200,
         headers,
-        body: JSON.stringify({ error: 'Admin contact info not found' })
+        body: JSON.stringify({
+          success: true,
+          contactInfo: {
+            email: 'admin@brickandbeam.com',
+            phone: DEFAULT_PHONE,
+            first_name: 'Admin',
+            last_name: '',
+            address: 'Bhilar, Mahabaleshwar, Maharashtra, India',
+            name: 'Admin'
+          },
+          message: 'Default admin contact info retrieved'
+        })
       }
     }
 
+    let phone = adminUser.phone
+    if (!phone || PLACEHOLDER_PHONE_PATTERN.test(phone.replace(/\D/g, ''))) {
+      phone = DEFAULT_PHONE
+    }
 
     return {
       statusCode: 200,
@@ -1219,7 +1237,7 @@ async function handleGetAdminContactInfo(data, headers, supabase) {
         success: true,
         contactInfo: {
           email: adminUser.email,
-          phone: adminUser.phone,
+          phone: phone,
           first_name: adminUser.first_name || '',
           last_name: adminUser.last_name || '',
           address: adminUser.address || '',

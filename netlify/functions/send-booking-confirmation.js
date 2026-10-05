@@ -33,7 +33,7 @@ exports.handler = async (event, context) => {
       room, 
       to,
       adminEmail = process.env.ADMIN_EMAIL || '',
-      adminPhone = '', // Add admin phone parameter
+      adminPhone = '+91 98204 66567', // Add admin phone parameter
       smtpConfig = {},
       notificationType = 'confirmation' // 'confirmation', 'update', 'cancellation'
     } = JSON.parse(event.body)

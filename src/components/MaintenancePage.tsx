@@ -51,8 +51,8 @@ const MaintenancePage: React.FC = () => {
             <div className="space-y-3">
               <p className="text-lg">
                 <span className="font-semibold">📞 Phone:</span> 
-                <a href="tel:+919876543210" className="ml-2 hover:text-white/80 transition-colors">
-                  +91 98765 43210
+                <a href="tel:+919820466567" className="ml-2 hover:text-white/80 transition-colors">
+                  +91 98204 66567
                 </a>
               </p>
               <p className="text-lg">

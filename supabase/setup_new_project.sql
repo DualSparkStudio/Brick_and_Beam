@@ -461,7 +461,7 @@ VALUES (
   '$2b$10$QHDMK6VP0Xqm59.LBW8Uke/55zDHA.Fekz2.mP2AX76S559sB3RKe',
   'Admin',
   'User',
-  '+919876543210',
+  '+919820466567',
   TRUE
 )
 ON CONFLICT (email) DO UPDATE SET
@@ -477,7 +477,7 @@ VALUES (
   '$2b$10$QHDMK6VP0Xqm59.LBW8Uke/55zDHA.Fekz2.mP2AX76S559sB3RKe',
   'Admin',
   'User',
-  '+919876543210',
+  '+919820466567',
   TRUE
 )
 ON CONFLICT (email) DO UPDATE SET
@@ -612,7 +612,7 @@ SELECT v.platform, v.url, v.icon_class, v.is_active, v.display_order
 FROM (VALUES
   ('Instagram', 'https://instagram.com/', 'instagram', TRUE, 1),
   ('Facebook', 'https://facebook.com/', 'facebook', TRUE, 2),
-  ('WhatsApp', 'https://wa.me/919876543210', 'whatsapp', TRUE, 3)
+  ('WhatsApp', 'https://wa.me/919820466567', 'whatsapp', TRUE, 3)
 ) AS v(platform, url, icon_class, is_active, display_order)
 WHERE NOT EXISTS (SELECT 1 FROM social_media_links LIMIT 1);
 

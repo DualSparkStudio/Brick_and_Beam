@@ -1,10 +1,11 @@
 import { ChatBubbleLeftRightIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import React, { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
+import { DEFAULT_VILLA_PHONE, resolveVillaPhone, resolveVillaPhoneRaw } from '../config/brand'
 
 const WhatsAppWidget: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false)
-  const [whatsappNumber, setWhatsappNumber] = useState('+919876543210') // Default fallback
+  const [whatsappNumber, setWhatsappNumber] = useState(DEFAULT_VILLA_PHONE) // Default fallback
   
   // Fetch admin phone number for WhatsApp
   useEffect(() => {
@@ -21,15 +22,8 @@ const WhatsAppWidget: React.FC = () => {
           return
         }
         
-        
         if (users && users.length > 0 && users[0].phone && users[0].phone.trim()) {
-          // Ensure the phone number has the +91 country code
-          let phoneNumber = users[0].phone.replace(/\D/g, '')
-          if (!phoneNumber.startsWith('91')) {
-            phoneNumber = '91' + phoneNumber
-          }
-          setWhatsappNumber('+' + phoneNumber)
-        } else {
+          setWhatsappNumber(resolveVillaPhone(users[0].phone))
         }
       } catch (error) {
       }
@@ -48,13 +42,15 @@ const WhatsAppWidget: React.FC = () => {
 
   const handleSendMessage = (message: string) => {
     const encodedMessage = encodeURIComponent(message)
-    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`
+    const phoneRaw = resolveVillaPhoneRaw(whatsappNumber)
+    const whatsappUrl = `https://wa.me/${phoneRaw}?text=${encodedMessage}`
     window.open(whatsappUrl, '_blank')
     setIsOpen(false)
   }
 
   const handleCustomMessage = () => {
-    const whatsappUrl = `https://wa.me/${whatsappNumber}`
+    const phoneRaw = resolveVillaPhoneRaw(whatsappNumber)
+    const whatsappUrl = `https://wa.me/${phoneRaw}`
     window.open(whatsappUrl, '_blank')
     setIsOpen(false)
   }
