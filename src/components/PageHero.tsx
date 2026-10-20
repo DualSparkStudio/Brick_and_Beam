@@ -25,7 +25,7 @@ export default function PageHero({
     <section className={`relative overflow-hidden ${heightClass}`}>
       <img
         src={image}
-        alt=""
+        alt={`${title} banner - Brick and Beam Luxury Villa`}
         className="absolute inset-0 h-full w-full object-cover object-center"
         loading="eager"
       />

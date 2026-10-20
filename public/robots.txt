@@ -2,7 +2,8 @@ User-agent: *
 Allow: /
 
 # Sitemap location
-Sitemap: https://riverbreezehomestay.com/sitemap.xml
+# TODO: Replace with custom domain once configured
+Sitemap: https://brickandbeamvilla.netlify.app/sitemap.xml
 
 # Crawl-delay for respectful crawling
 Crawl-delay: 1

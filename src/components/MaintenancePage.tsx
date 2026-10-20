@@ -8,8 +8,8 @@ const MaintenancePage: React.FC = () => {
       <SEO 
         title="Site Under Maintenance - Brick and Beam"
         description="We're currently performing scheduled maintenance to improve your experience. We'll be back soon!"
-        keywords="maintenance, Brick and Beam, booking system"
-        url="https://riverbreezehomestay.com"
+        keywords="maintenance, Brick and Beam, luxury villa Mahabaleshwar"
+        url="https://brickandbeamvilla.netlify.app"
       />
       <div className="min-h-screen bg-gradient-to-br from-ocean-800 to-forest-800 flex items-center justify-center px-4">
         <div className="max-w-2xl mx-auto text-center text-white">
@@ -57,13 +57,13 @@ const MaintenancePage: React.FC = () => {
               </p>
               <p className="text-lg">
                 <span className="font-semibold">📧 Email:</span> 
-                <a href="mailto:admin@resortbookingsystem.com" className="ml-2 hover:text-white/80 transition-colors">
-                  admin@resortbookingsystem.com
+                <a href="mailto:brickandbeam19@gmail.com" className="ml-2 hover:text-white/80 transition-colors">
+                  brickandbeam19@gmail.com
                 </a>
               </p>
               <p className="text-lg">
                 <span className="font-semibold">📍 Location:</span> 
-                <span className="ml-2">Sample Address, City, State, PIN Code, India</span>
+                <span className="ml-2">Bhilar, Mahabaleshwar, Maharashtra, India</span>
               </p>
             </div>
           </div>

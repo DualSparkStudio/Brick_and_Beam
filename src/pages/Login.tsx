@@ -70,7 +70,7 @@ const Login: React.FC = () => {
             🔑 Default Admin Credentials
           </p>
           <div className="text-xs text-blue-800 space-y-1">
-            <p><strong>Email:</strong> admin@resortbookingsystem.com</p>
+            <p><strong>Email:</strong> admin@brickandbeamvilla.com</p>
             <p><strong>Password:</strong> Admin@123</p>
           </div>
           <p className="text-xs text-blue-600 mt-2 text-center italic">

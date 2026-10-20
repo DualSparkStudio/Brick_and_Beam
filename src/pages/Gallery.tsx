@@ -101,9 +101,9 @@ const Gallery: React.FC = () => {
     <>
       <SEO 
         title="Photo & Video Gallery - Brick and Beam"
-        description="Explore stunning photos and videos of Brick and Beam - luxury rooms, beautiful exterior views, and our resort."
-        keywords="Brick and Beam gallery, resort photos, resort video tour, luxury resort gallery"
-        url="https://resortbooking.com/gallery"
+        description="Explore photos and video tours of Brick and Beam luxury 4BHK villa in Bhilar, Mahabaleshwar - private pool, elegant bedrooms, and scenic views."
+        keywords="Brick and Beam gallery, villa photos Mahabaleshwar, private pool villa photos, 4BHK villa gallery Bhilar"
+        url="https://brickandbeamvilla.netlify.app/gallery"
       />
       
       <div className="min-h-screen bg-gray-50">
@@ -213,7 +213,7 @@ const Gallery: React.FC = () => {
               <div className="text-center py-16">
                 <PhotoIcon className="h-16 w-16 text-gray-300 mx-auto mb-4" />
                 <p className="text-gray-600 text-lg mb-2">Gallery media is being updated</p>
-                <p className="text-gray-500 text-sm">New resort items will be added here soon.</p>
+                <p className="text-gray-500 text-sm">New villa photos and videos will be added here soon.</p>
               </div>
             )}
           </div>

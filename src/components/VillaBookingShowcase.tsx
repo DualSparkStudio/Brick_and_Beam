@@ -130,7 +130,7 @@ const VillaBookingShowcase: React.FC<VillaBookingShowcaseProps> = ({ room, loadi
                 <div className="aspect-[3/2] sm:aspect-[5/4] lg:aspect-[4/5] xl:aspect-[16/11]">
                   <img
                     src={heroImage}
-                    alt={room.name}
+                    alt={`${room.name} - Brick and Beam Luxury Villa`}
                     className="h-full w-full object-cover"
                     loading="lazy"
                     onError={() => {
@@ -157,14 +157,14 @@ const VillaBookingShowcase: React.FC<VillaBookingShowcaseProps> = ({ room, loadi
                 {/* Desktop/tablet thumbnails — overlaid */}
                 {thumbnailImages.length > 0 && (
                   <div className="absolute bottom-5 right-5 hidden gap-2 sm:flex sm:bottom-6 sm:right-6">
-                    {thumbnailImages.map((img) => (
+                    {thumbnailImages.map((img, idx) => (
                       <button
                         key={img}
                         type="button"
                         onClick={() => setActiveImageIndex(images.indexOf(img))}
                         className="h-14 w-14 overflow-hidden rounded-xl border-2 border-white/30 shadow-lg transition-transform hover:scale-105 sm:h-16 sm:w-16"
                       >
-                        <img src={img} alt="" className="h-full w-full object-cover" loading="lazy" />
+                        <img src={img} alt={`${room.name} villa photo ${idx + 1}`} className="h-full w-full object-cover" loading="lazy" />
                       </button>
                     ))}
                   </div>
@@ -187,14 +187,14 @@ const VillaBookingShowcase: React.FC<VillaBookingShowcaseProps> = ({ room, loadi
               {/* Mobile thumbnails — below image to avoid overlap */}
               {thumbnailImages.length > 0 && (
                 <div className="flex gap-2 border-t border-white/10 bg-dark-blue-900/70 p-2.5 backdrop-blur-sm sm:hidden">
-                  {thumbnailImages.map((img) => (
+                  {thumbnailImages.map((img, idx) => (
                     <button
                       key={img}
                       type="button"
                       onClick={() => setActiveImageIndex(images.indexOf(img))}
                       className="h-12 w-12 flex-1 overflow-hidden rounded-lg border border-white/30 shadow-md"
                     >
-                      <img src={img} alt="" className="h-full w-full object-cover" loading="lazy" />
+                      <img src={img} alt={`${room.name} villa thumbnail ${idx + 1}`} className="h-full w-full object-cover" loading="lazy" />
                     </button>
                   ))}
                 </div>

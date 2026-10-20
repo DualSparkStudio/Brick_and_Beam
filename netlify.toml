@@ -29,6 +29,13 @@
 [functions]
   node_bundler = "esbuild"
 
+# Custom domain 301 redirect (Uncomment when custom domain is configured in Netlify):
+# [[redirects]]
+#   from = "https://brickandbeamvilla.netlify.app/*"
+#   to = "https://YOUR_CUSTOM_DOMAIN/:splat"
+#   status = 301
+#   force = true
+
 [[headers]]
   for = "/*"
   [headers.values]
@@ -36,4 +43,5 @@
     X-XSS-Protection = "1; mode=block"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
     Permissions-Policy = "unload=(), geolocation=(), microphone=(), camera=()" 

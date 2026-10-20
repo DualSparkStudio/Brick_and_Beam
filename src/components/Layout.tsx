@@ -153,13 +153,13 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   </div>
                 </div>
                 <div>
-                  <h1
-                    className={`text-lg font-bold transition-colors duration-300 ${
+                  <span
+                    className={`block text-lg font-bold transition-colors duration-300 ${
                       useDarkNavChrome ? 'font-serif tracking-tight' : ''
                     } ${titleColor}`}
                   >
                     Brick and Beam
-                  </h1>
+                  </span>
                   <p className={`text-xs transition-colors duration-300 ${subtitleColor}`}>
                     Your Perfect Getaway
                   </p>

@@ -11,6 +11,7 @@ import toast from 'react-hot-toast'
 import FAQ from '../components/FAQ'
 import PageHero from '../components/PageHero'
 import SEO from '../components/SEO'
+import { Helmet } from 'react-helmet-async'
 import { useVilla } from '../contexts/VillaContext'
 import {
   DEFAULT_VILLA_PHONE,
@@ -163,10 +164,68 @@ const Contact: React.FC = () => {
     <>
       <SEO 
         title="Contact Brick and Beam - Get in Touch"
-        description="Contact Brick and Beam for bookings, inquiries, or support. Reach us via phone, email, or our contact form. We're here to help."
-        keywords="contact resort, resort contact, resort booking"
-        url="https://resortbooking.com/contact"
+        description="Contact Brick and Beam luxury villa in Bhilar, Mahabaleshwar for bookings, inquiries, and reservations. Reach us via phone, email, or WhatsApp."
+        keywords="Brick and Beam contact, luxury villa Mahabaleshwar phone, Bhilar villa booking, contact villa manager"
+        url="https://brickandbeamvilla.netlify.app/contact"
       />
+      <Helmet>
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "mainEntity": [
+              {
+                "@type": "Question",
+                "name": "What are your check-in and check-out times?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Check-in time is 1:00 PM onwards and check-out time is 10:00 AM. Check-in and check-out times are flexible depending on other bookings. Please contact us for early check-in or late check-out requests."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Do you provide airport pickup service?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Yes, we offer airport pickup and drop-off services for an additional fee. Please contact us at least 24 hours in advance to arrange this service."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "What amenities are included in the villa rate?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "The villa includes complimentary Wi-Fi, daily housekeeping, toiletries, and breakfast. Enjoy private balconies with valley views across the 4BHK property."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Is parking available on-site?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Yes, we provide free parking for all our guests. The parking area is secure and well-lit for your convenience."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Do you accept pets?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "We love pets! We accept well-behaved pets with prior approval. A small pet fee applies, and we ask that pets be kept on a leash in common areas."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "What is your cancellation policy?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "We offer flexible cancellation up to 48 hours before your scheduled arrival. Cancellations made within 48 hours may be subject to a one-night charge."
+                }
+              }
+            ]
+          })}
+        </script>
+      </Helmet>
       <div className="min-h-screen bg-gray-50">
         <PageHero
           title="Contact Us"

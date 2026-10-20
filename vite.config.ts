@@ -8,17 +8,7 @@ export default defineConfig({
     port: 8766,
     host: true,
     strictPort: true,
-    // Forward API calls to Netlify Dev (run `npm run dev` — open http://localhost:8765)
-    proxy: {
-      '/.netlify': {
-        target: 'http://127.0.0.1:8765',
-        changeOrigin: true,
-      },
-      '/api': {
-        target: 'http://localhost:8765',
-        changeOrigin: true,
-      },
-    },
+
     headers: {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS',

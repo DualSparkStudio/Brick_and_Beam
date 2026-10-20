@@ -108,7 +108,7 @@ function generateICalContent(bookings, blockedDates) {
     const startDate = formatDateForICal(booking.check_in_date);
     const endDate = formatDateForICal(booking.check_out_date);
     const summary = `BOOKED - ${booking.rooms.name} - ${booking.first_name} ${booking.last_name}`;
-    const uid = `booking-${booking.id}@resortbookingsystem.com`;
+    const uid = `booking-${booking.id}@brickandbeamvilla.netlify.app`;
     
     ical.push(
       'BEGIN:VEVENT',
@@ -119,7 +119,7 @@ function generateICalContent(bookings, blockedDates) {
       `SUMMARY:${summary}`,
       `DESCRIPTION:Website booking for ${booking.rooms.name}. Guest: ${booking.first_name} ${booking.last_name}. Status: ${booking.booking_status.toUpperCase()}`,
       `STATUS:${booking.booking_status === 'confirmed' ? 'CONFIRMED' : 'TENTATIVE'}`,
-      `LOCATION:Brick and Beam, Ratnagiri`,
+      `LOCATION:Brick and Beam, Bhilar, Mahabaleshwar, Maharashtra 412805, India`,
       `CATEGORIES:BOOKING`,
       'END:VEVENT',
       ''
@@ -131,7 +131,7 @@ function generateICalContent(bookings, blockedDates) {
     const startDate = formatDateForICal(blocked.start_date);
     const endDate = formatDateForICal(blocked.end_date);
     const summary = `BLOCKED - ${blocked.rooms.name}`;
-    const uid = `blocked-${blocked.id}@resortbookingsystem.com`;
+    const uid = `blocked-${blocked.id}@brickandbeamvilla.netlify.app`;
     
     ical.push(
       'BEGIN:VEVENT',
@@ -142,7 +142,7 @@ function generateICalContent(bookings, blockedDates) {
       `SUMMARY:${summary}`,
       `DESCRIPTION:Manually blocked dates for ${blocked.rooms.name}. Reason: ${blocked.reason || 'Not available'}`,
       'STATUS:CONFIRMED',
-      `LOCATION:Brick and Beam, Ratnagiri`,
+      `LOCATION:Brick and Beam, Bhilar, Mahabaleshwar, Maharashtra 412805, India`,
       'CATEGORIES:BLOCKED',
       'END:VEVENT',
       ''

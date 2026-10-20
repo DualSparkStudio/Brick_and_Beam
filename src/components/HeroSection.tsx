@@ -25,7 +25,7 @@ const HeroImageCollage = ({ className = '' }: { className?: string }) => (
     >
       <img
         src={HERO_IMAGES.main}
-        alt="Resort front view"
+        alt="Brick and Beam luxury villa front facade"
         className="h-full w-full object-cover transition-transform duration-700 hover:scale-105"
       />
       <div className="absolute inset-0 bg-gradient-to-t from-dark-blue-900/40 to-transparent" />
@@ -39,7 +39,7 @@ const HeroImageCollage = ({ className = '' }: { className?: string }) => (
     >
       <img
         src={HERO_IMAGES.pool}
-        alt="Resort pool area"
+        alt="Brick and Beam private swimming pool and lounge area"
         className="h-full w-full object-cover transition-transform duration-700 hover:scale-105"
       />
     </motion.div>
@@ -52,7 +52,7 @@ const HeroImageCollage = ({ className = '' }: { className?: string }) => (
     >
       <img
         src={HERO_IMAGES.night}
-        alt="Resort at night"
+        alt="Brick and Beam villa illuminated at night"
         className="h-full w-full object-cover transition-transform duration-700 hover:scale-105"
       />
       <div className="absolute inset-0 bg-gradient-to-br from-golden-500/10 to-transparent" />
@@ -67,7 +67,7 @@ const HeroSection = () => {
       <div className="absolute inset-0">
         <motion.img
           src={HERO_IMAGES.main}
-          alt="Resort exterior at dusk"
+          alt="Brick and Beam luxury villa exterior at dusk"
           className="h-full w-full object-cover object-center"
           initial={{ scale: 1.12 }}
           animate={{ scale: 1 }}

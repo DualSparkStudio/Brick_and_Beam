@@ -1911,7 +1911,7 @@ export const api = {
       const randomString = crypto.randomUUID().replace(/-/g, '').substring(0, 22)
       
       // Create a hash for additional security
-      const secret = 'riverbreeze-secret-key-2024'
+      const secret = 'brickandbeam-secret-key-2025'
       const data = `${name}-${id}-${secret}-${Date.now()}`
       const encoder = new TextEncoder()
       const hashBuffer = await crypto.subtle.digest('SHA-256', encoder.encode(data))

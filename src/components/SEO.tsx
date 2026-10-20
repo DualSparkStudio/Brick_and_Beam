@@ -12,10 +12,10 @@ interface SEOProps {
 
 const SEO: React.FC<SEOProps> = ({
   title = "Brick and Beam - Luxury Villa Stay",
-  description = "Experience luxury and comfort with Brick and Beam. Book your perfect getaway with stunning views, premium amenities, and exceptional service.",
-  keywords = "Brick and Beam, resort booking, luxury accommodation, booking platform, luxury stay",
-  image = "https://riverbreezehomestay.com/og-image.jpg",
-  url = "https://riverbreezehomestay.com",
+  description = "Experience luxury at Brick and Beam, a private 4BHK villa in Bhilar, Mahabaleshwar featuring a private pool, valley views, and refined premium comforts.",
+  keywords = "Brick and Beam, luxury villa Mahabaleshwar, 4BHK villa Bhilar, private pool villa, Panchgani villa stay, luxury homestay Maharashtra, holiday villa booking",
+  image = "https://brickandbeamvilla.netlify.app/images/hero/cover-dusk.png",
+  url = "https://brickandbeamvilla.netlify.app",
   type = "website"
 }) => {
   return (

@@ -41,7 +41,7 @@ export const VillaProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     refreshVillaSettings()
   }, [refreshVillaSettings])
 
-  const displayName = settings.villa_name.trim() || 'Resort Booking System'
+  const displayName = settings.villa_name.trim() || 'Brick and Beam'
 
   return (
     <VillaContext.Provider value={{ settings, checkTimes, loading, displayName, refreshVillaSettings }}>
